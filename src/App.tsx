@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import ZapCreator from "./pages/ZapCreator";
 import HistoryPage from "./pages/HistoryPage";
 import TemplateDetails from "./pages/TemplateDetails";
+import ConnectedApps from "./pages/ConnectedApps";
 
 // Create placeholder pages
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -81,6 +82,11 @@ const App = () => (
           <Route path="/more" element={
             <AppLayout>
               <PlaceholderPage title="More" />
+            </AppLayout>
+          } />
+          <Route path="/connected-apps" element={
+            <AppLayout>
+              <ConnectedApps />
             </AppLayout>
           } />
           <Route path="*" element={<NotFound />} />

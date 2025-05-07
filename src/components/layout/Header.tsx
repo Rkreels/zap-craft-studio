@@ -42,9 +42,6 @@ export const Header = () => {
         <Button variant="outline" size="sm" className="text-gray-700 border-gray-300 hidden md:flex">
           Contact Sales
         </Button>
-        <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
-          Upgrade
-        </Button>
         
         {/* Notifications dropdown */}
         <DropdownMenu>

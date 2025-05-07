@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Sidebar } from "./sidebar/Sidebar";
 import { Header } from "./Header";
 
@@ -9,6 +10,8 @@ interface AppLayoutProps {
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const location = useLocation();
+  const isZapCreator = location.pathname.includes("/zaps/create");
   
   // Load sidebar state from localStorage on mount
   useEffect(() => {
@@ -34,6 +37,23 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           {children}
         </main>
+        
+        {/* Bottom action bar for Zap Creator */}
+        {isZapCreator && (
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-4 flex justify-between items-center z-20">
+            <div>
+              <span className="text-gray-500 text-sm">Draft saved</span>
+            </div>
+            <div className="flex gap-2">
+              <button className="px-4 py-1.5 border border-gray-300 rounded-md text-gray-700 text-sm hover:bg-gray-50">
+                Cancel
+              </button>
+              <button className="px-4 py-1.5 bg-purple-600 text-white rounded-md text-sm hover:bg-purple-700">
+                Save & Continue
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
