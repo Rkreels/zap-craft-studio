@@ -1,9 +1,11 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { NavLink } from "react-router-dom";
-import { Home, Table, Layout, MessageSquare, PenTool, History, Settings, MoreHorizontal, Plus } from "lucide-react";
+import { Home, Table, Layout, MessageSquare, PenTool, History, Settings, MoreHorizontal, Plus, Zap } from "lucide-react";
 import { SidebarItem } from "./SidebarItem";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface SidebarProps {
   isExpanded: boolean;
@@ -11,27 +13,17 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
-  // Save sidebar state to localStorage
-  useEffect(() => {
-    const savedState = localStorage.getItem("sidebarExpanded");
-    if (savedState) {
-      setIsExpanded(savedState === "true");
-    }
-  }, [setIsExpanded]);
-
   const handleMouseEnter = () => {
     setIsExpanded(true);
-    localStorage.setItem("sidebarExpanded", "true");
   };
 
   const handleMouseLeave = () => {
     setIsExpanded(false);
-    localStorage.setItem("sidebarExpanded", "false");
   };
 
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
-    { icon: Table, label: "Zaps", path: "/zaps" },
+    { icon: Zap, label: "Zaps", path: "/zaps" },
     { icon: Table, label: "Tables", path: "/tables" },
     { icon: Layout, label: "Interfaces", path: "/interfaces" },
     { icon: MessageSquare, label: "Chatbot", path: "/chatbot" },
@@ -59,14 +51,25 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
         </span>
       </div>
 
-      {/* Create Zap button */}
+      {/* Create Zap button with tooltip */}
       <div className="px-3 mb-4 mt-2">
-        <button 
-          className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-md flex items-center justify-center py-2 transition-all"
-        >
-          <Plus size={20} />
-          <span className={cn("ml-2 font-medium", !isExpanded && "hidden")}>Create Zap</span>
-        </button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button 
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-md flex items-center justify-center py-2 transition-all"
+              >
+                <Plus size={20} />
+                <span className={cn("ml-2 font-medium", !isExpanded && "hidden")}>Create Zap</span>
+              </button>
+            </TooltipTrigger>
+            {!isExpanded && (
+              <TooltipContent side="right">
+                <p>Create Zap</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <nav className="flex-1 overflow-y-auto">
@@ -83,6 +86,24 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
           ))}
         </ul>
       </nav>
+
+      {/* User profile section at bottom (when expanded) */}
+      <div className={cn(
+        "border-t border-gray-200 p-3 mt-auto", 
+        !isExpanded && "flex justify-center"
+      )}>
+        <div className="flex items-center">
+          <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-medium">
+            JD
+          </div>
+          {isExpanded && (
+            <div className="ml-3">
+              <p className="text-sm font-medium">John Doe</p>
+              <p className="text-xs text-gray-500">Free Plan</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

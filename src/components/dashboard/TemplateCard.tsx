@@ -1,6 +1,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface Template {
   id: number;
@@ -26,7 +27,10 @@ export function TemplateCard({ template }: TemplateCardProps) {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+    <Link 
+      to={`/templates/${template.id}`} 
+      className="block bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+    >
       {/* App icons */}
       <div className="flex items-center gap-1 mb-3">
         {template.apps.map((app, index) => (
@@ -46,6 +50,6 @@ export function TemplateCard({ template }: TemplateCardProps) {
           <Sparkles className="w-3 h-3 mr-1" /> AI-powered
         </Badge>
       )}
-    </div>
+    </Link>
   );
 }

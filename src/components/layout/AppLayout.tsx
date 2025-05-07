@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar } from "./sidebar/Sidebar";
 import { Header } from "./Header";
 
@@ -9,6 +9,19 @@ interface AppLayoutProps {
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  
+  // Load sidebar state from localStorage on mount
+  useEffect(() => {
+    const savedState = localStorage.getItem("sidebarExpanded");
+    if (savedState) {
+      setIsSidebarExpanded(savedState === "true");
+    }
+  }, []);
+
+  // Save sidebar state to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem("sidebarExpanded", String(isSidebarExpanded));
+  }, [isSidebarExpanded]);
 
   return (
     <div className="flex h-screen w-full bg-gray-50">

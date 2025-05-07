@@ -7,6 +7,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { AppLayout } from "./components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import ZapCreator from "./pages/ZapCreator";
+import HistoryPage from "./pages/HistoryPage";
+import TemplateDetails from "./pages/TemplateDetails";
 
 // Create placeholder pages
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -32,7 +35,17 @@ const App = () => (
           } />
           <Route path="/zaps" element={
             <AppLayout>
-              <PlaceholderPage title="Zaps" />
+              <PlaceholderPage title="My Zaps" />
+            </AppLayout>
+          } />
+          <Route path="/zaps/create" element={
+            <AppLayout>
+              <ZapCreator />
+            </AppLayout>
+          } />
+          <Route path="/templates/:id" element={
+            <AppLayout>
+              <TemplateDetails />
             </AppLayout>
           } />
           <Route path="/tables" element={
@@ -57,7 +70,7 @@ const App = () => (
           } />
           <Route path="/history" element={
             <AppLayout>
-              <PlaceholderPage title="History" />
+              <HistoryPage />
             </AppLayout>
           } />
           <Route path="/settings" element={

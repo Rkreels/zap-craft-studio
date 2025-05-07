@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Zap } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function GetStartedCard() {
   return (
@@ -21,9 +22,11 @@ export function GetStartedCard() {
           <p className="text-gray-600 mb-4">
             Zapier connects your apps and automates workflows. Build automations called Zaps that connect your apps and services together. Start with a template below or create a custom Zap from scratch.
           </p>
-          <Button className="bg-orange-500 hover:bg-orange-600 text-white">
-            Get started
-          </Button>
+          <Link to="/zaps/create">
+            <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+              Get started
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
