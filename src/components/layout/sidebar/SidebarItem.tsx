@@ -27,11 +27,11 @@ export const SidebarItem = ({ icon: Icon, label, path, isExpanded }: SidebarItem
               )
             }
           >
-            <div className="flex items-center">
-              <Icon size={20} className="flex-shrink-0" />
-              <span className={cn("ml-3 font-medium", !isExpanded && "hidden")}>
-                {label}
-              </span>
+            <div className="flex items-center w-full">
+              <div className="flex-shrink-0 w-5 h-5 flex items-center justify-center">
+                <Icon size={20} />
+              </div>
+              {isExpanded && <span className="ml-3 font-medium truncate">{label}</span>}
             </div>
           </NavLink>
         </TooltipTrigger>

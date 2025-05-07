@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { 
   Home, 
@@ -17,7 +17,6 @@ import {
 import { SidebarItem } from "./SidebarItem";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface SidebarProps {
   isExpanded: boolean;
@@ -25,11 +24,15 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
+  const [isHovering, setIsHovering] = useState(false);
+  
   const handleMouseEnter = () => {
+    setIsHovering(true);
     setIsExpanded(true);
   };
 
   const handleMouseLeave = () => {
+    setIsHovering(false);
     setIsExpanded(false);
   };
 
@@ -51,7 +54,7 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "flex flex-col h-screen bg-white border-r border-gray-200 transition-width duration-300 ease-in-out z-10",
+        "fixed left-0 top-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-20",
         isExpanded ? "w-64" : "w-16"
       )}
     >
@@ -102,7 +105,7 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
         </ul>
       </nav>
 
-      {/* User profile section at bottom (when expanded) */}
+      {/* User profile section at bottom */}
       <div className={cn(
         "border-t border-gray-200 p-3 mt-auto", 
         !isExpanded && "flex justify-center"

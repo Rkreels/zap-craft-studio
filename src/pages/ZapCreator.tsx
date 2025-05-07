@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { WorkflowBuilder } from "@/components/workflow/WorkflowBuilder";
 import { toast } from "@/hooks/use-toast";
 import { 
-  Button,
   Card, 
   CardContent, 
   CardDescription, 
@@ -11,6 +10,7 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Save, PlayCircle, PauseCircle, Trash2, Clock, ChevronDown } from "lucide-react";
@@ -62,7 +62,7 @@ export default function ZapCreator() {
       description: isActive 
         ? "Your Zap is now turned off and will not run." 
         : "Your Zap is now live and will run automatically.",
-      variant: isActive ? "default" : "success",
+      variant: isActive ? "default" : "destructive",
     });
   };
 
@@ -90,7 +90,7 @@ export default function ZapCreator() {
       toast({
         title: "Test completed",
         description: "Your Zap completed successfully with test data.",
-        variant: "success",
+        variant: "destructive",
       });
     }, 2000);
   };

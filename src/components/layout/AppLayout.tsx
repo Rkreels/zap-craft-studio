@@ -32,7 +32,10 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         isExpanded={isSidebarExpanded}
         setIsExpanded={setIsSidebarExpanded}
       />
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className={cn(
+        "flex flex-col flex-1 transition-all duration-300",
+        isSidebarExpanded ? "ml-64" : "ml-16"
+      )}>
         <Header />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           {children}
@@ -40,7 +43,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         
         {/* Bottom action bar for Zap Creator */}
         {isZapCreator && (
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-4 flex justify-between items-center z-20">
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-4 flex justify-between items-center z-10">
             <div>
               <span className="text-gray-500 text-sm">Draft saved</span>
             </div>
@@ -58,3 +61,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     </div>
   );
 };
+
+// Fix missing cn import
+import { cn } from "@/lib/utils";
