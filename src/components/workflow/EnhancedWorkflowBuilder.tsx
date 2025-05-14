@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Plus, Settings, Trash, Save, Play } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { WorkflowStep, WorkflowStepData } from "./WorkflowStep";
-import { AppSelector, AppItem } from "@/components/zap-creator/AppSelector";
-import { EventSelector, TriggerEvent } from "@/components/zap-creator/EventSelector";
+import { WorkflowStepData } from "./WorkflowStep";
+import { WorkflowStepsList } from "./WorkflowStepsList";
+import { StepConfigPanel } from "./StepConfigPanel";
+import { AppItem } from "@/components/zap-creator/AppSelector";
+import { TriggerEvent } from "@/components/zap-creator/EventSelector";
 import { mockApps, getTriggerEventsForApp, getActionEventsForApp } from "@/data/mockApps";
+import { toast } from "@/components/ui/use-toast";
 
 interface EnhancedWorkflowBuilderProps {
   onSave?: (steps: WorkflowStepData[]) => void;
@@ -78,8 +78,13 @@ export const EnhancedWorkflowBuilder = ({
       if (onSave) {
         onSave(updatedSteps);
       }
+      
+      toast({
+        title: "Step configured",
+        description: `${selectedApp.name} ${selectedEvent.name} has been configured.`,
+      });
     }
-  }, [selectedEvent]);
+  }, [selectedEvent, selectedApp, activeStepId]);
   
   // Set the selectedApp when the active step changes
   useEffect(() => {
@@ -162,6 +167,11 @@ export const EnhancedWorkflowBuilder = ({
     if (onSave) {
       onSave(newSteps);
     }
+    
+    toast({
+      title: "Step removed",
+      description: "The step has been removed from your workflow.",
+    });
   };
   
   // Handle app selection
@@ -173,13 +183,6 @@ export const EnhancedWorkflowBuilder = ({
   const handleEventSelect = (event: TriggerEvent) => {
     setSelectedEvent(event);
   };
-  
-  // Handle save
-  const handleSave = () => {
-    if (onSave) {
-      onSave(steps);
-    }
-  };
 
   return (
     <div className="flex flex-col lg:flex-row gap-4">
@@ -190,72 +193,27 @@ export const EnhancedWorkflowBuilder = ({
           <p className="text-gray-500 text-sm">Configure the steps in your workflow</p>
         </div>
 
-        <div className="space-y-3">
-          {steps.map((step, index) => (
-            <WorkflowStep
-              key={step.id}
-              step={step}
-              index={index}
-              isLast={index === steps.length - 1}
-              isActive={activeStepId === step.id}
-              onSelect={() => setActiveStepId(step.id)}
-              onDelete={() => deleteStep(step.id)}
-              onAddStep={index === steps.length - 1 ? () => addStep(step.id) : undefined}
-            />
-          ))}
-        </div>
+        <WorkflowStepsList 
+          steps={steps}
+          activeStepId={activeStepId}
+          setActiveStepId={setActiveStepId}
+          deleteStep={deleteStep}
+          addStep={addStep}
+        />
       </div>
       
       {/* Configuration panel */}
       <div className="flex-1 bg-white rounded-lg border border-gray-200">
         {activeStepId && (
-          <div className="p-4">
-            <div className="mb-4">
-              <h3 className="font-semibold text-lg">
-                {activeStep?.type === "trigger" 
-                  ? "Choose a Trigger" 
-                  : "Choose an Action"}
-              </h3>
-              <p className="text-gray-500 text-sm">
-                {activeStep?.type === "trigger" 
-                  ? "Select the app and event that starts your workflow" 
-                  : "Select what happens in this step"}
-              </p>
-            </div>
-            
-            {configStage === 'app' && (
-              <AppSelector
-                title="Select an App"
-                description="Choose from the available apps"
-                apps={mockApps}
-                onSelectApp={handleAppSelect}
-                selectedAppId={selectedApp?.id}
-              />
-            )}
-            
-            {configStage === 'event' && selectedApp && (
-              <EventSelector
-                title={activeStep?.type === "trigger" ? "Select a Trigger Event" : "Select an Action"}
-                events={events}
-                selectedEventId={selectedEvent?.id}
-                onSelectEvent={handleEventSelect}
-                appIcon={selectedApp.icon}
-                appName={selectedApp.name}
-                appColor={selectedApp.color}
-              />
-            )}
-            
-            {configStage === 'config' && selectedApp && selectedEvent && (
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <h4 className="font-medium mb-3">Configure {selectedEvent.name}</h4>
-                <p className="text-sm text-gray-500 mb-4">Set up the details for this step</p>
-                
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-center text-gray-500">
-                  Configuration options for this step will appear here
-                </div>
-              </div>
-            )}
-          </div>
+          <StepConfigPanel
+            activeStep={activeStep}
+            configStage={configStage}
+            selectedApp={selectedApp}
+            selectedEvent={selectedEvent}
+            events={events}
+            handleAppSelect={handleAppSelect}
+            handleEventSelect={handleEventSelect}
+          />
         )}
       </div>
     </div>

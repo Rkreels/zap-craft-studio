@@ -11,9 +11,12 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Header = () => {
   const [query, setQuery] = useState("");
+  const { user, logout } = useAuth();
 
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between">
@@ -32,17 +35,13 @@ export const Header = () => {
           <HelpCircle size={18} />
           <span className="hidden md:inline">Help</span>
         </button>
-        <button className="text-gray-700 hover:text-gray-900 flex items-center gap-1">
+        <Link to="/explore-apps" className="text-gray-700 hover:text-gray-900 flex items-center gap-1">
           <Grid size={18} />
           <span className="hidden md:inline">Explore Apps</span>
-        </button>
+        </Link>
       </div>
       
       <div className="flex items-center space-x-2 md:space-x-4">
-        <Button variant="outline" size="sm" className="text-gray-700 border-gray-300 hidden md:flex">
-          Contact Sales
-        </Button>
-        
         {/* Notifications dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -84,16 +83,16 @@ export const Header = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center space-x-1 hover:bg-gray-100 p-1 rounded-md">
-              <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center hover:ring-2 hover:ring-gray-300">
-                <span className="text-sm font-medium">JD</span>
+              <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center hover:ring-2 hover:ring-gray-300">
+                <span className="text-sm font-medium text-purple-600">{user?.avatarInitials || 'JD'}</span>
               </div>
               <ChevronDown size={16} className="text-gray-600 hidden md:block" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <div className="p-3">
-              <p className="font-medium">John Doe</p>
-              <p className="text-sm text-gray-500">john.doe@example.com</p>
+              <p className="font-medium">{user?.name || 'John Doe'}</p>
+              <p className="text-sm text-gray-500">{user?.email || 'john.doe@example.com'}</p>
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer">
@@ -104,12 +103,14 @@ export const Header = () => {
               <Bell size={16} className="mr-2" />
               <span>Notifications</span>
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
-              <Settings size={16} className="mr-2" />
-              <span>Settings</span>
-            </DropdownMenuItem>
+            <Link to="/settings">
+              <DropdownMenuItem className="cursor-pointer">
+                <Settings size={16} className="mr-2" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+            </Link>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer text-red-600">
+            <DropdownMenuItem className="cursor-pointer text-red-600" onClick={logout}>
               <LogOut size={16} className="mr-2" />
               <span>Log out</span>
             </DropdownMenuItem>
