@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { AuthProvider } from "./contexts/AuthContext";
+import { VoiceAssistantProvider } from "./contexts/VoiceAssistantContext";
 import { AppLayout } from "./components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
@@ -58,30 +59,32 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            {/* Auth routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            
-            {/* App routes - All wrapped in AppLayout */}
-            <Route path="/" element={<AppLayout><Dashboard /></AppLayout>} />
-            <Route path="/zaps" element={<AppLayout><ZapsPage /></AppLayout>} />
-            <Route path="/zaps/create" element={<AppLayout><ZapCreator /></AppLayout>} />
-            <Route path="/templates/:id" element={<AppLayout><TemplateDetails /></AppLayout>} />
-            <Route path="/tables" element={<AppLayout><TablesPage /></AppLayout>} />
-            <Route path="/interfaces" element={<AppLayout><InterfacesPage /></AppLayout>} />
-            <Route path="/chatbot" element={<AppLayout><ChatbotPage /></AppLayout>} />
-            <Route path="/canvas" element={<AppLayout><CanvasPage /></AppLayout>} />
-            <Route path="/history" element={<AppLayout><HistoryPage /></AppLayout>} />
-            <Route path="/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
-            <Route path="/more" element={<AppLayout><MorePage /></AppLayout>} />
-            <Route path="/connected-apps" element={<AppLayout><ConnectedApps /></AppLayout>} />
-            <Route path="/explore-apps" element={<AppLayout><ExploreApps /></AppLayout>} />
-            
-            {/* Catch all route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <VoiceAssistantProvider>
+            <Routes>
+              {/* Auth routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              
+              {/* App routes - All wrapped in AppLayout */}
+              <Route path="/" element={<AppLayout><Dashboard /></AppLayout>} />
+              <Route path="/zaps" element={<AppLayout><ZapsPage /></AppLayout>} />
+              <Route path="/zaps/create" element={<AppLayout><ZapCreator /></AppLayout>} />
+              <Route path="/templates/:id" element={<AppLayout><TemplateDetails /></AppLayout>} />
+              <Route path="/tables" element={<AppLayout><TablesPage /></AppLayout>} />
+              <Route path="/interfaces" element={<AppLayout><InterfacesPage /></AppLayout>} />
+              <Route path="/chatbot" element={<AppLayout><ChatbotPage /></AppLayout>} />
+              <Route path="/canvas" element={<AppLayout><CanvasPage /></AppLayout>} />
+              <Route path="/history" element={<AppLayout><HistoryPage /></AppLayout>} />
+              <Route path="/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
+              <Route path="/more" element={<AppLayout><MorePage /></AppLayout>} />
+              <Route path="/connected-apps" element={<AppLayout><ConnectedApps /></AppLayout>} />
+              <Route path="/explore-apps" element={<AppLayout><ExploreApps /></AppLayout>} />
+              
+              {/* Catch all route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </VoiceAssistantProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

@@ -2,6 +2,8 @@
 import { LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
+import { dashboardScripts } from "@/data/voiceScripts";
 
 interface FeatureCardProps {
   title: string;
@@ -18,6 +20,14 @@ export function FeatureCard({
   path,
   className 
 }: FeatureCardProps) {
+  const voiceProps = {
+    elementName: `${title} feature card`,
+    hoverText: dashboardScripts.featureCard.hover,
+    clickText: dashboardScripts.featureCard.click(title)
+  };
+  
+  const { handleMouseEnter, handleClick } = useVoiceGuidance(voiceProps);
+  
   return (
     <Link
       to={path}
@@ -26,6 +36,8 @@ export function FeatureCard({
         "hover:border-orange-400 hover:shadow-md hover:-translate-y-1",
         className
       )}
+      onMouseEnter={handleMouseEnter}
+      onClick={handleClick}
     >
       <div className="flex flex-col h-full">
         <div className="mb-3">

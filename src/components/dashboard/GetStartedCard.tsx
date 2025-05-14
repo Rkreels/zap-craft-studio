@@ -2,10 +2,24 @@
 import { Button } from "@/components/ui/button";
 import { Zap } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
+import { dashboardScripts } from "@/data/voiceScripts";
 
 export function GetStartedCard() {
+  const voiceProps = {
+    elementName: "Get Started Card",
+    hoverText: dashboardScripts.getStartedCard.hover,
+    clickText: dashboardScripts.getStartedCard.click
+  };
+  
+  const { handleMouseEnter, handleClick } = useVoiceGuidance(voiceProps);
+  
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
+    <div 
+      className="bg-white border border-gray-200 rounded-lg p-6"
+      onMouseEnter={handleMouseEnter}
+      onClick={handleClick}
+    >
       <div className="flex flex-col md:flex-row items-center gap-6">
         <div className="flex-shrink-0">
           <div className="relative">

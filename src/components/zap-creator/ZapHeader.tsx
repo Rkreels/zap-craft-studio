@@ -18,6 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
+import { zapCreatorScripts } from "@/data/voiceScripts";
 
 interface ZapHeaderProps {
   zapName: string;
@@ -42,8 +44,20 @@ export const ZapHeader = ({
   lastSaved,
   isLoading
 }: ZapHeaderProps) => {
+  const voiceProps = {
+    elementName: "Zap Header",
+    hoverText: zapCreatorScripts.zapHeader.hover,
+    clickText: zapCreatorScripts.zapHeader.click
+  };
+  
+  const { handleMouseEnter, handleClick } = useVoiceGuidance(voiceProps);
+  
   return (
-    <div className="sticky top-0 bg-white z-10 border-b border-gray-200 pb-4">
+    <div 
+      className="sticky top-0 bg-white z-10 border-b border-gray-200 pb-4"
+      onMouseEnter={handleMouseEnter}
+      onClick={handleClick}
+    >
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
         <div className="flex-1">
           <Input

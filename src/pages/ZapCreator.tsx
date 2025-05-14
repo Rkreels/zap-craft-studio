@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { ZapHeader } from "@/components/zap-creator/ZapHeader";
 import { EnhancedWorkflowBuilder } from "@/components/workflow/EnhancedWorkflowBuilder";
 import { WorkflowStepData } from "@/components/workflow/WorkflowStep";
+import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
+import { zapCreatorScripts } from "@/data/voiceScripts";
 
 export default function ZapCreator() {
   const [zapName, setZapName] = useState("Untitled Zap");
@@ -20,6 +22,15 @@ export default function ZapCreator() {
   const [isActive, setIsActive] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Voice guidance for workflow builder
+  const workflowVoiceProps = {
+    elementName: "Workflow Builder",
+    hoverText: zapCreatorScripts.workflowBuilder.hover,
+    clickText: zapCreatorScripts.workflowBuilder.click
+  };
+  
+  const { handleMouseEnter, handleClick } = useVoiceGuidance(workflowVoiceProps);
 
   // Auto-save functionality
   useEffect(() => {
@@ -106,7 +117,11 @@ export default function ZapCreator() {
         isLoading={isLoading}
       />
 
-      <Card className="mt-6 border-gray-200 shadow-sm">
+      <Card 
+        className="mt-6 border-gray-200 shadow-sm"
+        onMouseEnter={handleMouseEnter}
+        onClick={handleClick}
+      >
         <CardHeader>
           <CardTitle>Build your workflow</CardTitle>
           <CardDescription>

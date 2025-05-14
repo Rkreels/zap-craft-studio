@@ -2,6 +2,8 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
+import { zapCreatorScripts } from "@/data/voiceScripts";
 
 export interface AppItem {
   id: string;
@@ -31,9 +33,21 @@ export const AppSelector = ({
 }: AppSelectorProps) => {
   const popularApps = apps.filter(app => app.popular);
   const otherApps = apps.filter(app => !app.popular);
+  
+  const voiceProps = {
+    elementName: "App Selector",
+    hoverText: zapCreatorScripts.appSelector.hover,
+    clickText: zapCreatorScripts.appSelector.click
+  };
+  
+  const { handleMouseEnter, handleClick } = useVoiceGuidance(voiceProps);
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div 
+      className={cn("space-y-4", className)}
+      onMouseEnter={handleMouseEnter}
+      onClick={handleClick}
+    >
       <div>
         <h4 className="font-medium text-lg">{title}</h4>
         <p className="text-gray-500 text-sm mb-3">{description}</p>
