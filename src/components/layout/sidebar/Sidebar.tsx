@@ -12,7 +12,8 @@ import {
   MoreHorizontal, 
   Plus, 
   Zap,
-  Grid 
+  Grid,
+  Search 
 } from "lucide-react";
 import { SidebarItem } from "./SidebarItem";
 import { cn } from "@/lib/utils";
@@ -39,6 +40,7 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
     { icon: Zap, label: "Zaps", path: "/zaps" },
+    { icon: Search, label: "Explore Apps", path: "/explore-apps" },
     { icon: Table, label: "Tables", path: "/tables" },
     { icon: Layout, label: "Interfaces", path: "/interfaces" },
     { icon: MessageSquare, label: "Chatbot", path: "/chatbot" },

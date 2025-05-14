@@ -11,6 +11,7 @@ import ZapCreator from "./pages/ZapCreator";
 import HistoryPage from "./pages/HistoryPage";
 import TemplateDetails from "./pages/TemplateDetails";
 import ConnectedApps from "./pages/ConnectedApps";
+import ExploreApps from "./pages/ExploreApps";
 
 // Create placeholder pages
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -87,6 +88,11 @@ const App = () => (
           <Route path="/connected-apps" element={
             <AppLayout>
               <ConnectedApps />
+            </AppLayout>
+          } />
+          <Route path="/explore-apps" element={
+            <AppLayout>
+              <ExploreApps />
             </AppLayout>
           } />
           <Route path="*" element={<NotFound />} />
