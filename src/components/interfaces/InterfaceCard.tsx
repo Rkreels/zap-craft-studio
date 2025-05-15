@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Edit, Trash2, Copy, Settings, ExternalLink, EyeIcon } from "lucide-react";
+import { Edit, Trash2, Copy, Settings, ExternalLink, EyeIcon, FileText, Layout, List } from "lucide-react";
 import { InterfaceItem } from "@/types/interfaces";
 
 interface InterfaceCardProps {

@@ -18,7 +18,7 @@ import {
   TabsTrigger,
   TabsContent
 } from "@/components/ui/tabs";
-import { FileText, Layout, List, Edit, Trash2, Settings, Database, Plus } from "lucide-react";
+import { Edit, Trash2, Settings, Database, Plus, FileText, Layout, List } from "lucide-react";
 import { InterfaceItem, InterfaceField, InterfaceIntegration } from "@/types/interfaces";
 
 interface InterfaceEditorProps {
