@@ -1,6 +1,7 @@
 
 import React from "react";
 import { VoiceAssistantToggle } from "./VoiceAssistantToggle";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const VoiceAssistantWrapper: React.FC = () => {
   return (

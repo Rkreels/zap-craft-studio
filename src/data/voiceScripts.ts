@@ -35,6 +35,82 @@ export const zapCreatorScripts = {
   }
 };
 
+// Tables page components
+export const tablesScripts = {
+  tableHeader: {
+    hover: "This is the table header where you manage your database tables.",
+    click: "The table header allows you to create, filter, and manage your data tables. Use it to organize and process your information."
+  },
+  tableList: {
+    hover: "Browse and manage your existing tables.",
+    click: "This list shows all your data tables. Click on a table to view or edit its contents, or create a new table to store additional data."
+  },
+  tableActions: {
+    hover: "Actions you can perform on this table.",
+    click: "These controls let you edit, delete, duplicate, or share your table. Be careful with delete operations as they cannot be undone."
+  },
+  recordForm: {
+    hover: "Form for creating or editing table records.",
+    click: "Fill out this form to add new data or update existing records in your table. Make sure to provide values for all required fields."
+  }
+};
+
+// Interfaces page components
+export const interfacesScripts = {
+  interfaceEditor: {
+    hover: "Design custom interfaces for your automation.",
+    click: "The interface editor lets you create custom forms, landing pages, and dashboards. Drag and drop elements to build your interface without writing code."
+  },
+  componentPalette: {
+    hover: "Browse available interface components.",
+    click: "This palette contains all the elements you can add to your interface. Click on a component to add it to your design, then customize its properties."
+  },
+  previewMode: {
+    hover: "Preview how your interface will appear to users.",
+    click: "Use preview mode to test your interface before publishing it. You can interact with it just as your users would."
+  },
+  publishControls: {
+    hover: "Controls for publishing your interface.",
+    click: "When your interface is ready, use these controls to publish it. You can make it available publicly or restrict access to specific users."
+  }
+};
+
+// Chatbot page components
+export const chatbotScripts = {
+  chatbotBuilder: {
+    hover: "Create automated conversational interfaces.",
+    click: "The chatbot builder lets you design AI-powered conversation flows. Define how your chatbot responds to user inputs and questions."
+  },
+  intentEditor: {
+    hover: "Define what your chatbot should understand.",
+    click: "Use the intent editor to teach your chatbot how to recognize user questions and requests. Add example phrases to improve its understanding."
+  },
+  responseEditor: {
+    hover: "Configure how your chatbot responds.",
+    click: "Design your chatbot's responses here. You can use text, images, buttons, or even dynamic data from your zaps and tables."
+  },
+  testConsole: {
+    hover: "Test your chatbot's functionality.",
+    click: "Use this console to simulate conversations with your chatbot. This helps you identify and fix any issues before deployment."
+  }
+};
+
+// History page components
+export const historyScripts = {
+  taskList: {
+    hover: "View the execution history of your automations.",
+    click: "This list shows all past executions of your Zaps. Use it to monitor performance and troubleshoot issues."
+  },
+  taskDetails: {
+    hover: "See detailed information about a specific task execution.",
+    click: "These details show exactly what happened during a task execution, including any data that was processed and any errors that occurred."
+  },
+  filterControls: {
+    hover: "Filter your task history.",
+    click: "Use these controls to filter your task history by status, date range, or Zap name. This helps you find specific executions quickly."
+  }
+};
+
 // General UI components
 export const uiComponentScripts = {
   button: {
