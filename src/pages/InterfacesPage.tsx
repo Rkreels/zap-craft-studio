@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { TabsContent } from "@/components/ui/tabs";
 import { FileText, Layout, List } from "lucide-react";
@@ -17,9 +17,12 @@ import InterfaceDetailsDialog from "@/components/interfaces/InterfaceDetailsDial
 import DeleteInterfaceDialog from "@/components/interfaces/DeleteInterfaceDialog";
 import ZapierIntegrationDialog from "@/components/interfaces/ZapierIntegrationDialog";
 import InterfaceViewSwitcher from "@/components/interfaces/InterfaceViewSwitcher";
+import { InterfaceVoiceGuide } from "@/components/interfaces/InterfaceVoiceGuide";
+import { useVoiceAssistant } from "@/contexts/VoiceAssistantContext";
 
 export default function InterfacesPage() {
   const [activeTab, setActiveTab] = useState("gallery");
+  const { isEnabled } = useVoiceAssistant();
   
   const {
     interfaces,
@@ -59,8 +62,16 @@ export default function InterfacesPage() {
     toggleSelectAll
   } = useInterfaceManager();
 
+  // Load voice guide if enabled
+  useEffect(() => {
+    // This effect runs when the voice assistant status changes
+  }, [isEnabled]);
+
   return (
     <div className="max-w-7xl mx-auto">
+      {/* Voice guidance component (no visual UI) */}
+      {isEnabled && <InterfaceVoiceGuide />}
+      
       {/* Header section with search and filters */}
       <InterfaceHeader 
         searchQuery={searchQuery}

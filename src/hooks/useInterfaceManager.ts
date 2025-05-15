@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { InterfaceItem } from "@/types/interfaces";
 import { toast } from "@/hooks/use-toast";
+import { FileText, Layout, List } from "lucide-react"; // Properly import Lucide icons
 
 // Mock placeholder image URLs
 const formPreview = "https://placehold.co/600x400/e2e8f0/64748b?text=Form+Interface";

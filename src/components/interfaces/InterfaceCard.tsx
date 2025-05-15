@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Edit, Trash2, Copy, Settings, ExternalLink, EyeIcon, FileText, Layout, List } from "lucide-react";
 import { InterfaceItem } from "@/types/interfaces";
+import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
 
 interface InterfaceCardProps {
   item: InterfaceItem;
@@ -21,6 +22,46 @@ const InterfaceCard: React.FC<InterfaceCardProps> = ({
   confirmDelete,
   openInterfaceDetails
 }) => {
+  // Voice guidance for card
+  const cardVoiceProps = {
+    elementName: "Interface Card",
+    hoverText: `${item.name} interface card. Type: ${item.type}. Status: ${item.status}.`,
+    clickText: `Opening the ${item.name} interface for editing.`
+  };
+  const cardGuidance = useVoiceGuidance(cardVoiceProps);
+
+  // Voice guidance for edit button
+  const editVoiceProps = {
+    elementName: "Edit Button",
+    hoverText: `Edit the ${item.name} interface.`,
+    clickText: `Opening the editor for ${item.name}.`
+  };
+  const editGuidance = useVoiceGuidance(editVoiceProps);
+
+  // Voice guidance for duplicate button
+  const duplicateVoiceProps = {
+    elementName: "Duplicate Button",
+    hoverText: `Duplicate the ${item.name} interface.`,
+    clickText: `Creating a copy of ${item.name}.`
+  };
+  const duplicateGuidance = useVoiceGuidance(duplicateVoiceProps);
+
+  // Voice guidance for delete button
+  const deleteVoiceProps = {
+    elementName: "Delete Button",
+    hoverText: `Delete the ${item.name} interface.`,
+    clickText: `Preparing to delete ${item.name}. This cannot be undone.`
+  };
+  const deleteGuidance = useVoiceGuidance(deleteVoiceProps);
+
+  // Voice guidance for settings button
+  const settingsVoiceProps = {
+    elementName: "Settings Button",
+    hoverText: `View details and settings for ${item.name}.`,
+    clickText: `Opening details for ${item.name}.`
+  };
+  const settingsGuidance = useVoiceGuidance(settingsVoiceProps);
+
   // Function to get icon based on type
   const getTypeIcon = (type: string) => {
     switch(type) {
@@ -39,7 +80,14 @@ const InterfaceCard: React.FC<InterfaceCardProps> = ({
 
   return (
     <Card key={item.id} className="overflow-hidden">
-      <div className="relative h-48 bg-gray-100 cursor-pointer group" onClick={() => openInterfaceEditor(item.id)}>
+      <div 
+        className="relative h-48 bg-gray-100 cursor-pointer group" 
+        onClick={() => {
+          cardGuidance.handleClick();
+          openInterfaceEditor(item.id);
+        }}
+        onMouseEnter={cardGuidance.handleMouseEnter}
+      >
         <img 
           src={item.preview} 
           alt={item.name}
@@ -77,18 +125,50 @@ const InterfaceCard: React.FC<InterfaceCardProps> = ({
         </p>
       </CardContent>
       <CardFooter className="flex justify-between border-t pt-4">
-        <Button variant="ghost" size="sm" onClick={() => openInterfaceEditor(item.id)}>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => {
+            editGuidance.handleClick();
+            openInterfaceEditor(item.id);
+          }}
+          onMouseEnter={editGuidance.handleMouseEnter}
+        >
           <Edit size={16} className="mr-1" />
           Edit
         </Button>
         <div className="flex gap-1">
-          <Button variant="ghost" size="icon" onClick={() => duplicateInterface(item)}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => {
+              duplicateGuidance.handleClick();
+              duplicateInterface(item);
+            }}
+            onMouseEnter={duplicateGuidance.handleMouseEnter}
+          >
             <Copy size={16} />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => confirmDelete(item.id)}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => {
+              deleteGuidance.handleClick();
+              confirmDelete(item.id);
+            }}
+            onMouseEnter={deleteGuidance.handleMouseEnter}
+          >
             <Trash2 size={16} />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => openInterfaceDetails(item)}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => {
+              settingsGuidance.handleClick();
+              openInterfaceDetails(item);
+            }}
+            onMouseEnter={settingsGuidance.handleMouseEnter}
+          >
             <Settings size={16} />
           </Button>
           {item.status === 'published' && (
