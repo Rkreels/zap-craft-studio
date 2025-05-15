@@ -5,8 +5,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const VoiceAssistantWrapper: React.FC = () => {
   return (
-    <div className="fixed bottom-8 right-8 z-50 shadow-lg rounded-full">
-      <VoiceAssistantToggle />
-    </div>
+    <TooltipProvider>
+      <div className="fixed bottom-8 right-8 z-50 shadow-lg rounded-full">
+        <VoiceAssistantToggle />
+      </div>
+    </TooltipProvider>
   );
 };
