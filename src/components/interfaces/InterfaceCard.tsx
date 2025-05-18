@@ -63,16 +63,6 @@ const InterfaceCard: React.FC<InterfaceCardProps> = ({
   };
   const settingsGuidance = useVoiceGuidance(settingsVoiceProps);
 
-  // Function to get icon based on type
-  const getTypeIcon = (type: string) => {
-    switch(type) {
-      case "form": return <FileText size={16} />;
-      case "page": return <Layout size={16} />;
-      case "dashboard": return <List size={16} />;
-      default: return <FileText size={16} />;
-    }
-  };
-
   // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

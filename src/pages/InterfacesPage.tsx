@@ -79,6 +79,7 @@ export default function InterfacesPage() {
         setFilterType={setFilterType}
         newInterface={newInterface}
         setNewInterface={setNewInterface}
+        interfaces={interfaces}
         isLoading={isLoading}
         createInterface={createInterface}
         setIsZapierDialogOpen={setIsZapierDialogOpen}
