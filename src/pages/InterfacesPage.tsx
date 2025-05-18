@@ -19,10 +19,13 @@ import ZapierIntegrationDialog from "@/components/interfaces/ZapierIntegrationDi
 import InterfaceViewSwitcher from "@/components/interfaces/InterfaceViewSwitcher";
 import { InterfaceVoiceGuide } from "@/components/interfaces/InterfaceVoiceGuide";
 import { useVoiceAssistant } from "@/contexts/VoiceAssistantContext";
+import VersionHistoryDialog from "@/components/interfaces/VersionHistoryDialog";
 
 export default function InterfacesPage() {
   const [activeTab, setActiveTab] = useState("gallery");
   const { isEnabled } = useVoiceAssistant();
+  const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
+  const [selectedInterfaceId, setSelectedInterfaceId] = useState<string>("");
   
   const {
     interfaces,
@@ -60,6 +63,18 @@ export default function InterfacesPage() {
     handleSelectInterface,
     toggleSelectAll
   } = useInterfaceManager();
+
+  // Open version history dialog
+  const openVersionHistory = (interfaceId: string) => {
+    setSelectedInterfaceId(interfaceId);
+    setIsVersionHistoryOpen(true);
+  };
+
+  // Handle version restore
+  const handleRestoreVersion = (versionId: string) => {
+    console.log(`Restoring interface ${selectedInterfaceId} to version ${versionId}`);
+    // In a real implementation, this would fetch the version and update the interface
+  };
 
   // Load voice guide if enabled
   useEffect(() => {
@@ -105,6 +120,7 @@ export default function InterfacesPage() {
           duplicateInterface={duplicateInterface}
           confirmDelete={confirmDelete}
           openInterfaceDetails={openInterfaceDetails}
+          openVersionHistory={openVersionHistory}
         />
       </TabsContent>
       
@@ -140,6 +156,7 @@ export default function InterfacesPage() {
             bulkPublishInterfaces={bulkPublishInterfaces}
             bulkDeleteInterfaces={bulkDeleteInterfaces}
             formatDate={formatDate}
+            openVersionHistory={openVersionHistory}
           />
         )}
       </TabsContent>
@@ -160,6 +177,7 @@ export default function InterfacesPage() {
         confirmDelete={confirmDelete}
         duplicateInterface={duplicateInterface}
         formatDate={formatDate}
+        openVersionHistory={openVersionHistory}
       />
 
       {/* Delete confirmation dialog */}
@@ -175,6 +193,14 @@ export default function InterfacesPage() {
         isOpen={isZapierDialogOpen}
         setIsOpen={setIsZapierDialogOpen}
         interfaces={interfaces}
+      />
+
+      {/* Version history dialog */}
+      <VersionHistoryDialog
+        isOpen={isVersionHistoryOpen}
+        setIsOpen={setIsVersionHistoryOpen}
+        interfaceId={selectedInterfaceId}
+        onRestoreVersion={handleRestoreVersion}
       />
     </div>
   );

@@ -1,22 +1,27 @@
 
 import React, { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WorkflowStepData } from "./WorkflowStep";
 import { WorkflowStepsList } from "./WorkflowStepsList";
 import { StepConfigPanel } from "./StepConfigPanel";
+import { ScheduleBuilder, ScheduleConfig } from "./ScheduleBuilder";
 import { AppItem } from "@/components/zap-creator/AppSelector";
 import { TriggerEvent } from "@/components/zap-creator/EventSelector";
 import { mockApps, getTriggerEventsForApp, getActionEventsForApp } from "@/data/mockApps";
 import { toast } from "@/components/ui/use-toast";
+import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
 
 interface EnhancedWorkflowBuilderProps {
-  onSave?: (steps: WorkflowStepData[]) => void;
+  onSave?: (steps: WorkflowStepData[], schedule?: ScheduleConfig) => void;
   initialSteps?: WorkflowStepData[];
+  initialSchedule?: ScheduleConfig;
 }
 
 export const EnhancedWorkflowBuilder = ({
   onSave,
-  initialSteps = []
+  initialSteps = [],
+  initialSchedule
 }: EnhancedWorkflowBuilderProps) => {
   const [steps, setSteps] = useState<WorkflowStepData[]>(initialSteps.length ? initialSteps : [
     {
@@ -30,10 +35,20 @@ export const EnhancedWorkflowBuilder = ({
     }
   ]);
   
+  const [activeTab, setActiveTab] = useState("workflow");
   const [activeStepId, setActiveStepId] = useState<string>(steps[0]?.id || "");
   const [selectedApp, setSelectedApp] = useState<AppItem | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<TriggerEvent | null>(null);
   const [configStage, setConfigStage] = useState<'app' | 'event' | 'config'>('app');
+  const [schedule, setSchedule] = useState<ScheduleConfig | undefined>(initialSchedule);
+  
+  // Voice guidance for workflow builder
+  const builderVoiceProps = {
+    elementName: "Workflow Builder",
+    hoverText: "Build your workflow by adding trigger and action steps.",
+    clickText: "Configure each step to create an automated workflow."
+  };
+  const builderGuidance = useVoiceGuidance(builderVoiceProps);
   
   // Get the active step
   const activeStep = steps.find(step => step.id === activeStepId) || steps[0];
@@ -76,7 +91,7 @@ export const EnhancedWorkflowBuilder = ({
       setConfigStage('config');
       
       if (onSave) {
-        onSave(updatedSteps);
+        onSave(updatedSteps, schedule);
       }
       
       toast({
@@ -146,7 +161,7 @@ export const EnhancedWorkflowBuilder = ({
     setConfigStage('app');
     
     if (onSave) {
-      onSave(newSteps);
+      onSave(newSteps, schedule);
     }
   };
   
@@ -165,7 +180,7 @@ export const EnhancedWorkflowBuilder = ({
     }
     
     if (onSave) {
-      onSave(newSteps);
+      onSave(newSteps, schedule);
     }
     
     toast({
@@ -183,39 +198,80 @@ export const EnhancedWorkflowBuilder = ({
   const handleEventSelect = (event: TriggerEvent) => {
     setSelectedEvent(event);
   };
+  
+  // Handle schedule update
+  const handleScheduleUpdate = (newSchedule: ScheduleConfig) => {
+    setSchedule(newSchedule);
+    
+    if (onSave) {
+      onSave(steps, newSchedule);
+    }
+  };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4">
-      {/* Steps sidebar */}
-      <div className="w-full lg:w-1/3 bg-white rounded-lg border border-gray-200 p-4">
-        <div className="mb-4">
-          <h3 className="font-semibold text-lg">Workflow Steps</h3>
-          <p className="text-gray-500 text-sm">Configure the steps in your workflow</p>
-        </div>
+    <div 
+      className="space-y-4"
+      onMouseEnter={builderGuidance.handleMouseEnter}
+      onClick={builderGuidance.handleClick}
+    >
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-2 mb-4">
+          <TabsTrigger value="workflow">Workflow Steps</TabsTrigger>
+          <TabsTrigger value="schedule">Schedule</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="workflow">
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Steps sidebar */}
+            <div className="w-full lg:w-1/3 bg-white rounded-lg border border-gray-200 p-4">
+              <div className="mb-4">
+                <h3 className="font-semibold text-lg">Workflow Steps</h3>
+                <p className="text-gray-500 text-sm">Configure the steps in your workflow</p>
+              </div>
 
-        <WorkflowStepsList 
-          steps={steps}
-          activeStepId={activeStepId}
-          setActiveStepId={setActiveStepId}
-          deleteStep={deleteStep}
-          addStep={addStep}
-        />
-      </div>
-      
-      {/* Configuration panel */}
-      <div className="flex-1 bg-white rounded-lg border border-gray-200">
-        {activeStepId && (
-          <StepConfigPanel
-            activeStep={activeStep}
-            configStage={configStage}
-            selectedApp={selectedApp}
-            selectedEvent={selectedEvent}
-            events={events}
-            handleAppSelect={handleAppSelect}
-            handleEventSelect={handleEventSelect}
-          />
-        )}
-      </div>
+              <WorkflowStepsList 
+                steps={steps}
+                activeStepId={activeStepId}
+                setActiveStepId={setActiveStepId}
+                deleteStep={deleteStep}
+                addStep={addStep}
+              />
+            </div>
+            
+            {/* Configuration panel */}
+            <div className="flex-1 bg-white rounded-lg border border-gray-200">
+              {activeStepId && (
+                <StepConfigPanel
+                  activeStep={activeStep}
+                  configStage={configStage}
+                  selectedApp={selectedApp}
+                  selectedEvent={selectedEvent}
+                  events={events}
+                  handleAppSelect={handleAppSelect}
+                  handleEventSelect={handleEventSelect}
+                />
+              )}
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="schedule">
+          <Card>
+            <CardHeader>
+              <CardTitle>Schedule Execution</CardTitle>
+              <CardDescription>
+                Configure when this workflow should run automatically
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ScheduleBuilder 
+                onSave={handleScheduleUpdate}
+                initialSchedule={schedule}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

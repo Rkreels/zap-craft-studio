@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Edit, Trash2, Copy, Settings, ExternalLink, EyeIcon } from "lucide-react";
+import { Edit, Trash2, Copy, Settings, ExternalLink, EyeIcon, Clock } from "lucide-react";
 import { InterfaceItem } from "@/types/interfaces";
 import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
 import { getTypeIcon } from "@/utils/interfaceIcons";
@@ -14,6 +14,7 @@ interface InterfaceCardProps {
   duplicateInterface: (item: InterfaceItem) => void;
   confirmDelete: (id: string) => void;
   openInterfaceDetails: (item: InterfaceItem) => void;
+  openVersionHistory?: (id: string) => void;
 }
 
 const InterfaceCard: React.FC<InterfaceCardProps> = ({
@@ -21,7 +22,8 @@ const InterfaceCard: React.FC<InterfaceCardProps> = ({
   openInterfaceEditor,
   duplicateInterface,
   confirmDelete,
-  openInterfaceDetails
+  openInterfaceDetails,
+  openVersionHistory
 }) => {
   // Voice guidance for card
   const cardVoiceProps = {
@@ -62,6 +64,14 @@ const InterfaceCard: React.FC<InterfaceCardProps> = ({
     clickText: `Opening details for ${item.name}.`
   };
   const settingsGuidance = useVoiceGuidance(settingsVoiceProps);
+
+  // Voice guidance for version history button
+  const historyVoiceProps = {
+    elementName: "Version History Button",
+    hoverText: `View version history for ${item.name}.`,
+    clickText: `Opening version history for ${item.name}.`
+  };
+  const historyGuidance = useVoiceGuidance(historyVoiceProps);
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -129,6 +139,19 @@ const InterfaceCard: React.FC<InterfaceCardProps> = ({
           Edit
         </Button>
         <div className="flex gap-1">
+          {openVersionHistory && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                historyGuidance.handleClick();
+                openVersionHistory(item.id);
+              }}
+              onMouseEnter={historyGuidance.handleMouseEnter}
+            >
+              <Clock size={16} />
+            </Button>
+          )}
           <Button 
             variant="ghost" 
             size="icon" 

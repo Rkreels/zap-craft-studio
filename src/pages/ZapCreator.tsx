@@ -15,13 +15,20 @@ import { EnhancedWorkflowBuilder } from "@/components/workflow/EnhancedWorkflowB
 import { WorkflowStepData } from "@/components/workflow/WorkflowStep";
 import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
 import { zapCreatorScripts } from "@/data/voiceScripts";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FormulaEditor } from "@/components/data-transformation/FormulaEditor";
+import { ScheduleConfig } from "@/components/workflow/ScheduleBuilder";
+import VersionHistoryDialog from "@/components/interfaces/VersionHistoryDialog";
 
 export default function ZapCreator() {
   const [zapName, setZapName] = useState("Untitled Zap");
   const [steps, setSteps] = useState<WorkflowStepData[]>([]);
+  const [schedule, setSchedule] = useState<ScheduleConfig>();
   const [isActive, setIsActive] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("build");
+  const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
 
   // Voice guidance for workflow builder
   const workflowVoiceProps = {
@@ -46,6 +53,7 @@ export default function ZapCreator() {
     setIsLoading(true);
     // In a real app, we would save this to a database
     console.log("Saving workflow:", steps);
+    console.log("With schedule:", schedule);
     setTimeout(() => {
       setLastSaved(new Date());
       setIsLoading(false);
@@ -99,8 +107,20 @@ export default function ZapCreator() {
     }, 2000);
   };
 
-  const handleWorkflowUpdate = (updatedSteps: WorkflowStepData[]) => {
+  const handleWorkflowUpdate = (updatedSteps: WorkflowStepData[], updatedSchedule?: ScheduleConfig) => {
     setSteps(updatedSteps);
+    if (updatedSchedule) {
+      setSchedule(updatedSchedule);
+    }
+  };
+  
+  const handleRestoreVersion = (versionId: string) => {
+    // In a real app, this would restore the workflow from the version history
+    console.log(`Restoring version ${versionId}`);
+    toast({
+      title: "Version restored",
+      description: "Your workflow has been restored to a previous version.",
+    });
   };
 
   return (
@@ -115,38 +135,107 @@ export default function ZapCreator() {
         handleDelete={handleDelete}
         lastSaved={lastSaved}
         isLoading={isLoading}
+        onViewVersionHistory={() => setIsVersionHistoryOpen(true)}
       />
-
-      <Card 
-        className="mt-6 border-gray-200 shadow-sm"
-        onMouseEnter={handleMouseEnter}
-        onClick={handleClick}
-      >
-        <CardHeader>
-          <CardTitle>Build your workflow</CardTitle>
-          <CardDescription>
-            Connect apps and automate workflows with triggers and actions.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <EnhancedWorkflowBuilder 
-            onSave={handleWorkflowUpdate}
-            initialSteps={steps.length ? steps : undefined}
-          />
-        </CardContent>
-        <CardFooter className="flex justify-between border-t pt-4">
-          <Button variant="outline" onClick={handleTest} disabled={isLoading}>
-            Test Zap
-          </Button>
-          <Button 
-            onClick={() => handleSave()} 
-            disabled={isLoading}
-            className="bg-purple-600 hover:bg-purple-700 text-white"
+      
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
+        <TabsList className="mb-6">
+          <TabsTrigger value="build">Build Workflow</TabsTrigger>
+          <TabsTrigger value="transform">Data Transformation</TabsTrigger>
+          <TabsTrigger value="test">Testing Tools</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="build">
+          <Card 
+            className="border-gray-200 shadow-sm"
+            onMouseEnter={handleMouseEnter}
+            onClick={handleClick}
           >
-            {isLoading ? "Saving..." : "Save & Continue"}
-          </Button>
-        </CardFooter>
-      </Card>
+            <CardHeader>
+              <CardTitle>Build your workflow</CardTitle>
+              <CardDescription>
+                Connect apps and automate workflows with triggers and actions.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <EnhancedWorkflowBuilder 
+                onSave={handleWorkflowUpdate}
+                initialSteps={steps.length ? steps : undefined}
+                initialSchedule={schedule}
+              />
+            </CardContent>
+            <CardFooter className="flex justify-between border-t pt-4">
+              <Button variant="outline" onClick={handleTest} disabled={isLoading}>
+                Test Zap
+              </Button>
+              <Button 
+                onClick={() => handleSave()} 
+                disabled={isLoading}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                {isLoading ? "Saving..." : "Save & Continue"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="transform">
+          <Card>
+            <CardHeader>
+              <CardTitle>Transform your data</CardTitle>
+              <CardDescription>
+                Map fields and create formulas to transform data between apps
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FormulaEditor />
+            </CardContent>
+            <CardFooter className="flex justify-end border-t pt-4">
+              <Button 
+                onClick={() => handleSave()} 
+                disabled={isLoading}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                {isLoading ? "Saving..." : "Save Transformations"}
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="test">
+          <Card>
+            <CardHeader>
+              <CardTitle>Test your workflow</CardTitle>
+              <CardDescription>
+                Run tests and view results
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="bg-slate-100 p-4 rounded-md min-h-[200px] font-mono text-sm">
+                  <p className="text-gray-500">Test output will appear here</p>
+                </div>
+                <div className="flex justify-start space-x-3">
+                  <Button variant="outline" onClick={handleTest}>
+                    Run Test
+                  </Button>
+                  <Button variant="outline" onClick={handleTest}>
+                    Debug Mode
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+      
+      {/* Version history dialog */}
+      <VersionHistoryDialog
+        isOpen={isVersionHistoryOpen}
+        setIsOpen={setIsVersionHistoryOpen}
+        interfaceId="current-zap"
+        onRestoreVersion={handleRestoreVersion}
+      />
     </div>
   );
-}
+};
