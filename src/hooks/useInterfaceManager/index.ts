@@ -106,6 +106,18 @@ export const useInterfaceManager = (): InterfaceManagerHook => {
     }
   };
   
+  const openInterfaceDetails = (id: string) => {
+    const interface_ = interfaces.find(item => item.id === id);
+    if (interface_) {
+      // Increment view count
+      const updatedInterfaces = interfaces.map(item => 
+        item.id === id ? { ...item, viewCount: (item.viewCount || 0) + 1 } : item
+      );
+      setInterfaces(updatedInterfaces);
+      setViewingInterface(interface_);
+    }
+  };
+  
   const handleSelectInterface = (id: string) => {
     setSelectedForAction(prev => 
       prev.includes(id) 
@@ -168,6 +180,7 @@ export const useInterfaceManager = (): InterfaceManagerHook => {
     duplicateInterface,
     confirmDelete,
     openInterfaceEditor,
+    openInterfaceDetails,
     handleSelectInterface,
     toggleSelectAll
   };

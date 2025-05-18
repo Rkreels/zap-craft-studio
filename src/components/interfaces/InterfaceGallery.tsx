@@ -9,7 +9,7 @@ export interface InterfaceGalleryProps {
   openInterfaceEditor: (id: string) => void;
   duplicateInterface: (item: InterfaceItem) => void;
   confirmDelete: (id: string) => void;
-  openInterfaceDetails: (id: string) => void; // Updated to accept id instead of item
+  openInterfaceDetails: (id: string) => void;
   openVersionHistory: (interfaceId: string) => void;
 }
 
@@ -42,7 +42,7 @@ export function InterfaceGallery({
         interfaces.map(item => (
           <InterfaceCard
             key={item.id}
-            interface={item}
+            interfaceItem={item}
             onEdit={() => openInterfaceEditor(item.id)}
             onDuplicate={() => duplicateInterface(item)}
             onDelete={() => confirmDelete(item.id)}
