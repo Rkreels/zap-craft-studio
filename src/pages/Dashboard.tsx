@@ -1,4 +1,6 @@
 
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { Zap, Table, Layout, MessageSquare, PenTool } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { FeatureCard } from "@/components/dashboard/FeatureCard";
@@ -23,13 +25,13 @@ export default function Dashboard() {
       title: "Interface",
       description: "Apps, forms, and pages",
       icon: Layout,
-      path: "/interfaces/create",
+      path: "/interfaces",
     },
     {
       title: "Chatbot",
       description: "AI-powered chatbot",
       icon: MessageSquare,
-      path: "/chatbot/create",
+      path: "/chatbot",
     },
     {
       title: "Canvas",

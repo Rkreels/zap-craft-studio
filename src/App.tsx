@@ -10,6 +10,7 @@ import TablesPage from "./pages/TablesPage";
 import ChatbotPage from "./pages/ChatbotPage";
 import HistoryPage from "./pages/HistoryPage";
 import TemplateDetails from "./pages/TemplateDetails";
+import TemplatesPage from "./pages/TemplatesPage";
 import NotFound from "./pages/NotFound";
 import { VoiceAssistantWrapper } from "./components/voice-assistant/VoiceAssistantWrapper";
 import DataTransformationPage from "./pages/DataTransformationPage";
@@ -35,7 +36,8 @@ function App() {
           <Route path="tables" element={<TablesPage />} />
           <Route path="chatbot" element={<ChatbotPage />} />
           <Route path="history" element={<HistoryPage />} />
-          <Route path="template/:id" element={<TemplateDetails />} />
+          <Route path="templates" element={<TemplatesPage />} />
+          <Route path="templates/:id" element={<TemplateDetails />} />
           <Route path="data-transformation" element={<DataTransformationPage />} />
           <Route path="voice-training" element={<VoiceTrainingPage />} />
           <Route path="webhooks" element={<WebhooksPage />} />

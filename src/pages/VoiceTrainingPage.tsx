@@ -1,13 +1,19 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { EnhancedAudioTrainer } from "@/components/voice-assistant/EnhancedAudioTrainer";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
 import { BookOpen, Info, Mic, Volume } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export default function VoiceTrainingPage() {
-  const [activeTab, setActiveTab] = React.useState("trainer");
+  const [activeTab, setActiveTab] = useState("trainer");
+  const [apiKey, setApiKey] = useState("");
+  const [isTrainingCompleted, setIsTrainingCompleted] = useState(false);
 
   // Voice guidance for this page
   const voiceGuidanceProps = {
@@ -17,6 +23,10 @@ export default function VoiceTrainingPage() {
   };
   
   const { handleMouseEnter, handleClick } = useVoiceGuidance(voiceGuidanceProps);
+
+  const handleTrainingComplete = () => {
+    setIsTrainingCompleted(true);
+  };
 
   return (
     <div 
@@ -30,7 +40,7 @@ export default function VoiceTrainingPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-3 w-[400px]">
+        <TabsList className="grid grid-cols-3 w-full md:w-[400px]">
           <TabsTrigger value="trainer">
             <Mic size={16} className="mr-2" />
             Trainer
@@ -46,7 +56,80 @@ export default function VoiceTrainingPage() {
         </TabsList>
 
         <TabsContent value="trainer" className="mt-6">
-          <EnhancedAudioTrainer />
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Mic size={20} className="mr-2" />
+                Voice Command Training
+              </CardTitle>
+              <CardDescription>
+                {isTrainingCompleted 
+                  ? "Training completed! Try out your voice commands anywhere in the app."
+                  : "Follow the steps below to learn how to use voice commands with our application."}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isTrainingCompleted ? (
+                <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-4">
+                  <div className="flex items-center">
+                    <Badge className="bg-green-500">Completed</Badge>
+                    <p className="ml-2 text-green-700">You've successfully completed the voice training!</p>
+                  </div>
+                </div>
+              ) : apiKey ? (
+                <EnhancedAudioTrainer onTrainingComplete={handleTrainingComplete} />
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                    <div className="flex items-start">
+                      <Info className="text-yellow-600 mt-0.5 mr-2" size={18} />
+                      <div>
+                        <h3 className="font-medium text-yellow-800">API Key Required</h3>
+                        <p className="text-sm text-yellow-700">
+                          To use the voice assistant, please enter your ElevenLabs API key. 
+                          You can get one by signing up at{" "}
+                          <a href="https://elevenlabs.io" className="text-blue-600 hover:underline" target="_blank" rel="noreferrer">
+                            ElevenLabs
+                          </a>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="apiKey">ElevenLabs API Key</Label>
+                    <div className="flex gap-2">
+                      <input
+                        id="apiKey"
+                        type="password" 
+                        className="flex-1 border rounded-md px-3 py-2"
+                        value={apiKey}
+                        onChange={(e) => setApiKey(e.target.value)}
+                        placeholder="Enter your API key"
+                      />
+                      <Button onClick={() => setApiKey("demo-key-for-testing")}>
+                        Use Demo Key
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+            <CardFooter className="flex justify-between border-t pt-4">
+              {isTrainingCompleted ? (
+                <Button variant="outline" onClick={() => setIsTrainingCompleted(false)}>
+                  Restart Training
+                </Button>
+              ) : (
+                <Button variant="outline" onClick={() => setActiveTab("commands")}>
+                  View Commands
+                </Button>
+              )}
+              {isTrainingCompleted && (
+                <Button>Try in Production App</Button>
+              )}
+            </CardFooter>
+          </Card>
         </TabsContent>
 
         <TabsContent value="commands" className="mt-6">
@@ -125,6 +208,28 @@ export default function VoiceTrainingPage() {
                     </div>
                   </div>
                 </div>
+                
+                <div>
+                  <h3 className="text-lg font-medium mb-2">Interface Commands</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="border rounded p-3">
+                      <p className="font-medium mb-1">Create new form</p>
+                      <p className="text-sm text-gray-500">Creates a new form interface</p>
+                    </div>
+                    <div className="border rounded p-3">
+                      <p className="font-medium mb-1">Edit selected interface</p>
+                      <p className="text-sm text-gray-500">Opens the editor for the currently selected interface</p>
+                    </div>
+                    <div className="border rounded p-3">
+                      <p className="font-medium mb-1">Publish interface</p>
+                      <p className="text-sm text-gray-500">Publishes the current interface</p>
+                    </div>
+                    <div className="border rounded p-3">
+                      <p className="font-medium mb-1">Show interfaces list</p>
+                      <p className="text-sm text-gray-500">Shows the list of interfaces</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -156,8 +261,8 @@ export default function VoiceTrainingPage() {
                     <h3 className="font-medium mb-2">Voice Settings</h3>
                     <div className="space-y-3">
                       <div className="space-y-1">
-                        <label className="text-sm text-gray-500">Voice Type</label>
-                        <select className="w-full border rounded p-2">
+                        <Label htmlFor="voiceType">Voice Type</Label>
+                        <select id="voiceType" className="w-full border rounded p-2">
                           <option>Bella (Female)</option>
                           <option>Adam (Male)</option>
                           <option>Sam (Neutral)</option>
@@ -165,13 +270,13 @@ export default function VoiceTrainingPage() {
                       </div>
                       
                       <div className="space-y-1">
-                        <label className="text-sm text-gray-500">Speech Rate</label>
-                        <input type="range" className="w-full" min="0.5" max="1.5" step="0.1" defaultValue="1" />
+                        <Label htmlFor="speechRate">Speech Rate</Label>
+                        <input id="speechRate" type="range" className="w-full" min="0.5" max="1.5" step="0.1" defaultValue="1" />
                       </div>
                       
                       <div className="space-y-1">
-                        <label className="text-sm text-gray-500">Volume</label>
-                        <input type="range" className="w-full" min="0" max="1" step="0.1" defaultValue="0.8" />
+                        <Label htmlFor="volume">Volume</Label>
+                        <input id="volume" type="range" className="w-full" min="0" max="1" step="0.1" defaultValue="0.8" />
                       </div>
                     </div>
                   </div>
@@ -180,18 +285,18 @@ export default function VoiceTrainingPage() {
                     <h3 className="font-medium mb-2">Assistant Settings</h3>
                     <div className="space-y-3">
                       <div className="space-y-1">
-                        <label className="text-sm text-gray-500">Wake Word</label>
-                        <input type="text" className="w-full border rounded p-2" defaultValue="Hey Assistant" />
+                        <Label htmlFor="wakeWord">Wake Word</Label>
+                        <input id="wakeWord" type="text" className="w-full border rounded p-2" defaultValue="Hey Assistant" />
                       </div>
                       
                       <div className="space-y-1">
-                        <label className="text-sm text-gray-500">Listening Timeout (seconds)</label>
-                        <input type="number" className="w-full border rounded p-2" min="5" max="30" defaultValue="10" />
+                        <Label htmlFor="timeout">Listening Timeout (seconds)</Label>
+                        <input id="timeout" type="number" className="w-full border rounded p-2" min="5" max="30" defaultValue="10" />
                       </div>
                       
                       <div className="flex items-center space-x-2">
-                        <input type="checkbox" id="auto-listen" defaultChecked />
-                        <label htmlFor="auto-listen" className="text-sm">Auto-listen after response</label>
+                        <Switch id="auto-listen" defaultChecked />
+                        <Label htmlFor="auto-listen">Auto-listen after response</Label>
                       </div>
                     </div>
                   </div>
@@ -201,17 +306,29 @@ export default function VoiceTrainingPage() {
                   <h3 className="font-medium mb-2">API Configuration</h3>
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <label className="text-sm text-gray-500">ElevenLabs API Key</label>
-                      <input type="password" className="w-full border rounded p-2" placeholder="Enter your API key" />
+                      <Label htmlFor="apiKeyConfig">ElevenLabs API Key</Label>
+                      <input id="apiKeyConfig" type="password" className="w-full border rounded p-2" placeholder="Enter your API key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
                     </div>
                     
                     <div className="space-y-1">
-                      <label className="text-sm text-gray-500">Model</label>
-                      <select className="w-full border rounded p-2">
-                        <option>Turbo</option>
-                        <option>Standard</option>
-                        <option>Enhanced</option>
+                      <Label htmlFor="model">Model</Label>
+                      <select id="model" className="w-full border rounded p-2">
+                        <option>eleven_turbo_v2</option>
+                        <option>eleven_multilingual_v2</option>
+                        <option>eleven_monolingual_v1</option>
                       </select>
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <Button className="w-full" onClick={() => {
+                        if (apiKey) {
+                          alert("Settings saved! Your voice assistant is now configured.");
+                        } else {
+                          alert("Please enter your API key before saving.");
+                        }
+                      }}>
+                        Save Settings
+                      </Button>
                     </div>
                   </div>
                 </div>

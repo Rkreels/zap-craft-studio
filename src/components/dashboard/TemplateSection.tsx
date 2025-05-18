@@ -1,7 +1,7 @@
 
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { TemplateCard } from "./TemplateCard";
 
 // Mock template data
@@ -92,9 +92,11 @@ export function TemplateSection() {
       </div>
       
       <div className="mt-4 text-center">
-        <Button variant="link" className="text-purple-600">
-          Browse all templates
-        </Button>
+        <Link to="/templates">
+          <Button variant="link" className="text-purple-600">
+            Browse all templates
+          </Button>
+        </Link>
       </div>
     </div>
   );

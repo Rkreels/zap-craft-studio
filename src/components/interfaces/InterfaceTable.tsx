@@ -84,7 +84,7 @@ export function InterfaceTable({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => openInterfaceDetails(item.id)}>
-                        <Copy className="mr-2 h-4 w-4" />
+                        <FileEdit className="mr-2 h-4 w-4" />
                         View Details
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => openInterfaceEditor(item.id)}>
