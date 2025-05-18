@@ -20,6 +20,20 @@ import { FormulaEditor } from "@/components/data-transformation/FormulaEditor";
 import { ScheduleConfig } from "@/components/workflow/ScheduleBuilder";
 import VersionHistoryDialog from "@/components/interfaces/VersionHistoryDialog";
 
+// Define the ZapHeaderProps type to fix TypeScript error
+interface ZapHeaderProps {
+  zapName: string;
+  setZapName: React.Dispatch<React.SetStateAction<string>>;
+  isActive: boolean;
+  toggleActivation: () => void;
+  handleSave: (showToast?: boolean) => void;
+  handleTest: () => void;
+  handleDelete: () => void;
+  lastSaved: Date | null;
+  isLoading: boolean;
+  onViewVersionHistory: () => void;
+}
+
 export default function ZapCreator() {
   const [zapName, setZapName] = useState("Untitled Zap");
   const [steps, setSteps] = useState<WorkflowStepData[]>([]);
@@ -238,4 +252,4 @@ export default function ZapCreator() {
       />
     </div>
   );
-};
+}

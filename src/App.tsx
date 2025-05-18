@@ -1,6 +1,6 @@
 
 import { Routes, Route } from "react-router-dom";
-import AppLayout from "./components/layout/AppLayout";
+import { AppLayout } from "./components/layout/AppLayout";
 import InterfacesPage from "./pages/InterfacesPage";
 import ZapCreator from "./pages/ZapCreator";
 import Dashboard from "./pages/Dashboard";
@@ -10,9 +10,11 @@ import TablesPage from "./pages/TablesPage";
 import ChatbotPage from "./pages/ChatbotPage";
 import HistoryPage from "./pages/HistoryPage";
 import TemplateDetails from "./pages/TemplateDetails";
-import { NotFound } from "./pages/NotFound";
+import NotFound from "./pages/NotFound";
 import { VoiceAssistantWrapper } from "./components/voice-assistant/VoiceAssistantWrapper";
 import DataTransformationPage from "./pages/DataTransformationPage";
+import VoiceTrainingPage from "./pages/VoiceTrainingPage";
+import WebhooksPage from "./pages/WebhooksPage";
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
           <Route path="history" element={<HistoryPage />} />
           <Route path="template/:id" element={<TemplateDetails />} />
           <Route path="data-transformation" element={<DataTransformationPage />} />
+          <Route path="voice-training" element={<VoiceTrainingPage />} />
+          <Route path="webhooks" element={<WebhooksPage />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

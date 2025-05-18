@@ -21,6 +21,19 @@ import { InterfaceVoiceGuide } from "@/components/interfaces/InterfaceVoiceGuide
 import { useVoiceAssistant } from "@/contexts/VoiceAssistantContext";
 import VersionHistoryDialog from "@/components/interfaces/VersionHistoryDialog";
 
+// Define props for the components to fix TypeScript errors
+type InterfaceGalleryProps = React.ComponentProps<typeof InterfaceGallery> & {
+  openVersionHistory: (interfaceId: string) => void;
+};
+
+type InterfaceTableProps = React.ComponentProps<typeof InterfaceTable> & {
+  openVersionHistory: (interfaceId: string) => void;
+};
+
+type InterfaceDetailsDialogProps = React.ComponentProps<typeof InterfaceDetailsDialog> & {
+  openVersionHistory: (interfaceId: string) => void;
+};
+
 export default function InterfacesPage() {
   const [activeTab, setActiveTab] = useState("gallery");
   const { isEnabled } = useVoiceAssistant();
@@ -88,13 +101,13 @@ export default function InterfacesPage() {
       
       {/* Header section with search and filters */}
       <InterfaceHeader 
+        interfaces={interfaces}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         filterType={filterType}
         setFilterType={setFilterType}
         newInterface={newInterface}
         setNewInterface={setNewInterface}
-        interfaces={interfaces}
         isLoading={isLoading}
         createInterface={createInterface}
         setIsZapierDialogOpen={setIsZapierDialogOpen}
