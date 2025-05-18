@@ -1,7 +1,8 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { WebhookBuilder } from "@/components/zap-creator/WebhookBuilder";
+import WebhookBuilder from "@/components/zap-creator/WebhookBuilder";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
 import { Code, Copy, ExternalLink, Plus } from "lucide-react";

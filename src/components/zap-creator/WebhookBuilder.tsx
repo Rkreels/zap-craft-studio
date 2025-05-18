@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +29,8 @@ interface CreateInterfaceProps {
   createInterface?: () => void;
 }
 
-export const CreateInterfaceDialog: React.FC<CreateInterfaceProps> = ({
+// Export as both named and default export to support both import styles
+export const WebhookBuilder: React.FC<CreateInterfaceProps> = ({
   newInterface = { name: "", type: "form", description: "" },
   setNewInterface = () => {},
   isLoading = false,
@@ -103,4 +105,5 @@ export const CreateInterfaceDialog: React.FC<CreateInterfaceProps> = ({
   );
 };
 
-export default CreateInterfaceDialog;
+// Also export as default for default imports
+export default WebhookBuilder;

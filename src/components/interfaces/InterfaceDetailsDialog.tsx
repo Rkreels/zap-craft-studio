@@ -10,7 +10,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Copy, FileEdit, History, Trash2, ExternalLink } from 'lucide-react';
-import { getInterfaceIcon } from '@/utils/interfaceIcons';
+import { getTypeIcon } from '@/utils/interfaceIcons';
 
 export interface InterfaceDetailsDialogProps {
   viewingInterface: InterfaceItem | null;
@@ -36,14 +36,14 @@ export function InterfaceDetailsDialog({
   }
 
   const { id, name, description, type, createdAt, updatedAt } = viewingInterface;
-  const Icon = getInterfaceIcon(type);
+  const TypeIcon = getTypeIcon(type);
 
   return (
     <Dialog open={!!viewingInterface} onOpenChange={() => setViewingInterface(null)}>
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {Icon && <Icon size={20} className="text-gray-500" />}
+            {TypeIcon}
             {name}
           </DialogTitle>
         </DialogHeader>
