@@ -1,6 +1,6 @@
 
 import React from "react";
-import { TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
 import { interfaceGuideScripts } from "./InterfaceVoiceGuide";
 
@@ -28,28 +28,30 @@ const InterfaceViewSwitcher: React.FC<InterfaceViewSwitcherProps> = ({ activeTab
 
   return (
     <div className="mb-6">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger 
-          value="gallery"
-          onMouseEnter={galleryGuidance.handleMouseEnter}
-          onClick={() => {
-            galleryGuidance.handleClick();
-            setActiveTab("gallery");
-          }}
-        >
-          Gallery View
-        </TabsTrigger>
-        <TabsTrigger 
-          value="table"
-          onMouseEnter={tableGuidance.handleMouseEnter}
-          onClick={() => {
-            tableGuidance.handleClick();
-            setActiveTab("table");
-          }}
-        >
-          Table View
-        </TabsTrigger>
-      </TabsList>
+      <Tabs value={activeTab}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger 
+            value="gallery"
+            onMouseEnter={galleryGuidance.handleMouseEnter}
+            onClick={() => {
+              galleryGuidance.handleClick();
+              setActiveTab("gallery");
+            }}
+          >
+            Gallery View
+          </TabsTrigger>
+          <TabsTrigger 
+            value="table"
+            onMouseEnter={tableGuidance.handleMouseEnter}
+            onClick={() => {
+              tableGuidance.handleClick();
+              setActiveTab("table");
+            }}
+          >
+            Table View
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
     </div>
   );
 }

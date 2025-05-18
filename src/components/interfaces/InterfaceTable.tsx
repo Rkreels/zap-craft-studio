@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { InterfaceItem } from '@/types/interfaces';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -82,7 +83,7 @@ export function InterfaceTable({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => openInterfaceDetails(item)}>
+                      <DropdownMenuItem onClick={() => openInterfaceDetails(item.id)}>
                         <Copy className="mr-2 h-4 w-4" />
                         View Details
                       </DropdownMenuItem>
