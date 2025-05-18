@@ -17,24 +17,24 @@ export interface InterfaceTableProps {
   handleSelectInterface: (id: string) => void;
   toggleSelectAll: () => void;
   openInterfaceEditor: (id: string) => void;
+  openInterfaceDetails: (id: string) => void;
   duplicateInterface: (item: InterfaceItem) => void;
   confirmDelete: (id: string) => void;
-  openInterfaceDetails: (item: InterfaceItem) => void;
   formatDate: (dateString: string) => string;
   openVersionHistory: (interfaceId: string) => void;
 }
 
-export function InterfaceTable({
-  interfaces,
-  selectedForAction,
-  handleSelectInterface,
-  toggleSelectAll,
-  openInterfaceEditor,
-  duplicateInterface,
-  confirmDelete,
+export function InterfaceTable({ 
+  interfaces, 
+  selectedForAction, 
+  handleSelectInterface, 
+  toggleSelectAll, 
+  openInterfaceEditor, 
   openInterfaceDetails,
+  duplicateInterface, 
+  confirmDelete, 
   formatDate,
-  openVersionHistory,
+  openVersionHistory 
 }: InterfaceTableProps) {
   const isAllSelected = selectedForAction.length === interfaces.length;
 

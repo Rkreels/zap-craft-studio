@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 
 // Import hooks
 import { useInterfaceManager } from "@/hooks/useInterfaceManager";
@@ -19,9 +20,6 @@ import InterfaceViewSwitcher from "@/components/interfaces/InterfaceViewSwitcher
 import { InterfaceVoiceGuide } from "@/components/interfaces/InterfaceVoiceGuide";
 import { useVoiceAssistant } from "@/contexts/VoiceAssistantContext";
 import VersionHistoryDialog from "@/components/interfaces/VersionHistoryDialog";
-
-// Define a combined type for table props to satisfy TypeScript
-type InterfaceTableProps = React.ComponentProps<typeof InterfaceTable>;
 
 export default function InterfacesPage() {
   const [activeTab, setActiveTab] = useState("gallery");
@@ -114,49 +112,53 @@ export default function InterfacesPage() {
       {/* View selector tabs */}
       <InterfaceViewSwitcher activeTab={activeTab} setActiveTab={setActiveTab} />
       
-      <TabsContent value="gallery" className="mt-4">
-        <InterfaceGallery 
-          interfaces={interfaces}
-          isLoading={isLoading}
-          openInterfaceEditor={openInterfaceEditor}
-          duplicateInterface={duplicateInterface}
-          confirmDelete={confirmDelete}
-          openInterfaceDetails={openInterfaceDetails}
-          openVersionHistory={openVersionHistory}
-        />
-      </TabsContent>
-      
-      <TabsContent value="table" className="mt-4">
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div>
-            <span className="ml-3">Loading interfaces...</span>
-          </div>
-        ) : interfaces.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No interfaces found</p>
-            <Button variant="link" onClick={() => {
-              setSearchQuery("");
-              setFilterType("all");
-              setFilterStatus("all");
-            }}>
-              Clear filters
-            </Button>
-          </div>
-        ) : (
-          <InterfaceTable 
+      {/* Tabs content - Now properly wrapped in a Tabs component */}
+      <Tabs value={activeTab} className="mt-4">
+        <TabsContent value="gallery">
+          <InterfaceGallery 
             interfaces={interfaces}
-            selectedForAction={selectedForAction}
-            handleSelectInterface={handleSelectInterface}
-            toggleSelectAll={toggleSelectAll}
+            isLoading={isLoading}
             openInterfaceEditor={openInterfaceEditor}
             duplicateInterface={duplicateInterface}
             confirmDelete={confirmDelete}
-            formatDate={formatDate}
+            openInterfaceDetails={openInterfaceDetails}
             openVersionHistory={openVersionHistory}
           />
-        )}
-      </TabsContent>
+        </TabsContent>
+        
+        <TabsContent value="table">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div>
+              <span className="ml-3">Loading interfaces...</span>
+            </div>
+          ) : interfaces.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No interfaces found</p>
+              <Button variant="link" onClick={() => {
+                setSearchQuery("");
+                setFilterType("all");
+                setFilterStatus("all");
+              }}>
+                Clear filters
+              </Button>
+            </div>
+          ) : (
+            <InterfaceTable 
+              interfaces={interfaces}
+              selectedForAction={selectedForAction}
+              handleSelectInterface={handleSelectInterface}
+              toggleSelectAll={toggleSelectAll}
+              openInterfaceEditor={openInterfaceEditor}
+              duplicateInterface={duplicateInterface}
+              confirmDelete={confirmDelete}
+              formatDate={formatDate}
+              openInterfaceDetails={openInterfaceDetails}
+              openVersionHistory={openVersionHistory}
+            />
+          )}
+        </TabsContent>
+      </Tabs>
 
       {/* Interface editor dialog */}
       <InterfaceEditor 
