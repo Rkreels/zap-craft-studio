@@ -11,3 +11,6 @@ export const getTypeIcon = (type: string) => {
     default: return <FileText size={16} />;
   }
 };
+
+// Alias for getTypeIcon to maintain backward compatibility
+export const getInterfaceIcon = getTypeIcon;

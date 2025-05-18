@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { TabsContent } from "@/components/ui/tabs";
@@ -21,18 +20,8 @@ import { InterfaceVoiceGuide } from "@/components/interfaces/InterfaceVoiceGuide
 import { useVoiceAssistant } from "@/contexts/VoiceAssistantContext";
 import VersionHistoryDialog from "@/components/interfaces/VersionHistoryDialog";
 
-// Define props for the components to fix TypeScript errors
-type InterfaceGalleryProps = React.ComponentProps<typeof InterfaceGallery> & {
-  openVersionHistory: (interfaceId: string) => void;
-};
-
-type InterfaceTableProps = React.ComponentProps<typeof InterfaceTable> & {
-  openVersionHistory: (interfaceId: string) => void;
-};
-
-type InterfaceDetailsDialogProps = React.ComponentProps<typeof InterfaceDetailsDialog> & {
-  openVersionHistory: (interfaceId: string) => void;
-};
+// Define a combined type for table props to satisfy TypeScript
+type InterfaceTableProps = React.ComponentProps<typeof InterfaceTable>;
 
 export default function InterfacesPage() {
   const [activeTab, setActiveTab] = useState("gallery");
@@ -163,11 +152,6 @@ export default function InterfacesPage() {
             openInterfaceEditor={openInterfaceEditor}
             duplicateInterface={duplicateInterface}
             confirmDelete={confirmDelete}
-            sortBy={sortBy}
-            sortDirection={sortDirection}
-            toggleSort={toggleSort}
-            bulkPublishInterfaces={bulkPublishInterfaces}
-            bulkDeleteInterfaces={bulkDeleteInterfaces}
             formatDate={formatDate}
             openVersionHistory={openVersionHistory}
           />

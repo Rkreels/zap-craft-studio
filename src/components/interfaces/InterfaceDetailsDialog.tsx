@@ -1,3 +1,4 @@
+
 import React, { Dispatch, SetStateAction } from 'react';
 import { InterfaceItem } from '@/types/interfaces';
 import {
@@ -18,7 +19,7 @@ export interface InterfaceDetailsDialogProps {
   confirmDelete: (id: string) => void;
   duplicateInterface: (item: InterfaceItem) => void;
   formatDate: (dateString: string) => string;
-  openVersionHistory: (interfaceId: string) => void; // Added this prop
+  openVersionHistory: (interfaceId: string) => void;
 }
 
 export function InterfaceDetailsDialog({
@@ -28,7 +29,7 @@ export function InterfaceDetailsDialog({
   confirmDelete,
   duplicateInterface,
   formatDate,
-  openVersionHistory, // Added this prop
+  openVersionHistory,
 }: InterfaceDetailsDialogProps) {
   if (!viewingInterface) {
     return null;
