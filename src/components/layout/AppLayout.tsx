@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useLocation, Navigate } from "react-router-dom";
+import { useLocation, Navigate, Outlet } from "react-router-dom";
 import { Sidebar } from "./sidebar/Sidebar";
 import { Header } from "./Header";
 import { cn } from "@/lib/utils";
@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
 interface AppLayoutProps {
-  children: React.ReactNode;
+  children?: React.ReactNode; // Make children optional
 }
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
@@ -59,7 +59,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       )}>
         <Header />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          {children}
+          {children || <Outlet />}
         </main>
         
         {/* Bottom action bar for Zap Creator */}

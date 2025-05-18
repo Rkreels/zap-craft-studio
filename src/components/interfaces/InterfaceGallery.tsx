@@ -1,77 +1,57 @@
+import React from 'react';
+import { InterfaceCard } from './InterfaceCard';
+import { InterfaceItem } from '@/types/interfaces';
+import { Button } from '@/components/ui/button';
+import { CreateInterfaceDialog } from './CreateInterfaceDialog';
 
-import React from "react";
-import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
-import { InterfaceItem } from "@/types/interfaces";
-import InterfaceCard from "./InterfaceCard";
-import { interfacesScripts } from "@/data/voiceScripts";
-import { Button } from "@/components/ui/button";
-
-interface InterfaceGalleryProps {
+export interface InterfaceGalleryProps {
   interfaces: InterfaceItem[];
   isLoading: boolean;
   openInterfaceEditor: (id: string) => void;
   duplicateInterface: (item: InterfaceItem) => void;
   confirmDelete: (id: string) => void;
   openInterfaceDetails: (item: InterfaceItem) => void;
+  openVersionHistory: (interfaceId: string) => void; // Added this prop
 }
 
-const InterfaceGallery: React.FC<InterfaceGalleryProps> = ({
+export function InterfaceGallery({
   interfaces,
   isLoading,
   openInterfaceEditor,
   duplicateInterface,
   confirmDelete,
   openInterfaceDetails,
-}) => {
-  // Voice guidance
-  const editorVoiceProps = {
-    elementName: "Interface Editor",
-    hoverText: interfacesScripts.interfaceEditor.hover,
-    clickText: interfacesScripts.interfaceEditor.click
-  };
-  
-  const { handleMouseEnter, handleClick } = useVoiceGuidance(editorVoiceProps);
-
-  if (isLoading) {
-    return (
-      <div className="col-span-full flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div>
-        <span className="ml-3">Loading interfaces...</span>
-      </div>
-    );
-  }
-
-  if (interfaces.length === 0) {
-    return (
-      <div className="col-span-full text-center py-12">
-        <p className="text-gray-500">No interfaces found</p>
-        <Button variant="link" onClick={() => {
-          // This would typically clear filters in the parent component
-        }}>
-          Clear filters
-        </Button>
-      </div>
-    );
-  }
-
+  openVersionHistory, // Added this prop
+}: InterfaceGalleryProps) {
   return (
-    <div 
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      onMouseEnter={handleMouseEnter}
-      onClick={handleClick}
-    >
-      {interfaces.map((item) => (
-        <InterfaceCard
-          key={item.id}
-          item={item}
-          openInterfaceEditor={openInterfaceEditor}
-          duplicateInterface={duplicateInterface}
-          confirmDelete={confirmDelete}
-          openInterfaceDetails={openInterfaceDetails}
-        />
-      ))}
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Interfaces</h2>
+        <CreateInterfaceDialog />
+      </div>
+      
+      {isLoading ? (
+        <p>Loading interfaces...</p>
+      ) : interfaces.length === 0 ? (
+        <div className="text-center py-10">
+          <p className="text-gray-500">No interfaces created yet.</p>
+          <Button>Create your first interface</Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {interfaces.map((item) => (
+            <InterfaceCard
+              key={item.id}
+              item={item}
+              openInterfaceEditor={openInterfaceEditor}
+              duplicateInterface={duplicateInterface}
+              confirmDelete={confirmDelete}
+              openInterfaceDetails={openInterfaceDetails}
+              openVersionHistory={openVersionHistory} // Passed this prop
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
-};
-
-export default InterfaceGallery;
+}

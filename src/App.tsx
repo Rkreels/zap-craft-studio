@@ -15,12 +15,18 @@ import { VoiceAssistantWrapper } from "./components/voice-assistant/VoiceAssista
 import DataTransformationPage from "./pages/DataTransformationPage";
 import VoiceTrainingPage from "./pages/VoiceTrainingPage";
 import WebhooksPage from "./pages/WebhooksPage";
+import LoginPage from "./pages/LoginPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 function App() {
   return (
     <VoiceAssistantWrapper>
       <Routes>
-        <Route element={<AppLayout />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route element={<AppLayout>
+          {/* AppLayout now accepts children */}
+        </AppLayout>}>
           <Route index element={<Dashboard />} />
           <Route path="interfaces" element={<InterfacesPage />} />
           <Route path="zaps/create" element={<ZapCreator />} />

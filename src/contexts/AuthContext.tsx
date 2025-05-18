@@ -54,16 +54,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     checkAuth();
   }, []);
 
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isLoading && !user) {
-      const publicPaths = ['/login', '/signup', '/forgot-password'];
-      if (!publicPaths.includes(location.pathname)) {
-        navigate('/login', { state: { from: location.pathname } });
-      }
-    }
-  }, [user, isLoading, location.pathname, navigate]);
-
+  // Login function
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
@@ -108,6 +99,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  // Sign up function
   const signUp = async (name: string, email: string, password: string) => {
     setIsLoading(true);
     try {
@@ -142,6 +134,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  // Logout function
   const logout = () => {
     localStorage.removeItem('zapier_user');
     setUser(null);
