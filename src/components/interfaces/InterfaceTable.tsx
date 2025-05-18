@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Edit, Trash2, Copy, Check } from "lucide-react";
 import { InterfaceItem } from "@/types/interfaces";
+import { getTypeIcon } from "@/utils/interfaceIcons";
 
 interface InterfaceTableProps {
   interfaces: InterfaceItem[];
@@ -27,7 +27,6 @@ interface InterfaceTableProps {
   toggleSort: (field: string) => void;
   bulkPublishInterfaces: () => void;
   bulkDeleteInterfaces: () => void;
-  getTypeIcon: (type: string) => JSX.Element;
   formatDate: (dateString: string) => string;
 }
 
@@ -44,7 +43,6 @@ const InterfaceTable: React.FC<InterfaceTableProps> = ({
   toggleSort,
   bulkPublishInterfaces,
   bulkDeleteInterfaces,
-  getTypeIcon,
   formatDate,
 }) => {
   return (

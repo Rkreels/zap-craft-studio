@@ -2,10 +2,10 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { TabsContent } from "@/components/ui/tabs";
-import { FileText, Layout, List } from "lucide-react";
 
 // Import hooks
 import { useInterfaceManager } from "@/hooks/useInterfaceManager";
+import { getTypeIcon } from "@/utils/interfaceIcons";
 
 // Import interface components
 import InterfaceHeader from "@/components/interfaces/InterfaceHeader";
@@ -47,7 +47,6 @@ export default function InterfacesPage() {
     newInterface,
     setNewInterface,
     formatDate,
-    getTypeIcon,
     toggleSort,
     createInterface,
     updateInterface,
@@ -139,7 +138,6 @@ export default function InterfacesPage() {
             toggleSort={toggleSort}
             bulkPublishInterfaces={bulkPublishInterfaces}
             bulkDeleteInterfaces={bulkDeleteInterfaces}
-            getTypeIcon={getTypeIcon}
             formatDate={formatDate}
           />
         )}

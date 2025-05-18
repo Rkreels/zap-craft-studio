@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { InterfaceItem } from "@/types/interfaces";
 import { toast } from "@/hooks/use-toast";
-import { FileText, Layout, List } from "lucide-react"; // Properly import Lucide icons
+// Remove the direct import of Lucide icons as we'll use the utility function
 
 // Mock placeholder image URLs
 const formPreview = "https://placehold.co/600x400/e2e8f0/64748b?text=Form+Interface";
@@ -156,15 +155,7 @@ export const useInterfaceManager = () => {
     }
   };
 
-  // Get icon based on type
-  const getTypeIcon = (type: string) => {
-    switch(type) {
-      case "form": return <FileText size={16} />;
-      case "page": return <Layout size={16} />;
-      case "dashboard": return <List size={16} />;
-      default: return <FileText size={16} />;
-    }
-  };
+  // We removed the getTypeIcon function from here as it's now in a separate file
 
   // Toggle sort direction
   const toggleSort = (field: string) => {
@@ -403,7 +394,7 @@ export const useInterfaceManager = () => {
     setNewInterface,
     formatDate,
     getPreviewImage,
-    getTypeIcon,
+    // We no longer return getTypeIcon from this hook
     toggleSort,
     createInterface,
     updateInterface,
