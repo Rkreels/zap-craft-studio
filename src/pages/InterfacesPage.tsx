@@ -1,17 +1,13 @@
 
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 
 // Import hooks
 import { useInterfaceManager } from "@/hooks/useInterfaceManager";
-import { getTypeIcon } from "@/utils/interfaceIcons";
 
 // Import interface components
 import InterfaceHeader from "@/components/interfaces/InterfaceHeader";
 import InterfaceFilters from "@/components/interfaces/InterfaceFilters";
-import { InterfaceGallery } from "@/components/interfaces/InterfaceGallery";
-import { InterfaceTable } from "@/components/interfaces/InterfaceTable";
 import InterfaceEditor from "@/components/interfaces/InterfaceEditor";
 import { InterfaceDetailsDialog } from "@/components/interfaces/InterfaceDetailsDialog";
 import DeleteInterfaceDialog from "@/components/interfaces/DeleteInterfaceDialog";
@@ -20,7 +16,7 @@ import InterfaceViewSwitcher from "@/components/interfaces/InterfaceViewSwitcher
 import { InterfaceVoiceGuide } from "@/components/interfaces/InterfaceVoiceGuide";
 import { useVoiceAssistant } from "@/contexts/VoiceAssistantContext";
 import VersionHistoryDialog from "@/components/interfaces/VersionHistoryDialog";
-import { InterfaceItem } from "@/types/interfaces";
+import { InterfacesContent } from "@/components/interfaces/InterfacesContent";
 
 export default function InterfacesPage() {
   const [activeTab, setActiveTab] = useState("gallery");
@@ -120,51 +116,46 @@ export default function InterfacesPage() {
       {/* View selector tabs */}
       <InterfaceViewSwitcher activeTab={activeTab} setActiveTab={setActiveTab} />
       
-      {/* Tabs content - Now properly wrapped in a Tabs component */}
+      {/* Tabs content */}
       <Tabs value={activeTab} className="mt-4">
         <TabsContent value="gallery">
-          <InterfaceGallery 
+          <InterfacesContent
+            activeTab="gallery"
             interfaces={interfaces}
             isLoading={isLoading}
+            selectedForAction={selectedForAction}
+            handleSelectInterface={handleSelectInterface}
+            toggleSelectAll={toggleSelectAll}
             openInterfaceEditor={openInterfaceEditor}
+            openInterfaceDetails={openInterfaceDetails}
             duplicateInterface={duplicateInterface}
             confirmDelete={confirmDelete}
-            openInterfaceDetails={openInterfaceDetails}
+            formatDate={formatDate}
             openVersionHistory={openVersionHistory}
+            setSearchQuery={setSearchQuery}
+            setFilterType={setFilterType}
+            setFilterStatus={setFilterStatus}
           />
         </TabsContent>
         
         <TabsContent value="table">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-700"></div>
-              <span className="ml-3">Loading interfaces...</span>
-            </div>
-          ) : interfaces.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500">No interfaces found</p>
-              <Button variant="link" onClick={() => {
-                setSearchQuery("");
-                setFilterType("all");
-                setFilterStatus("all");
-              }}>
-                Clear filters
-              </Button>
-            </div>
-          ) : (
-            <InterfaceTable 
-              interfaces={interfaces}
-              selectedForAction={selectedForAction}
-              handleSelectInterface={handleSelectInterface}
-              toggleSelectAll={toggleSelectAll}
-              openInterfaceEditor={openInterfaceEditor}
-              duplicateInterface={duplicateInterface}
-              confirmDelete={confirmDelete}
-              formatDate={formatDate}
-              openInterfaceDetails={openInterfaceDetails}
-              openVersionHistory={openVersionHistory}
-            />
-          )}
+          <InterfacesContent
+            activeTab="table"
+            interfaces={interfaces}
+            isLoading={isLoading}
+            selectedForAction={selectedForAction}
+            handleSelectInterface={handleSelectInterface}
+            toggleSelectAll={toggleSelectAll}
+            openInterfaceEditor={openInterfaceEditor}
+            openInterfaceDetails={openInterfaceDetails}
+            duplicateInterface={duplicateInterface}
+            confirmDelete={confirmDelete}
+            formatDate={formatDate}
+            openVersionHistory={openVersionHistory}
+            setSearchQuery={setSearchQuery}
+            setFilterType={setFilterType}
+            setFilterStatus={setFilterStatus}
+          />
         </TabsContent>
       </Tabs>
 

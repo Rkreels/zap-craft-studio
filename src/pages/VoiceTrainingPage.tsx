@@ -1,6 +1,6 @@
 
 import React from "react";
-import { AudioTrainer } from "@/components/voice-assistant/AudioTrainer";
+import { EnhancedAudioTrainer } from "@/components/voice-assistant/EnhancedAudioTrainer";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
@@ -46,7 +46,7 @@ export default function VoiceTrainingPage() {
         </TabsList>
 
         <TabsContent value="trainer" className="mt-6">
-          <AudioTrainer />
+          <EnhancedAudioTrainer />
         </TabsContent>
 
         <TabsContent value="commands" className="mt-6">

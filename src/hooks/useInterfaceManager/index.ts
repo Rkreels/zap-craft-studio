@@ -1,8 +1,18 @@
+
 import { useState, useEffect } from "react";
 import { InterfaceItem } from "@/types/interfaces";
-import { toast } from "@/hooks/use-toast";
-import { formPreview, pagePreview, dashboardPreview, initialInterfaces } from "./mockData";
+import { initialInterfaces } from "./mockData";
 import { InterfaceManagerHook } from "./types";
+import { 
+  formatDate, 
+  getPreviewImage, 
+  createInterfaceOperation, 
+  updateInterfaceOperation, 
+  deleteInterfaceOperation, 
+  duplicateInterfaceOperation,
+  bulkOperations
+} from "./interfaceOperations";
+import { processInterfaces, toggleSortOperation } from "./interfaceFilters";
 
 export const useInterfaceManager = (): InterfaceManagerHook => {
   // State for interfaces data
@@ -39,221 +49,44 @@ export const useInterfaceManager = (): InterfaceManagerHook => {
     description: ""
   });
 
-  // Filter and sort interfaces
-  const processedInterfaces = interfaces
-    .filter(item => {
-      const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          (item.description || "").toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesType = filterType === "all" || item.type === filterType;
-      const matchesStatus = filterStatus === "all" || item.status === filterStatus;
-      return matchesSearch && matchesType && matchesStatus;
-    })
-    .sort((a, b) => {
-      let valueA: any;
-      let valueB: any;
-      
-      switch(sortBy) {
-        case "name":
-          valueA = a.name;
-          valueB = b.name;
-          break;
-        case "type":
-          valueA = a.type;
-          valueB = b.type;
-          break;
-        case "status":
-          valueA = a.status;
-          valueB = b.status;
-          break;
-        case "viewCount":
-          valueA = a.viewCount || 0;
-          valueB = b.viewCount || 0;
-          break;
-        default: // updatedAt
-          valueA = new Date(a.updatedAt).getTime();
-          valueB = new Date(b.updatedAt).getTime();
-      }
-      
-      if (sortDirection === "asc") {
-        return valueA > valueB ? 1 : -1;
-      } else {
-        return valueA < valueB ? 1 : -1;
-      }
-    });
-
-  // Format date for display
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
-  };
-
-  // Get preview image based on type
-  const getPreviewImage = (type: string) => {
-    switch(type) {
-      case "form": return formPreview;
-      case "page": return pagePreview;
-      case "dashboard": return dashboardPreview;
-      default: return formPreview;
-    }
-  };
+  // Get filtered and sorted interfaces
+  const processedInterfaces = processInterfaces(
+    interfaces,
+    searchQuery,
+    filterType,
+    filterStatus,
+    sortBy,
+    sortDirection
+  );
 
   // Toggle sort direction
   const toggleSort = (field: string) => {
-    if (sortBy === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(field);
-      setSortDirection("asc");
-    }
+    toggleSortOperation(field, sortBy, sortDirection, setSortBy, setSortDirection);
   };
 
   // CRUD Operations
   const createInterface = () => {
-    if (!newInterface.name.trim()) {
-      toast({
-        title: "Name required",
-        description: "Please enter a name for your new interface",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      const createdInterface: InterfaceItem = {
-        id: `interface-${Date.now()}`,
-        name: newInterface.name,
-        type: newInterface.type,
-        description: newInterface.description,
-        preview: getPreviewImage(newInterface.type),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        status: "draft",
-        fields: [],
-        integrations: [],
-        viewCount: 0
-      };
-      
-      setInterfaces(prev => [...prev, createdInterface]);
-      setNewInterface({
-        name: "",
-        type: "form",
-        description: ""
-      });
-      setIsLoading(false);
-      
-      toast({
-        title: "Interface created",
-        description: `${newInterface.name} has been created successfully.`
-      });
-    }, 800);
+    createInterfaceOperation(newInterface, setIsLoading, setInterfaces, setNewInterface);
   };
 
-  // Other CRUD operations
   const updateInterface = () => {
-    if (!editingInterface) return;
-    
-    setIsLoading(true);
-    
-    setTimeout(() => {
-      setInterfaces(prev => prev.map(item => 
-        item.id === editingInterface.id 
-          ? { ...editingInterface, updatedAt: new Date().toISOString() } 
-          : item
-      ));
-      
-      setIsLoading(false);
-      setEditingInterface(null);
-      
-      toast({
-        title: "Interface updated",
-        description: `${editingInterface.name} has been updated successfully.`
-      });
-    }, 800);
+    updateInterfaceOperation(editingInterface, setIsLoading, setInterfaces, setEditingInterface);
   };
 
   const deleteInterface = () => {
-    if (!interfaceToDelete) return;
-    
-    setIsLoading(true);
-    
-    setTimeout(() => {
-      setInterfaces(prev => prev.filter(item => item.id !== interfaceToDelete));
-      setIsLoading(false);
-      setIsDeleteDialogOpen(false);
-      setInterfaceToDelete(null);
-      
-      toast({
-        title: "Interface deleted",
-        description: "The interface has been deleted successfully.",
-        variant: "destructive"
-      });
-    }, 800);
+    deleteInterfaceOperation(interfaceToDelete, setIsLoading, setInterfaces, setIsDeleteDialogOpen, setInterfaceToDelete);
   };
 
   const bulkDeleteInterfaces = () => {
-    if (selectedForAction.length === 0) return;
-    
-    setIsLoading(true);
-    
-    setTimeout(() => {
-      setInterfaces(prev => prev.filter(item => !selectedForAction.includes(item.id)));
-      setSelectedForAction([]);
-      setIsLoading(false);
-      
-      toast({
-        title: "Interfaces deleted",
-        description: `${selectedForAction.length} interfaces have been deleted successfully.`,
-        variant: "destructive"
-      });
-    }, 800);
+    bulkOperations.bulkDeleteInterfaces(selectedForAction, setIsLoading, setInterfaces, setSelectedForAction);
   };
 
   const bulkPublishInterfaces = () => {
-    if (selectedForAction.length === 0) return;
-    
-    setIsLoading(true);
-    
-    setTimeout(() => {
-      setInterfaces(prev => prev.map(item => 
-        selectedForAction.includes(item.id) 
-          ? { ...item, status: "published", updatedAt: new Date().toISOString() } 
-          : item
-      ));
-      setSelectedForAction([]);
-      setIsLoading(false);
-      
-      toast({
-        title: "Interfaces published",
-        description: `${selectedForAction.length} interfaces have been published successfully.`
-      });
-    }, 800);
+    bulkOperations.bulkPublishInterfaces(selectedForAction, setIsLoading, setInterfaces, setSelectedForAction);
   };
 
   const duplicateInterface = (item: InterfaceItem) => {
-    setIsLoading(true);
-    
-    setTimeout(() => {
-      const duplicatedInterface: InterfaceItem = {
-        ...item,
-        id: `interface-${Date.now()}`,
-        name: `${item.name} (Copy)`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        status: "draft",
-        viewCount: 0
-      };
-      
-      setInterfaces(prev => [...prev, duplicatedInterface]);
-      setIsLoading(false);
-      
-      toast({
-        title: "Interface duplicated",
-        description: `A copy of ${item.name} has been created.`
-      });
-    }, 800);
+    duplicateInterfaceOperation(item, setIsLoading, setInterfaces);
   };
   
   const confirmDelete = (id: string) => {
@@ -271,10 +104,6 @@ export const useInterfaceManager = (): InterfaceManagerHook => {
       setInterfaces(updatedInterfaces);
       setEditingInterface(interface_);
     }
-  };
-  
-  const openInterfaceDetails = (item: InterfaceItem) => {
-    setViewingInterface(item);
   };
   
   const handleSelectInterface = (id: string) => {
@@ -339,7 +168,6 @@ export const useInterfaceManager = (): InterfaceManagerHook => {
     duplicateInterface,
     confirmDelete,
     openInterfaceEditor,
-    openInterfaceDetails,
     handleSelectInterface,
     toggleSelectAll
   };
