@@ -56,17 +56,10 @@ export default function InterfacesPage() {
     duplicateInterface,
     confirmDelete,
     openInterfaceEditor,
+    openInterfaceDetails,
     handleSelectInterface,
     toggleSelectAll
   } = useInterfaceManager();
-  
-  // Function to handle opening interface details
-  const openInterfaceDetails = (id: string) => {
-    const interface_ = interfaces.find(item => item.id === id);
-    if (interface_) {
-      setViewingInterface(interface_);
-    }
-  };
 
   // Open version history dialog
   const openVersionHistory = (interfaceId: string) => {

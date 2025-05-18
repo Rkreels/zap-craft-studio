@@ -9,22 +9,24 @@ import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance
 import { getTypeIcon } from "@/utils/interfaceIcons";
 
 interface InterfaceCardProps {
-  item: InterfaceItem;
-  openInterfaceEditor: (id: string) => void;
-  duplicateInterface: (item: InterfaceItem) => void;
-  confirmDelete: (id: string) => void;
-  openInterfaceDetails: (item: InterfaceItem) => void;
-  openVersionHistory?: (id: string) => void;
+  interfaceItem: InterfaceItem;
+  onEdit: () => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
+  onView: () => void;
+  onVersionHistory: () => void;
 }
 
 const InterfaceCard: React.FC<InterfaceCardProps> = ({
-  item,
-  openInterfaceEditor,
-  duplicateInterface,
-  confirmDelete,
-  openInterfaceDetails,
-  openVersionHistory
+  interfaceItem,
+  onEdit,
+  onDuplicate,
+  onDelete,
+  onView,
+  onVersionHistory
 }) => {
+  const item = interfaceItem; // For backward compatibility
+  
   // Voice guidance for card
   const cardVoiceProps = {
     elementName: "Interface Card",
@@ -85,7 +87,7 @@ const InterfaceCard: React.FC<InterfaceCardProps> = ({
         className="relative h-48 bg-gray-100 cursor-pointer group" 
         onClick={() => {
           cardGuidance.handleClick();
-          openInterfaceEditor(item.id);
+          onEdit();
         }}
         onMouseEnter={cardGuidance.handleMouseEnter}
       >
@@ -131,7 +133,7 @@ const InterfaceCard: React.FC<InterfaceCardProps> = ({
           size="sm" 
           onClick={() => {
             editGuidance.handleClick();
-            openInterfaceEditor(item.id);
+            onEdit();
           }}
           onMouseEnter={editGuidance.handleMouseEnter}
         >
@@ -139,25 +141,23 @@ const InterfaceCard: React.FC<InterfaceCardProps> = ({
           Edit
         </Button>
         <div className="flex gap-1">
-          {openVersionHistory && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                historyGuidance.handleClick();
-                openVersionHistory(item.id);
-              }}
-              onMouseEnter={historyGuidance.handleMouseEnter}
-            >
-              <Clock size={16} />
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              historyGuidance.handleClick();
+              onVersionHistory();
+            }}
+            onMouseEnter={historyGuidance.handleMouseEnter}
+          >
+            <Clock size={16} />
+          </Button>
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={() => {
               duplicateGuidance.handleClick();
-              duplicateInterface(item);
+              onDuplicate();
             }}
             onMouseEnter={duplicateGuidance.handleMouseEnter}
           >
@@ -168,7 +168,7 @@ const InterfaceCard: React.FC<InterfaceCardProps> = ({
             size="icon" 
             onClick={() => {
               deleteGuidance.handleClick();
-              confirmDelete(item.id);
+              onDelete();
             }}
             onMouseEnter={deleteGuidance.handleMouseEnter}
           >
@@ -179,7 +179,7 @@ const InterfaceCard: React.FC<InterfaceCardProps> = ({
             size="icon" 
             onClick={() => {
               settingsGuidance.handleClick();
-              openInterfaceDetails(item);
+              onView();
             }}
             onMouseEnter={settingsGuidance.handleMouseEnter}
           >
