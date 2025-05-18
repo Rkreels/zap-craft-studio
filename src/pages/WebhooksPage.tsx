@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -125,7 +124,7 @@ export default function WebhooksPage() {
                     <code>
                       curl -X POST https://api.example.com/webhook/123456 \<br />
                       -H "Content-Type: application/json" \<br />
-                      -d {"{'event':'test','data':{'message':'Hello World'}}"}
+                      -d {`'{"event":"test","data":{"message":"Hello World"}}'`}
                     </code>
                   </div>
                   <Button variant="outline" size="sm" className="mt-3">

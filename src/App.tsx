@@ -20,7 +20,7 @@ function App() {
   return (
     <VoiceAssistantWrapper>
       <Routes>
-        <Route path="/" element={<AppLayout />}>
+        <Route element={<AppLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="interfaces" element={<InterfacesPage />} />
           <Route path="zaps/create" element={<ZapCreator />} />
