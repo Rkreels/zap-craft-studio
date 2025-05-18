@@ -10,10 +10,10 @@ import { getTypeIcon } from "@/utils/interfaceIcons";
 // Import interface components
 import InterfaceHeader from "@/components/interfaces/InterfaceHeader";
 import InterfaceFilters from "@/components/interfaces/InterfaceFilters";
-import InterfaceGallery from "@/components/interfaces/InterfaceGallery";
-import InterfaceTable from "@/components/interfaces/InterfaceTable";
+import { InterfaceGallery } from "@/components/interfaces/InterfaceGallery";
+import { InterfaceTable } from "@/components/interfaces/InterfaceTable";
 import InterfaceEditor from "@/components/interfaces/InterfaceEditor";
-import InterfaceDetailsDialog from "@/components/interfaces/InterfaceDetailsDialog";
+import { InterfaceDetailsDialog } from "@/components/interfaces/InterfaceDetailsDialog";
 import DeleteInterfaceDialog from "@/components/interfaces/DeleteInterfaceDialog";
 import ZapierIntegrationDialog from "@/components/interfaces/ZapierIntegrationDialog";
 import InterfaceViewSwitcher from "@/components/interfaces/InterfaceViewSwitcher";

@@ -1,8 +1,9 @@
+
 import React from 'react';
-import { InterfaceCard } from './InterfaceCard';
+import InterfaceCard from './InterfaceCard';
 import { InterfaceItem } from '@/types/interfaces';
 import { Button } from '@/components/ui/button';
-import { CreateInterfaceDialog } from './CreateInterfaceDialog';
+import CreateInterfaceDialog from './CreateInterfaceDialog';
 
 export interface InterfaceGalleryProps {
   interfaces: InterfaceItem[];
@@ -11,7 +12,7 @@ export interface InterfaceGalleryProps {
   duplicateInterface: (item: InterfaceItem) => void;
   confirmDelete: (id: string) => void;
   openInterfaceDetails: (item: InterfaceItem) => void;
-  openVersionHistory: (interfaceId: string) => void; // Added this prop
+  openVersionHistory: (interfaceId: string) => void;
 }
 
 export function InterfaceGallery({
@@ -21,7 +22,7 @@ export function InterfaceGallery({
   duplicateInterface,
   confirmDelete,
   openInterfaceDetails,
-  openVersionHistory, // Added this prop
+  openVersionHistory,
 }: InterfaceGalleryProps) {
   return (
     <div className="space-y-4">
@@ -47,7 +48,7 @@ export function InterfaceGallery({
               duplicateInterface={duplicateInterface}
               confirmDelete={confirmDelete}
               openInterfaceDetails={openInterfaceDetails}
-              openVersionHistory={openVersionHistory} // Passed this prop
+              openVersionHistory={openVersionHistory}
             />
           ))}
         </div>
@@ -55,3 +56,5 @@ export function InterfaceGallery({
     </div>
   );
 }
+
+export default InterfaceGallery;

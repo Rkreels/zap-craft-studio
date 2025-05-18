@@ -15,25 +15,25 @@ import {
 import { FileText, Layout, List, Plus } from "lucide-react";
 
 interface CreateInterfaceProps {
-  newInterface: {
+  newInterface?: {
     name: string;
     type: "form" | "page" | "dashboard";
     description: string;
   };
-  setNewInterface: React.Dispatch<React.SetStateAction<{
+  setNewInterface?: React.Dispatch<React.SetStateAction<{
     name: string;
     type: "form" | "page" | "dashboard";
     description: string;
   }>>;
-  isLoading: boolean;
-  createInterface: () => void;
+  isLoading?: boolean;
+  createInterface?: () => void;
 }
 
 const CreateInterfaceDialog: React.FC<CreateInterfaceProps> = ({
-  newInterface,
-  setNewInterface,
-  isLoading,
-  createInterface
+  newInterface = { name: "", type: "form", description: "" },
+  setNewInterface = () => {},
+  isLoading = false,
+  createInterface = () => {}
 }) => {
   return (
     <Dialog>

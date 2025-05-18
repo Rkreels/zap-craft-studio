@@ -1,3 +1,4 @@
+
 // Type definitions for interfaces data
 export interface InterfaceItem {
   id: string;
@@ -38,6 +39,6 @@ export interface InterfaceIntegration {
 export interface InterfaceLogic {
   id: string;
   name: string;
-  type: "action" | "trigger" | "condition";
+  type: "action" | "trigger" | "condition" | string; // Added string for backward compatibility
   config: Record<string, any>;
 }
