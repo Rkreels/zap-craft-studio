@@ -13,7 +13,7 @@ interface InterfacesContentProps {
   handleSelectInterface: (id: string) => void;
   toggleSelectAll: () => void;
   openInterfaceEditor: (id: string) => void;
-  openInterfaceDetails: (id: string) => void;
+  openInterfaceDetails: (id: string) => void; // Changed type to match hook function
   duplicateInterface: (item: InterfaceItem) => void;
   confirmDelete: (id: string) => void;
   formatDate: (dateString: string) => string;

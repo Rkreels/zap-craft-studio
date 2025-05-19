@@ -5,14 +5,15 @@ import { initialInterfaces } from "./mockData";
 import { InterfaceManagerHook } from "./types";
 import { 
   formatDate, 
-  getPreviewImage, 
-  createInterfaceOperation, 
-  updateInterfaceOperation, 
-  deleteInterfaceOperation, 
-  duplicateInterfaceOperation,
-  bulkOperations
+  getPreviewImage
 } from "./interfaceOperations";
-import { processInterfaces, toggleSortOperation } from "./interfaceFilters";
+import { 
+  useInterfaceCreation,
+  useInterfaceUpdate,
+  useInterfaceDeletion,
+  useInterfaceBulkOperations
+} from "./interfaceHooks";
+import { useInterfaceFiltering } from "./interfaceFilters";
 
 export const useInterfaceManager = (): InterfaceManagerHook => {
   // State for interfaces data
@@ -50,43 +51,53 @@ export const useInterfaceManager = (): InterfaceManagerHook => {
   });
 
   // Get filtered and sorted interfaces
-  const processedInterfaces = processInterfaces(
+  const { processedInterfaces, toggleSortOperation } = useInterfaceFiltering(
     interfaces,
     searchQuery,
     filterType,
     filterStatus,
     sortBy,
-    sortDirection
+    sortDirection,
+    setSortBy,
+    setSortDirection
   );
 
-  // Toggle sort direction
+  // CRUD operations hooks
+  const { createInterface } = useInterfaceCreation(
+    newInterface,
+    setIsLoading,
+    setInterfaces,
+    setNewInterface
+  );
+
+  const { updateInterface } = useInterfaceUpdate(
+    editingInterface,
+    setIsLoading,
+    setInterfaces,
+    setEditingInterface
+  );
+
+  const { deleteInterface } = useInterfaceDeletion(
+    interfaceToDelete,
+    setIsLoading,
+    setInterfaces,
+    setIsDeleteDialogOpen,
+    setInterfaceToDelete
+  );
+
+  const { 
+    bulkDeleteInterfaces, 
+    bulkPublishInterfaces, 
+    duplicateInterface 
+  } = useInterfaceBulkOperations(
+    selectedForAction,
+    setIsLoading,
+    setInterfaces,
+    setSelectedForAction
+  );
+
   const toggleSort = (field: string) => {
-    toggleSortOperation(field, sortBy, sortDirection, setSortBy, setSortDirection);
-  };
-
-  // CRUD Operations
-  const createInterface = () => {
-    createInterfaceOperation(newInterface, setIsLoading, setInterfaces, setNewInterface);
-  };
-
-  const updateInterface = () => {
-    updateInterfaceOperation(editingInterface, setIsLoading, setInterfaces, setEditingInterface);
-  };
-
-  const deleteInterface = () => {
-    deleteInterfaceOperation(interfaceToDelete, setIsLoading, setInterfaces, setIsDeleteDialogOpen, setInterfaceToDelete);
-  };
-
-  const bulkDeleteInterfaces = () => {
-    bulkOperations.bulkDeleteInterfaces(selectedForAction, setIsLoading, setInterfaces, setSelectedForAction);
-  };
-
-  const bulkPublishInterfaces = () => {
-    bulkOperations.bulkPublishInterfaces(selectedForAction, setIsLoading, setInterfaces, setSelectedForAction);
-  };
-
-  const duplicateInterface = (item: InterfaceItem) => {
-    duplicateInterfaceOperation(item, setIsLoading, setInterfaces);
+    toggleSortOperation(field);
   };
   
   const confirmDelete = (id: string) => {

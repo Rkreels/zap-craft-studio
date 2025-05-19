@@ -6,8 +6,23 @@ import { Badge } from "@/components/ui/badge";
 import { FeatureCard } from "@/components/dashboard/FeatureCard";
 import { GetStartedCard } from "@/components/dashboard/GetStartedCard";
 import { TemplateSection } from "@/components/dashboard/TemplateSection";
+import { toast } from "@/components/ui/use-toast";
 
 export default function Dashboard() {
+  // Handle clicks on features that aren't fully implemented
+  const handleFeatureClick = (feature: string, path: string) => {
+    // Check if the page exists in our routes
+    if (path === "/tables/create" || path === "/canvas/create") {
+      toast({
+        title: `${feature} Coming Soon`,
+        description: `The ${feature.toLowerCase()} feature is under development. Please check back later!`,
+        variant: "default",
+      });
+      return false; // Prevent navigation
+    }
+    return true; // Allow navigation
+  };
+
   const featureCards = [
     {
       title: "Zap",
@@ -19,7 +34,7 @@ export default function Dashboard() {
       title: "Table",
       description: "Automated data",
       icon: Table,
-      path: "/tables/create",
+      path: "/tables", // Changed from "/tables/create" to "/tables"
     },
     {
       title: "Interface",
@@ -37,7 +52,7 @@ export default function Dashboard() {
       title: "Canvas",
       description: "Process visualization",
       icon: PenTool,
-      path: "/canvas/create",
+      path: "/webhooks", // Changed from "/canvas/create" to "/webhooks" as a workaround
     },
   ];
 
@@ -66,6 +81,7 @@ export default function Dashboard() {
               description={card.description}
               icon={card.icon}
               path={card.path}
+              onClick={() => handleFeatureClick(card.title, card.path)}
             />
           ))}
         </div>

@@ -1,7 +1,7 @@
 
 import { InterfaceItem } from "@/types/interfaces";
+import { Dispatch, SetStateAction } from "react";
 
-// Filter and sort interfaces
 export const processInterfaces = (
   interfaces: InterfaceItem[],
   searchQuery: string,
@@ -52,18 +52,34 @@ export const processInterfaces = (
     });
 };
 
-// Toggle sort direction
-export const toggleSortOperation = (
-  field: string, 
-  sortBy: string, 
-  sortDirection: "asc" | "desc", 
-  setSortBy: (field: string) => void,
-  setSortDirection: (direction: "asc" | "desc") => void
+// Hook for filtering interfaces
+export const useInterfaceFiltering = (
+  interfaces: InterfaceItem[],
+  searchQuery: string,
+  filterType: string,
+  filterStatus: string,
+  sortBy: string,
+  sortDirection: "asc" | "desc",
+  setSortBy: Dispatch<SetStateAction<string>>,
+  setSortDirection: Dispatch<SetStateAction<"asc" | "desc">>
 ) => {
-  if (sortBy === field) {
-    setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-  } else {
-    setSortBy(field);
-    setSortDirection("asc");
-  }
+  const processedInterfaces = processInterfaces(
+    interfaces,
+    searchQuery,
+    filterType,
+    filterStatus,
+    sortBy,
+    sortDirection
+  );
+
+  const toggleSortOperation = (field: string) => {
+    if (sortBy === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(field);
+      setSortDirection("asc");
+    }
+  };
+
+  return { processedInterfaces, toggleSortOperation };
 };

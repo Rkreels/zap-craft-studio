@@ -120,7 +120,7 @@ export default function InterfacesPage() {
             handleSelectInterface={handleSelectInterface}
             toggleSelectAll={toggleSelectAll}
             openInterfaceEditor={openInterfaceEditor}
-            openInterfaceDetails={openInterfaceDetails}
+            openInterfaceDetails={(id) => openInterfaceDetails(id)}
             duplicateInterface={duplicateInterface}
             confirmDelete={confirmDelete}
             formatDate={formatDate}
@@ -140,7 +140,7 @@ export default function InterfacesPage() {
             handleSelectInterface={handleSelectInterface}
             toggleSelectAll={toggleSelectAll}
             openInterfaceEditor={openInterfaceEditor}
-            openInterfaceDetails={openInterfaceDetails}
+            openInterfaceDetails={(id) => openInterfaceDetails(id)}
             duplicateInterface={duplicateInterface}
             confirmDelete={confirmDelete}
             formatDate={formatDate}

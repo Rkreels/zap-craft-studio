@@ -18,6 +18,8 @@ import VoiceTrainingPage from "./pages/VoiceTrainingPage";
 import WebhooksPage from "./pages/WebhooksPage";
 import LoginPage from "./pages/LoginPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import CanvasPage from "./pages/CanvasPage";
+import TableCreatorPage from "./pages/TableCreatorPage";
 
 function App() {
   return (
@@ -34,6 +36,7 @@ function App() {
           <Route path="connected-apps" element={<ConnectedApps />} />
           <Route path="explore-apps" element={<ExploreApps />} />
           <Route path="tables" element={<TablesPage />} />
+          <Route path="tables/create" element={<TableCreatorPage />} />
           <Route path="chatbot" element={<ChatbotPage />} />
           <Route path="history" element={<HistoryPage />} />
           <Route path="templates" element={<TemplatesPage />} />
@@ -41,6 +44,8 @@ function App() {
           <Route path="data-transformation" element={<DataTransformationPage />} />
           <Route path="voice-training" element={<VoiceTrainingPage />} />
           <Route path="webhooks" element={<WebhooksPage />} />
+          <Route path="canvas" element={<CanvasPage />} />
+          <Route path="canvas/create" element={<CanvasPage />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
