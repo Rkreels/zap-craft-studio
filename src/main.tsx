@@ -1,16 +1,19 @@
 
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from "react-router-dom";
 import App from './App.tsx'
 import './index.css'
-import { Toaster } from "@/components/ui/toaster"
-import { AuthProvider } from "./contexts/AuthContext"
+import { VoiceAssistantProvider } from './contexts/VoiceAssistantContext.tsx';
+import { Toaster } from "@/components/ui/toaster";
 
-createRoot(document.getElementById("root")!).render(
-  <BrowserRouter>
-    <AuthProvider>
-      <App />
-      <Toaster />
-    </AuthProvider>
-  </BrowserRouter>
-);
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <VoiceAssistantProvider>
+        <App />
+        <Toaster />
+      </VoiceAssistantProvider>
+    </BrowserRouter>
+  </React.StrictMode>,
+)

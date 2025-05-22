@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
+import { PageVoiceCommands } from "@/components/voice-assistant/PageVoiceCommands";
 
 // Import components
 import { VoiceTrainingSection } from "@/components/voice-assistant/VoiceTrainingSection";
@@ -36,6 +37,43 @@ export default function VoiceTrainingPage() {
       description: "You have successfully completed voice training.",
     });
   };
+  
+  // Define voice commands for this page
+  const voiceCommands = [
+    {
+      command: "show trainer",
+      description: "Switch to trainer tab",
+      action: () => setActiveTab("trainer"),
+      aliases: ["go to trainer", "open trainer"]
+    },
+    {
+      command: "show commands",
+      description: "Switch to commands tab",
+      action: () => setActiveTab("commands"),
+      aliases: ["go to commands", "open commands"]
+    },
+    {
+      command: "show settings",
+      description: "Switch to settings tab",
+      action: () => setActiveTab("settings"),
+      aliases: ["go to settings", "open settings"]
+    },
+    {
+      command: "complete training",
+      description: "Mark training as completed",
+      action: () => {
+        if (!isTrainingCompleted) {
+          handleTrainingComplete();
+        }
+      }
+    },
+    {
+      command: "reset training",
+      description: "Reset voice training progress",
+      action: () => setIsTrainingCompleted(false),
+      aliases: ["restart training"]
+    }
+  ];
 
   return (
     <div 
@@ -43,45 +81,53 @@ export default function VoiceTrainingPage() {
       onMouseEnter={handleMouseEnter}
       onClick={handleClick}
     >
-      <div>
-        <h1 className="text-2xl font-bold">Voice Assistant Training</h1>
+      <PageVoiceCommands 
+        pageName="Voice Training" 
+        commands={voiceCommands} 
+        introMessage="Welcome to voice training. Here you can learn how to use voice commands across the application."
+      />
+      
+      <div className="space-y-2">
+        <h1 className="text-2xl sm:text-3xl font-bold">Voice Assistant Training</h1>
         <p className="text-gray-500">Learn to use voice commands to control the application</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-3 w-full md:w-[400px]">
-          <TabsTrigger value="trainer">
-            <Mic size={16} className="mr-2" />
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full max-w-md grid-cols-3">
+          <TabsTrigger value="trainer" className="flex items-center justify-center">
+            <Mic size={16} className="mr-2 hidden sm:inline" />
             Trainer
           </TabsTrigger>
-          <TabsTrigger value="commands">
-            <BookOpen size={16} className="mr-2" />
+          <TabsTrigger value="commands" className="flex items-center justify-center">
+            <BookOpen size={16} className="mr-2 hidden sm:inline" />
             Commands
           </TabsTrigger>
-          <TabsTrigger value="settings">
-            <Volume size={16} className="mr-2" />
+          <TabsTrigger value="settings" className="flex items-center justify-center">
+            <Volume size={16} className="mr-2 hidden sm:inline" />
             Settings
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="trainer" className="mt-6">
-          <VoiceTrainingSection 
-            apiKey={apiKey} 
-            setApiKey={setApiKey} 
-            isTrainingCompleted={isTrainingCompleted}
-            setIsTrainingCompleted={setIsTrainingCompleted}
-            onTrainingComplete={handleTrainingComplete}
-            setActiveTab={setActiveTab}
-          />
-        </TabsContent>
+        <div className="mt-6">
+          <TabsContent value="trainer">
+            <VoiceTrainingSection 
+              apiKey={apiKey} 
+              setApiKey={setApiKey} 
+              isTrainingCompleted={isTrainingCompleted}
+              setIsTrainingCompleted={setIsTrainingCompleted}
+              onTrainingComplete={handleTrainingComplete}
+              setActiveTab={setActiveTab}
+            />
+          </TabsContent>
 
-        <TabsContent value="commands" className="mt-6">
-          <CommandsSection />
-        </TabsContent>
+          <TabsContent value="commands">
+            <CommandsSection />
+          </TabsContent>
 
-        <TabsContent value="settings" className="mt-6">
-          <SettingsSection apiKey={apiKey} setApiKey={setApiKey} />
-        </TabsContent>
+          <TabsContent value="settings">
+            <SettingsSection apiKey={apiKey} setApiKey={setApiKey} />
+          </TabsContent>
+        </div>
       </Tabs>
     </div>
   );
