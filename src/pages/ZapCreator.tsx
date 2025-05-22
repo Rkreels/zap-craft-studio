@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/use-toast"; // Notice updated path for toast
 import { 
   Card, 
   CardContent, 
@@ -25,6 +25,10 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { TemplateGallery } from "@/components/workflow/TemplateGallery";
 import { TeamCollaboration } from "@/components/workflow/TeamCollaboration";
 import { ConditionalLogic } from "@/components/workflow/ConditionalLogic";
+import { PathBranching, BranchPath } from "@/components/workflow/PathBranching";
+import { IntegrationDirectory } from "@/components/workflow/IntegrationDirectory";
+import { AccountConnection, ConnectedAccount } from "@/components/workflow/AccountConnection";
+import { AdvancedWebhook } from "@/components/workflow/AdvancedWebhook";
 import { 
   AlertCircle, 
   Play, 
@@ -33,7 +37,12 @@ import {
   FileText, 
   Users, 
   Settings,
-  Zap
+  Zap,
+  Grid,
+  Webhook,
+  GitBranch,
+  Key,
+  Network
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -67,6 +76,14 @@ export default function ZapCreator() {
     failed: 0,
     lastRun: null as Date | null,
     avgRunTime: 0
+  });
+  const [paths, setPaths] = useState<BranchPath[]>([]);
+  const [activePathId, setActivePathId] = useState<string | null>(null);
+  const [accounts, setAccounts] = useState<Record<string, ConnectedAccount[]>>({
+    gmail: [],
+    slack: [],
+    trello: [],
+    sheets: []
   });
 
   // Voice guidance for workflow builder
@@ -176,7 +193,6 @@ export default function ZapCreator() {
                   toast({
                     title: "Test completed",
                     description: "Your Zap completed successfully with test data.",
-                    variant: "destructive",
                   });
                 }, 600);
               }, 500);
@@ -266,6 +282,92 @@ export default function ZapCreator() {
       description: `The "${template.name}" template has been applied to your workflow.`,
     });
   };
+  
+  // Mock apps for integration directory
+  const mockApps = [
+    { id: "gmail", name: "Gmail", icon: "G", color: "bg-red-500", description: "Connect your Gmail account", category: "Email" },
+    { id: "slack", name: "Slack", icon: "S", color: "bg-green-500", description: "Send messages to Slack", category: "Communication" },
+    { id: "sheets", name: "Google Sheets", icon: "Sh", color: "bg-green-600", description: "Work with spreadsheet data", category: "Productivity" },
+    { id: "trello", name: "Trello", icon: "T", color: "bg-blue-500", description: "Manage Trello boards and cards", category: "Productivity" },
+    { id: "twitter", name: "Twitter", icon: "Tw", color: "bg-blue-400", description: "Connect to Twitter API", category: "Social Media" },
+    { id: "dropbox", name: "Dropbox", icon: "D", color: "bg-blue-600", description: "Manage files in Dropbox", category: "Storage" },
+    { id: "mailchimp", name: "Mailchimp", icon: "M", color: "bg-yellow-500", description: "Email marketing automation", category: "Marketing" },
+    { id: "stripe", name: "Stripe", icon: "S", color: "bg-purple-500", description: "Process payments", category: "Finance" },
+    { id: "salesforce", name: "Salesforce", icon: "SF", color: "bg-blue-700", description: "CRM and customer data", category: "CRM" },
+    { id: "asana", name: "Asana", icon: "A", color: "bg-red-400", description: "Task and project management", category: "Productivity" },
+    { id: "facebook", name: "Facebook", icon: "F", color: "bg-blue-600", description: "Connect to Facebook", category: "Social Media" },
+    { id: "hubspot", name: "HubSpot", icon: "H", color: "bg-orange-500", description: "Marketing and CRM", category: "Marketing" }
+  ];
+  
+  // Handle account connections
+  const handleConnectAccount = (service: string, account: ConnectedAccount) => {
+    setAccounts(prev => ({
+      ...prev,
+      [service]: [...(prev[service] || []), account]
+    }));
+  };
+  
+  const handleDisconnectAccount = (service: string, accountId: string) => {
+    setAccounts(prev => ({
+      ...prev,
+      [service]: (prev[service] || []).filter(acc => acc.id !== accountId)
+    }));
+  };
+  
+  // Path branching handlers
+  const handleAddPath = () => {
+    const newPath: BranchPath = {
+      id: `path-${Date.now()}`,
+      name: `Path ${paths.length + 1}`,
+      conditions: {
+        id: `condition-${Date.now()}`,
+        type: "all",
+        conditions: []
+      },
+      steps: []
+    };
+    
+    setPaths([...paths, newPath]);
+    setActivePathId(newPath.id);
+  };
+  
+  const handleDeletePath = (pathId: string) => {
+    setPaths(paths.filter(p => p.id !== pathId));
+    if (activePathId === pathId) {
+      setActivePathId(null);
+    }
+  };
+  
+  const handleUpdatePathConditions = (pathId: string, conditions: any) => {
+    setPaths(paths.map(p => 
+      p.id === pathId ? { ...p, conditions } : p
+    ));
+  };
+  
+  const handlePathStepClick = (pathId: string, stepId: string) => {
+    setActivePathId(pathId);
+    // You would also set the active step ID here in a real implementation
+  };
+  
+  const handleAddStepToPath = (pathId: string) => {
+    setPaths(paths.map(p => {
+      if (p.id === pathId) {
+        return {
+          ...p,
+          steps: [...p.steps, {
+            id: `step-${Date.now()}`,
+            type: "action",
+            appId: "",
+            appName: "",
+            actionName: "Choose an app & action",
+            configured: false,
+            config: {}
+          }]
+        };
+      }
+      return p;
+    }));
+  };
 
   return (
     <div className="max-w-7xl mx-auto pb-16">
@@ -292,13 +394,29 @@ export default function ZapCreator() {
             <FileText className="h-4 w-4" />
             Templates
           </TabsTrigger>
+          <TabsTrigger value="integrations" className="flex items-center gap-1">
+            <Grid className="h-4 w-4" />
+            Integrations
+          </TabsTrigger>
           <TabsTrigger value="transform" className="flex items-center gap-1">
             <Code className="h-4 w-4" />
             Data Transformation
           </TabsTrigger>
+          <TabsTrigger value="paths" className="flex items-center gap-1">
+            <GitBranch className="h-4 w-4" />
+            Paths
+          </TabsTrigger>
+          <TabsTrigger value="webhooks" className="flex items-center gap-1">
+            <Webhook className="h-4 w-4" />
+            Webhooks
+          </TabsTrigger>
+          <TabsTrigger value="accounts" className="flex items-center gap-1">
+            <Key className="h-4 w-4" />
+            Accounts
+          </TabsTrigger>
           <TabsTrigger value="test" className="flex items-center gap-1">
             <Play className="h-4 w-4" />
-            Testing Tools
+            Testing
           </TabsTrigger>
           <TabsTrigger value="monitor" className="flex items-center gap-1">
             <Activity className="h-4 w-4" />
@@ -362,6 +480,28 @@ export default function ZapCreator() {
           </Card>
         </TabsContent>
         
+        <TabsContent value="integrations">
+          <Card>
+            <CardHeader>
+              <CardTitle>App Integrations</CardTitle>
+              <CardDescription>
+                Browse and connect applications to use in your workflows
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <IntegrationDirectory 
+                availableApps={mockApps}
+                onSelectApp={(app) => {
+                  toast({
+                    title: `${app.name} selected`,
+                    description: `You selected the ${app.name} integration.`
+                  });
+                }}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
         <TabsContent value="transform">
           <Card>
             <CardHeader>
@@ -391,13 +531,144 @@ export default function ZapCreator() {
             </CardContent>
             <CardFooter className="flex justify-end border-t pt-4">
               <Button 
-                onClick={() => handleSave()} 
+                onClick={() => {
+                  toast({
+                    title: "Transformations saved",
+                    description: "Your data transformations have been saved."
+                  });
+                }}
                 disabled={isLoading}
                 className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 {isLoading ? "Saving..." : "Save Transformations"}
               </Button>
             </CardFooter>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="paths">
+          <Card>
+            <CardHeader>
+              <CardTitle>Branching Paths</CardTitle>
+              <CardDescription>
+                Create multiple execution paths based on conditions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PathBranching
+                parentStepId="trigger-1"
+                paths={paths}
+                onAddPath={handleAddPath}
+                onDeletePath={handleDeletePath}
+                onUpdatePathConditions={handleUpdatePathConditions}
+                onPathStepClick={handlePathStepClick}
+                onAddStepToPath={handleAddStepToPath}
+                activePathId={activePathId}
+                activeStepId={null}
+              />
+            </CardContent>
+            <CardFooter className="flex justify-end border-t pt-4">
+              <Button 
+                onClick={() => {
+                  toast({
+                    title: "Paths saved",
+                    description: "Your branching paths have been saved."
+                  });
+                }}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                Save Paths
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="accounts">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Connected Accounts</CardTitle>
+                <CardDescription>
+                  Manage all your connected app accounts in one place
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <AccountConnection
+                  service="gmail"
+                  serviceName="Gmail"
+                  icon="G"
+                  color="bg-red-500"
+                  accounts={accounts.gmail || []}
+                  onConnect={(account) => handleConnectAccount("gmail", account)}
+                  onDisconnect={(accountId) => handleDisconnectAccount("gmail", accountId)}
+                />
+                
+                <AccountConnection
+                  service="slack"
+                  serviceName="Slack"
+                  icon="S"
+                  color="bg-green-500"
+                  accounts={accounts.slack || []}
+                  onConnect={(account) => handleConnectAccount("slack", account)}
+                  onDisconnect={(accountId) => handleDisconnectAccount("slack", accountId)}
+                />
+                
+                <AccountConnection
+                  service="sheets"
+                  serviceName="Google Sheets"
+                  icon="Sh"
+                  color="bg-green-600"
+                  accounts={accounts.sheets || []}
+                  onConnect={(account) => handleConnectAccount("sheets", account)}
+                  onDisconnect={(accountId) => handleDisconnectAccount("sheets", accountId)}
+                />
+                
+                <AccountConnection
+                  service="trello"
+                  serviceName="Trello"
+                  icon="T"
+                  color="bg-blue-500"
+                  accounts={accounts.trello || []}
+                  onConnect={(account) => handleConnectAccount("trello", account)}
+                  onDisconnect={(accountId) => handleDisconnectAccount("trello", accountId)}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="webhooks">
+          <Card>
+            <CardHeader>
+              <CardTitle>Advanced Webhooks</CardTitle>
+              <CardDescription>
+                Create and configure webhook integrations for your workflow
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <WebhookIntegration
+                config={{
+                  ...webhookConfig,
+                  advanced: true,
+                  advancedConfig: {
+                    url: webhookConfig.url,
+                    method: webhookConfig.method,
+                    headers: webhookConfig.headers,
+                    bodyTemplate: webhookConfig.bodyTemplate,
+                    authType: "none",
+                    authConfig: {},
+                    useSubscription: true,
+                    subscriptionConfig: {
+                      mode: "push",
+                      secret: "webhook_secret_" + Date.now().toString(36),
+                      pollingInterval: 300
+                    }
+                  }
+                }}
+                onChange={setWebhookConfig}
+                generatedWebhookUrl={`https://api.example.com/webhooks/receive/${Date.now().toString(36)}`}
+              />
+            </CardContent>
           </Card>
         </TabsContent>
         
@@ -439,16 +710,27 @@ export default function ZapCreator() {
                 </div>
                 
                 <div className="mt-6">
-                  <h3 className="text-lg font-semibold mb-2">Webhook Testing</h3>
+                  <h3 className="text-lg font-semibold mb-2">Sample Data</h3>
                   <p className="text-sm text-gray-500 mb-4">
-                    Configure and test webhook integrations
+                    Sample data that will be used for testing
                   </p>
                   
-                  <WebhookIntegration
-                    config={webhookConfig}
-                    onChange={setWebhookConfig}
-                    generatedWebhookUrl={`https://api.example.com/webhooks/receive/${Date.now().toString(36)}`}
-                  />
+                  <div className="p-4 bg-gray-50 rounded-md border">
+                    <pre className="text-sm overflow-auto">
+{`{
+  "id": 12345,
+  "name": "Test Item",
+  "email": "test@example.com",
+  "status": "active",
+  "tags": ["important", "customer"],
+  "created": "${new Date().toISOString()}",
+  "metadata": {
+    "source": "API",
+    "importance": "high"
+  }
+}`}
+                    </pre>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -573,7 +855,12 @@ export default function ZapCreator() {
                       type: "all",
                       conditions: []
                     }}
-                    onChange={() => {}}
+                    onChange={() => {
+                      toast({
+                        title: "Conditions updated",
+                        description: "Global conditions have been updated."
+                      });
+                    }}
                   />
                 </div>
               </CardContent>

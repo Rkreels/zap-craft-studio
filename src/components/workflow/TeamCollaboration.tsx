@@ -1,70 +1,37 @@
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription, 
-  CardFooter 
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-} from '@/components/ui/avatar';
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from '@/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { 
-  Users, 
-  UserPlus, 
-  Mail, 
-  Search, 
-  Eye, 
-  Edit, 
   Clock, 
-  Activity,
-  Shield,
-  ShieldCheck,
-  ShieldAlert,
+  Mail, 
+  MoreHorizontal, 
+  PlusCircle, 
+  Shield, 
+  Trash2, 
+  UserPlus, 
+  Users,
+  MessageSquare,
   CheckCircle,
-} from 'lucide-react';
+  XCircle,
+  AlertCircle,
+  ClipboardList
+} from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 
-export interface TeamMember {
+interface TeamMember {
   id: string;
   name: string;
   email: string;
-  role: 'owner' | 'admin' | 'editor' | 'viewer';
   avatarUrl?: string;
-  initials: string;
+  role: "owner" | "admin" | "editor" | "viewer";
   lastActive?: Date;
 }
 
@@ -73,9 +40,19 @@ interface ActivityLog {
   userId: string;
   userName: string;
   action: string;
-  resourceType: string;
-  resourceName: string;
+  target: string;
   timestamp: Date;
+  details?: string;
+}
+
+interface Comment {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  text: string;
+  timestamp: Date;
+  reactions?: { emoji: string; count: number }[];
 }
 
 interface TeamCollaborationProps {
@@ -87,634 +64,487 @@ interface TeamCollaborationProps {
 export const TeamCollaboration: React.FC<TeamCollaborationProps> = ({
   currentUserId,
   workflowId,
-  workflowName,
+  workflowName
 }) => {
+  const [activeTab, setActiveTab] = useState("members");
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<"admin" | "editor" | "viewer">("editor");
+  const [newComment, setNewComment] = useState("");
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('members');
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'editor' | 'viewer'>('editor');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
-  const [permissionDialogMember, setPermissionDialogMember] = useState<TeamMember | null>(null);
-
-  // Sample team members
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
+  
+  // Mock team members data
+  const [members, setMembers] = useState<TeamMember[]>([
     {
-      id: "user-1",
-      name: "Jane Smith",
-      email: "jane@example.com",
-      role: "owner",
-      initials: "JS",
-      lastActive: new Date(Date.now() - 10 * 60 * 1000) // 10 minutes ago
-    },
-    {
-      id: "user-2",
-      name: "Michael Johnson",
-      email: "michael@example.com",
-      role: "admin",
-      initials: "MJ",
-      lastActive: new Date(Date.now() - 3 * 60 * 60 * 1000) // 3 hours ago
-    },
-    {
-      id: "user-3",
-      name: "Sarah Williams",
-      email: "sarah@example.com",
-      role: "editor",
-      initials: "SW",
-      lastActive: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) // 2 days ago
-    },
-    {
-      id: currentUserId,
+      id: "current-user",
       name: "You",
       email: "you@example.com",
+      role: "owner",
+      lastActive: new Date()
+    },
+    {
+      id: "member-2",
+      name: "Jane Smith",
+      email: "jane@example.com",
       role: "admin",
-      initials: "YO",
-      lastActive: new Date() // Now
+      lastActive: new Date(Date.now() - 24 * 60 * 60 * 1000) // 1 day ago
+    },
+    {
+      id: "member-3",
+      name: "Mike Johnson",
+      email: "mike@example.com",
+      role: "editor",
+      lastActive: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
     }
   ]);
-
-  // Sample activity logs
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([
+  
+  // Mock activity logs
+  const [activityLogs] = useState<ActivityLog[]>([
     {
-      id: "activity-1",
-      userId: "user-2",
-      userName: "Michael Johnson",
-      action: "modified",
-      resourceType: "condition",
-      resourceName: "Email notification condition",
-      timestamp: new Date(Date.now() - 30 * 60 * 1000) // 30 minutes ago
-    },
-    {
-      id: "activity-2",
-      userId: "user-1",
-      userName: "Jane Smith",
-      action: "added",
-      resourceType: "action",
-      resourceName: "Slack notification",
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000) // 2 hours ago
-    },
-    {
-      id: "activity-3",
-      userId: "user-3",
-      userName: "Sarah Williams",
-      action: "deleted",
-      resourceType: "step",
-      resourceName: "Data transformation step",
-      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) // 1 day ago
-    },
-    {
-      id: "activity-4",
-      userId: currentUserId,
+      id: "log-1",
+      userId: "current-user",
       userName: "You",
-      action: "updated",
-      resourceType: "workflow",
-      resourceName: "Schedule",
-      timestamp: new Date(Date.now() - 10 * 60 * 1000) // 10 minutes ago
+      action: "created",
+      target: "workflow",
+      timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+      details: `Created "${workflowName}" workflow`
     },
     {
-      id: "activity-5",
-      userId: "user-1",
+      id: "log-2",
+      userId: "member-2",
       userName: "Jane Smith",
-      action: "published",
-      resourceType: "workflow",
-      resourceName: workflowName,
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
+      action: "modified",
+      target: "step",
+      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      details: "Modified Slack notification step"
+    },
+    {
+      id: "log-3",
+      userId: "current-user",
+      userName: "You",
+      action: "activated",
+      target: "workflow",
+      timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      details: "Activated workflow"
+    },
+    {
+      id: "log-4",
+      userId: "member-3",
+      userName: "Mike Johnson",
+      action: "added",
+      target: "step",
+      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+      details: "Added error handling step"
     }
   ]);
-
-  // Filter team members based on search
-  const filteredMembers = teamMembers.filter(member => 
-    member.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    member.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleInvite = () => {
-    if (!inviteEmail) {
-      toast({
-        title: "Error",
-        description: "Please enter an email address",
-        variant: "destructive",
-      });
-      return;
+  
+  // Mock comments
+  const [comments, setComments] = useState<Comment[]>([
+    {
+      id: "comment-1",
+      userId: "member-2",
+      userName: "Jane Smith",
+      text: "I've added the Slack notification step. Can someone review it?",
+      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      reactions: [
+        { emoji: "👍", count: 2 }
+      ]
+    },
+    {
+      id: "comment-2",
+      userId: "current-user",
+      userName: "You",
+      text: "Looks good to me. I've enabled the workflow.",
+      timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
     }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(inviteEmail)) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid email address",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // In a real app, this would send an invitation and add the user once they accept
+  ]);
+  
+  const handleInviteUser = () => {
+    if (!inviteEmail.trim()) return;
+    
     const newMember: TeamMember = {
-      id: `user-${teamMembers.length + 1}`,
+      id: `member-${Date.now()}`,
       name: inviteEmail.split('@')[0],
       email: inviteEmail,
       role: inviteRole,
-      initials: inviteEmail[0].toUpperCase() + inviteEmail[1].toUpperCase(),
       lastActive: undefined
     };
     
-    setTeamMembers([...teamMembers, newMember]);
-    
-    // Log this activity
-    const newActivity: ActivityLog = {
-      id: `activity-${activityLogs.length + 1}`,
-      userId: currentUserId,
-      userName: "You",
-      action: "invited",
-      resourceType: "user",
-      resourceName: inviteEmail,
-      timestamp: new Date()
-    };
-    
-    setActivityLogs([newActivity, ...activityLogs]);
+    setMembers([...members, newMember]);
+    setInviteDialogOpen(false);
+    setInviteEmail("");
     
     toast({
       title: "Invitation sent",
-      description: `Invitation sent to ${inviteEmail} with ${inviteRole} permissions`,
+      description: `${inviteEmail} has been invited as a ${inviteRole}.`
     });
-    
-    setInviteEmail('');
-    setIsInviteDialogOpen(false);
   };
-
-  const updateMemberRole = (memberId: string, newRole: 'owner' | 'admin' | 'editor' | 'viewer') => {
-    // Cannot change your own role
-    if (memberId === currentUserId) {
-      toast({
-        title: "Cannot change your own role",
-        description: "Contact another admin or owner to change your role",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // At least one owner must remain
-    if (teamMembers.find(m => m.id === memberId)?.role === 'owner' && 
-        teamMembers.filter(m => m.role === 'owner').length === 1) {
-      toast({
-        title: "Cannot remove the only owner",
-        description: "Transfer ownership to another member first",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const updatedMembers = teamMembers.map(member => 
-      member.id === memberId ? { ...member, role: newRole } : member
-    );
-    
-    setTeamMembers(updatedMembers);
-    
-    // Log this activity
-    const targetMember = teamMembers.find(m => m.id === memberId);
-    
-    const newActivity: ActivityLog = {
-      id: `activity-${activityLogs.length + 1}`,
-      userId: currentUserId,
-      userName: "You",
-      action: "updated",
-      resourceType: "permissions",
-      resourceName: `${targetMember?.name}'s role to ${newRole}`,
-      timestamp: new Date()
-    };
-    
-    setActivityLogs([newActivity, ...activityLogs]);
+  
+  const handleRoleChange = (userId: string, newRole: "admin" | "editor" | "viewer") => {
+    setMembers(members.map(member => 
+      member.id === userId ? { ...member, role: newRole } : member
+    ));
     
     toast({
-      title: "Permissions updated",
-      description: `${targetMember?.name}'s role changed to ${newRole}`,
+      title: "Role updated",
+      description: `User's role has been updated to ${newRole}.`
     });
   };
-
-  const removeMember = (memberId: string) => {
-    // Cannot remove yourself
-    if (memberId === currentUserId) {
+  
+  const handleRemoveMember = (userId: string) => {
+    if (userId === currentUserId) {
       toast({
         title: "Cannot remove yourself",
-        description: "Contact another admin or owner to remove you from the team",
-        variant: "destructive",
+        description: "You cannot remove yourself from the workflow.",
+        variant: "destructive"
       });
       return;
     }
-
-    // Cannot remove the only owner
-    if (teamMembers.find(m => m.id === memberId)?.role === 'owner' && 
-        teamMembers.filter(m => m.role === 'owner').length === 1) {
+    
+    const memberToRemove = members.find(m => m.id === userId);
+    if (!memberToRemove) return;
+    
+    if (confirm(`Are you sure you want to remove ${memberToRemove.name} from this workflow?`)) {
+      setMembers(members.filter(member => member.id !== userId));
+      
       toast({
-        title: "Cannot remove the only owner",
-        description: "Transfer ownership to another member first",
-        variant: "destructive",
+        title: "Member removed",
+        description: `${memberToRemove.name} has been removed from the workflow.`
       });
-      return;
     }
-
-    const memberToRemove = teamMembers.find(m => m.id === memberId);
-    const updatedMembers = teamMembers.filter(member => member.id !== memberId);
+  };
+  
+  const handleAddComment = () => {
+    if (!newComment.trim()) return;
     
-    setTeamMembers(updatedMembers);
-    
-    // Log this activity
-    const newActivity: ActivityLog = {
-      id: `activity-${activityLogs.length + 1}`,
+    const comment: Comment = {
+      id: `comment-${Date.now()}`,
       userId: currentUserId,
       userName: "You",
-      action: "removed",
-      resourceType: "user",
-      resourceName: memberToRemove?.name || "",
+      text: newComment,
       timestamp: new Date()
     };
     
-    setActivityLogs([newActivity, ...activityLogs]);
-    
-    toast({
-      title: "Team member removed",
-      description: `${memberToRemove?.name} has been removed from the team`,
-    });
+    setComments([...comments, comment]);
+    setNewComment("");
   };
-
-  // Function to format the time elapsed
-  const getTimeElapsed = (date?: Date) => {
-    if (!date) return "Never";
+  
+  const formatDate = (date: Date) => {
+    const now = new Date();
+    const diffInHours = Math.abs(now.getTime() - date.getTime()) / 36e5;
     
-    const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-    
-    if (seconds < 60) return "Just now";
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-    if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
-    
-    return date.toLocaleDateString();
-  };
-
-  // Get role icon
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case 'owner':
-        return <ShieldCheck className="h-4 w-4 text-purple-500" />;
-      case 'admin':
-        return <Shield className="h-4 w-4 text-blue-500" />;
-      case 'editor':
-        return <Edit className="h-4 w-4 text-green-500" />;
-      case 'viewer':
-        return <Eye className="h-4 w-4 text-gray-500" />;
-      default:
-        return null;
+    if (diffInHours < 24) {
+      return `${Math.round(diffInHours)} hours ago`;
+    } else {
+      const days = Math.round(diffInHours / 24);
+      return `${days} day${days > 1 ? 's' : ''} ago`;
     }
   };
-
-  // Get role label
-  const getRoleLabel = (role: string) => {
-    switch (role) {
-      case 'owner':
-        return (
-          <Badge variant="outline" className="bg-purple-50 border-purple-200 text-purple-700">
-            Owner
-          </Badge>
-        );
-      case 'admin':
-        return (
-          <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-700">
-            Admin
-          </Badge>
-        );
-      case 'editor':
-        return (
-          <Badge variant="outline" className="bg-green-50 border-green-200 text-green-700">
-            Editor
-          </Badge>
-        );
-      case 'viewer':
-        return (
-          <Badge variant="outline" className="bg-gray-50 border-gray-200 text-gray-700">
-            Viewer
-          </Badge>
-        );
-      default:
-        return null;
-    }
-  };
-
+  
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Users className="h-5 w-5" />
-          Team Collaboration
-        </CardTitle>
-        <CardDescription>
-          Manage team access and track activity for this workflow
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="members">Team Members</TabsTrigger>
-            <TabsTrigger value="activity">Activity Log</TabsTrigger>
-            <TabsTrigger value="permissions">Permission Settings</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="members">
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                  <Input
-                    placeholder="Search team members..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-                <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="gap-2">
-                      <UserPlus className="h-4 w-4" />
-                      Invite Team Member
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Invite a Team Member</DialogTitle>
-                      <DialogDescription>
-                        Add someone to collaborate on this workflow
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-2">
-                      <div>
-                        <Label htmlFor="email">Email address</Label>
-                        <div className="flex mt-1.5">
-                          <div className="relative flex-1">
-                            <Mail className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                            <Input
-                              id="email"
-                              placeholder="colleague@example.com"
-                              value={inviteEmail}
-                              onChange={(e) => setInviteEmail(e.target.value)}
-                              className="pl-9"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <Label htmlFor="role">Permissions</Label>
-                        <Select
-                          value={inviteRole}
-                          onValueChange={(value: 'editor' | 'viewer') => setInviteRole(value)}
-                        >
-                          <SelectTrigger id="role">
-                            <SelectValue placeholder="Select role" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectLabel>Permissions</SelectLabel>
-                              <SelectItem value="editor">
-                                <div className="flex items-center">
-                                  <Edit className="h-4 w-4 mr-2 text-green-500" />
-                                  <span>Editor - Can edit workflow</span>
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="viewer">
-                                <div className="flex items-center">
-                                  <Eye className="h-4 w-4 mr-2 text-gray-500" />
-                                  <span>Viewer - Can only view</span>
-                                </div>
-                              </SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => setIsInviteDialogOpen(false)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={handleInvite}>Send Invitation</Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
-              
-              <div className="border rounded-md divide-y">
-                {filteredMembers.length > 0 ? (
-                  filteredMembers.map((member) => (
-                    <div key={member.id} className="p-3 flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarImage src={member.avatarUrl} />
-                          <AvatarFallback>{member.initials}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">
-                            {member.name} {member.id === currentUserId && "(You)"}
-                          </div>
-                          <div className="text-sm text-gray-500">{member.email}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4 text-gray-400" />
-                          <span className="text-sm text-gray-500">
-                            {getTimeElapsed(member.lastActive)}
-                          </span>
-                        </div>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => setPermissionDialogMember(member)}
-                            >
-                              <div className="flex items-center gap-2">
-                                {getRoleIcon(member.role)}
-                                {getRoleLabel(member.role)}
-                              </div>
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Change Role for {member.name}</DialogTitle>
-                              <DialogDescription>
-                                Update team member permissions
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4 py-2">
-                              <div className="space-y-2">
-                                <Label htmlFor="role">Role</Label>
-                                <div className="grid grid-cols-1 gap-2">
-                                  <Button
-                                    variant={member.role === 'owner' ? 'default' : 'outline'}
-                                    className="justify-start"
-                                    onClick={() => updateMemberRole(member.id, 'owner')}
-                                    disabled={member.id === currentUserId}
-                                  >
-                                    <ShieldCheck className="h-4 w-4 mr-2 text-purple-500" />
-                                    <div className="text-left">
-                                      <div>Owner</div>
-                                      <div className="text-xs text-gray-500">Full control and administrative access</div>
-                                    </div>
-                                  </Button>
-                                  <Button
-                                    variant={member.role === 'admin' ? 'default' : 'outline'}
-                                    className="justify-start"
-                                    onClick={() => updateMemberRole(member.id, 'admin')}
-                                    disabled={member.id === currentUserId}
-                                  >
-                                    <Shield className="h-4 w-4 mr-2 text-blue-500" />
-                                    <div className="text-left">
-                                      <div>Admin</div>
-                                      <div className="text-xs text-gray-500">Can manage workflows and team access</div>
-                                    </div>
-                                  </Button>
-                                  <Button
-                                    variant={member.role === 'editor' ? 'default' : 'outline'}
-                                    className="justify-start"
-                                    onClick={() => updateMemberRole(member.id, 'editor')}
-                                    disabled={member.id === currentUserId}
-                                  >
-                                    <Edit className="h-4 w-4 mr-2 text-green-500" />
-                                    <div className="text-left">
-                                      <div>Editor</div>
-                                      <div className="text-xs text-gray-500">Can edit workflows but not manage team</div>
-                                    </div>
-                                  </Button>
-                                  <Button
-                                    variant={member.role === 'viewer' ? 'default' : 'outline'}
-                                    className="justify-start"
-                                    onClick={() => updateMemberRole(member.id, 'viewer')}
-                                    disabled={member.id === currentUserId}
-                                  >
-                                    <Eye className="h-4 w-4 mr-2 text-gray-500" />
-                                    <div className="text-left">
-                                      <div>Viewer</div>
-                                      <div className="text-xs text-gray-500">Can only view workflows</div>
-                                    </div>
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                            <DialogFooter>
-                              <Button 
-                                variant="destructive" 
-                                className="mr-auto"
-                                onClick={() => removeMember(member.id)}
-                                disabled={member.id === currentUserId}
-                              >
-                                Remove from Team
-                              </Button>
-                              <Button variant="outline">Cancel</Button>
-                              <Button>Save</Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="p-6 text-center">
-                    <p className="text-gray-500">No team members found matching your search.</p>
-                  </div>
-                )}
-              </div>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Team Collaboration</CardTitle>
+              <CardDescription>
+                Manage team members and workflow permissions
+              </CardDescription>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="activity">
-            <div className="space-y-4">
-              <div className="border rounded-md divide-y max-h-[400px] overflow-y-auto">
-                {activityLogs.map((log) => (
-                  <div key={log.id} className="p-3 flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                      <Activity className="h-5 w-5 text-blue-500" />
+            <Button onClick={() => setInviteDialogOpen(true)} className="gap-2">
+              <UserPlus className="h-4 w-4" />
+              Invite
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="mb-4">
+              <TabsTrigger value="members" className="flex items-center gap-1">
+                <Users className="h-4 w-4" />
+                Team Members
+              </TabsTrigger>
+              <TabsTrigger value="activity" className="flex items-center gap-1">
+                <ClipboardList className="h-4 w-4" />
+                Activity Log
+              </TabsTrigger>
+              <TabsTrigger value="comments" className="flex items-center gap-1">
+                <MessageSquare className="h-4 w-4" />
+                Comments
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="members" className="mt-0">
+              <div className="space-y-3">
+                {members.map(member => (
+                  <div 
+                    key={member.id} 
+                    className="flex items-center justify-between p-3 border rounded-md"
+                  >
+                    <div className="flex items-center">
+                      <Avatar className="h-8 w-8 mr-3">
+                        {member.avatarUrl ? (
+                          <AvatarImage src={member.avatarUrl} />
+                        ) : (
+                          <AvatarFallback>
+                            {member.name.substring(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      
                       <div>
-                        <div className="font-medium">
-                          <span>{log.userName} </span>
-                          <span className="text-gray-700">{log.action} </span>
-                          <span className="text-gray-700">{log.resourceType} </span>
-                          <span className="font-medium text-black">"{log.resourceName}"</span>
+                        <p className="font-medium">
+                          {member.name}
+                          {member.id === currentUserId && " (you)"}
+                        </p>
+                        <div className="flex items-center text-sm text-gray-500">
+                          <Mail className="h-3 w-3 mr-1" />
+                          {member.email}
                         </div>
-                        <div className="text-xs text-gray-500">{log.timestamp.toLocaleString()}</div>
                       </div>
                     </div>
-                    <div className="text-sm text-gray-500">
-                      {getTimeElapsed(log.timestamp)}
+                    
+                    <div className="flex items-center gap-3">
+                      {member.lastActive && (
+                        <div className="hidden md:flex items-center text-xs text-gray-500">
+                          <Clock className="h-3 w-3 mr-1" />
+                          Active {formatDate(member.lastActive)}
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center gap-2">
+                        {member.id !== currentUserId ? (
+                          <Select
+                            value={member.role}
+                            onValueChange={(value: "admin" | "editor" | "viewer") => 
+                              handleRoleChange(member.id, value)
+                            }
+                          >
+                            <SelectTrigger className="w-[110px] h-8 text-xs">
+                              <div className="flex items-center">
+                                {member.role === "admin" && <Shield className="h-3 w-3 mr-1 text-purple-500" />}
+                                <SelectValue />
+                              </div>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="admin">Admin</SelectItem>
+                              <SelectItem value="editor">Editor</SelectItem>
+                              <SelectItem value="viewer">Viewer</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Badge variant="outline" className="h-8 flex items-center gap-1 bg-gray-50">
+                            <Shield className="h-3 w-3 text-purple-500" />
+                            Owner
+                          </Badge>
+                        )}
+                        
+                        {member.id !== currentUserId && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleRemoveMember(member.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full mt-2"
+                  onClick={() => setInviteDialogOpen(true)}
+                >
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  Invite Team Member
+                </Button>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="activity" className="mt-0">
+              <div className="space-y-3">
+                {activityLogs.map(log => (
+                  <div 
+                    key={log.id} 
+                    className="flex p-3 border rounded-md"
+                  >
+                    <div className="mr-3 mt-1">
+                      {log.action === "created" && (
+                        <PlusCircle className="h-4 w-4 text-green-500" />
+                      )}
+                      {log.action === "modified" && (
+                        <MoreHorizontal className="h-4 w-4 text-blue-500" />
+                      )}
+                      {log.action === "activated" && (
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                      )}
+                      {log.action === "deactivated" && (
+                        <XCircle className="h-4 w-4 text-red-500" />
+                      )}
+                      {log.action === "added" && (
+                        <PlusCircle className="h-4 w-4 text-purple-500" />
+                      )}
+                      {log.action === "removed" && (
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      )}
+                      {log.action === "error" && (
+                        <AlertCircle className="h-4 w-4 text-amber-500" />
+                      )}
+                    </div>
+                    
+                    <div className="flex-1">
+                      <div className="flex justify-between">
+                        <p>
+                          <span className="font-medium">{log.userName}</span>
+                          {" "}
+                          <span>{log.action} {log.target}</span>
+                        </p>
+                        <span className="text-xs text-gray-500">
+                          {formatDate(log.timestamp)}
+                        </span>
+                      </div>
+                      
+                      {log.details && (
+                        <p className="text-sm text-gray-600 mt-1">{log.details}</p>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-          </TabsContent>
+            </TabsContent>
+            
+            <TabsContent value="comments" className="mt-0">
+              <div className="space-y-4">
+                <div className="space-y-4">
+                  {comments.map(comment => (
+                    <div 
+                      key={comment.id} 
+                      className="flex p-3 border rounded-md"
+                    >
+                      <Avatar className="h-8 w-8 mr-3 mt-0.5">
+                        {comment.userAvatar ? (
+                          <AvatarImage src={comment.userAvatar} />
+                        ) : (
+                          <AvatarFallback>
+                            {comment.userName.substring(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      
+                      <div className="flex-1">
+                        <div className="flex justify-between">
+                          <span className="font-medium">
+                            {comment.userName}
+                            {comment.userId === currentUserId && " (you)"}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {formatDate(comment.timestamp)}
+                          </span>
+                        </div>
+                        
+                        <p className="mt-1">{comment.text}</p>
+                        
+                        {comment.reactions && comment.reactions.length > 0 && (
+                          <div className="flex gap-2 mt-2">
+                            {comment.reactions.map((reaction, i) => (
+                              <Badge 
+                                key={i} 
+                                variant="outline" 
+                                className="px-2 py-0 h-6"
+                              >
+                                {reaction.emoji} {reaction.count}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Add a comment..."
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    className="flex-1"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleAddComment();
+                      }
+                    }}
+                  />
+                  <Button onClick={handleAddComment}>
+                    Add
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+      
+      <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Invite Team Member</DialogTitle>
+          </DialogHeader>
           
-          <TabsContent value="permissions">
-            <div className="space-y-4">
-              <div className="bg-gray-50 p-4 rounded-md border">
-                <h3 className="font-medium mb-2">Default Permissions</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="editor-permissions" className="font-medium">Editor Permissions</Label>
-                      <p className="text-sm text-gray-500">Can editors publish workflows?</p>
-                    </div>
-                    <Switch id="editor-permissions" defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="viewer-run" className="font-medium">Viewer Execution Rights</Label>
-                      <p className="text-sm text-gray-500">Can viewers run workflows?</p>
-                    </div>
-                    <Switch id="viewer-run" />
-                  </div>
-                </div>
-              </div>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="email">Email Address</Label>
+              <Input 
+                id="email"
+                type="email"
+                placeholder="colleague@example.com"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="role">Role</Label>
+              <Select value={inviteRole} onValueChange={(v: "admin" | "editor" | "viewer") => setInviteRole(v)}>
+                <SelectTrigger id="role">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Admin (full access)</SelectItem>
+                  <SelectItem value="editor">Editor (can edit)</SelectItem>
+                  <SelectItem value="viewer">Viewer (read-only)</SelectItem>
+                </SelectContent>
+              </Select>
               
-              <div className="bg-gray-50 p-4 rounded-md border">
-                <h3 className="font-medium mb-2">Security Settings</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="audit-log" className="font-medium">Enable Audit Logs</Label>
-                      <p className="text-sm text-gray-500">Track all changes to workflows</p>
-                    </div>
-                    <Switch id="audit-log" defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="require-approval" className="font-medium">Require Approval</Label>
-                      <p className="text-sm text-gray-500">Changes need admin approval before publishing</p>
-                    </div>
-                    <Switch id="require-approval" />
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-gray-50 p-4 rounded-md border">
-                <h3 className="font-medium mb-2">Notification Preferences</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="edit-notifications" className="font-medium">Edit Notifications</Label>
-                      <p className="text-sm text-gray-500">Send notifications when edits are made</p>
-                    </div>
-                    <Switch id="edit-notifications" defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="run-notifications" className="font-medium">Execution Notifications</Label>
-                      <p className="text-sm text-gray-500">Send notifications when workflow runs</p>
-                    </div>
-                    <Switch id="run-notifications" defaultChecked />
-                  </div>
-                </div>
+              <div className="mt-2 text-xs text-gray-500">
+                {inviteRole === "admin" && (
+                  <p>Admins can edit, activate/deactivate, and manage team permissions</p>
+                )}
+                {inviteRole === "editor" && (
+                  <p>Editors can modify workflows but cannot manage permissions</p>
+                )}
+                {inviteRole === "viewer" && (
+                  <p>Viewers can only view workflows but cannot make changes</p>
+                )}
               </div>
             </div>
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setInviteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleInviteUser}>
+              Send Invitation
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };

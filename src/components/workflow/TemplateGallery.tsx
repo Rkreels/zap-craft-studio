@@ -1,81 +1,59 @@
 
 import React, { useState } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription 
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from "@/components/ui/tabs";
-import { 
-  Search, 
-  Filter, 
-  Star, 
-  Clock, 
-  Users, 
-  MessageSquare, 
-  Calendar, 
-  ShoppingCart, 
-  FileText, 
-  Database,
-  Mail
-} from "lucide-react";
-import { WorkflowStepData } from "./WorkflowStep";
-import { ScheduleConfig } from "./ScheduleBuilder";
-import { useToast } from "@/components/ui/use-toast";
+import { Check, Heart, Search, Star, Zap } from "lucide-react";
+import { TemplateDetails } from "./TemplateDetails";
 
-interface Template {
+export interface WorkflowTemplate {
   id: string;
   name: string;
   description: string;
   category: string;
-  tags: string[];
-  popularity: number;
-  complexity: 'beginner' | 'intermediate' | 'advanced';
-  steps: WorkflowStepData[];
-  schedule?: ScheduleConfig;
-  createdBy: string;
-  isOfficial: boolean;
+  featured?: boolean;
+  popular?: boolean;
+  new?: boolean;
+  previewImage?: string;
+  author?: string;
+  lastUpdated?: string;
+  usageCount?: number;
+  requiredAccounts?: string[];
+  workflowSteps?: string[];
+  steps?: any[];
+  schedule?: any;
 }
 
 interface TemplateGalleryProps {
-  onSelectTemplate: (template: Template) => void;
+  onSelectTemplate: (template: WorkflowTemplate) => void;
 }
 
-export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
-  onSelectTemplate
+export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ 
+  onSelectTemplate 
 }) => {
+  const [activeTab, setActiveTab] = useState("featured");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("all");
-  const { toast } = useToast();
-
-  // Sample pre-built templates
-  const templates: Template[] = [
+  const [selectedTemplate, setSelectedTemplate] = useState<WorkflowTemplate | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  
+  // Mock template data
+  const templates: WorkflowTemplate[] = [
     {
       id: "template-1",
-      name: "New Lead Notification",
-      description: "Send a notification when a new lead is created in your CRM system.",
-      category: "sales",
-      tags: ["crm", "notification", "sales"],
-      popularity: 4.8,
-      complexity: "beginner",
+      name: "Gmail to Slack Notification",
+      description: "Get Slack messages when new emails with specific labels arrive in Gmail",
+      category: "Communication",
+      featured: true,
+      popular: true,
       steps: [
         {
           id: "trigger-1",
           type: "trigger",
-          appId: "crm",
-          appName: "CRM System",
-          actionName: "New Lead Created",
+          appId: "gmail",
+          appName: "Gmail",
+          actionName: "New Email",
           configured: true,
           config: {}
         },
@@ -84,350 +62,332 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
           type: "action",
           appId: "slack",
           appName: "Slack",
-          actionName: "Send Message",
+          actionName: "Send Channel Message",
           configured: true,
           config: {}
         }
-      ],
-      createdBy: "Zapier Team",
-      isOfficial: true
+      ]
     },
     {
       id: "template-2",
-      name: "Calendar to Task Integration",
-      description: "Create tasks from new calendar events automatically.",
-      category: "productivity",
-      tags: ["calendar", "tasks", "automation"],
-      popularity: 4.5,
-      complexity: "beginner",
+      name: "Twitter to Google Sheets",
+      description: "Save tweets matching your search criteria to a Google Sheets spreadsheet",
+      category: "Social Media",
+      new: true,
       steps: [
         {
           id: "trigger-1",
           type: "trigger",
-          appId: "calendar",
-          appName: "Google Calendar",
-          actionName: "New Event Created",
+          appId: "twitter",
+          appName: "Twitter",
+          actionName: "New Search Mention",
           configured: true,
           config: {}
         },
         {
           id: "action-1",
           type: "action",
-          appId: "asana",
-          appName: "Asana",
-          actionName: "Create Task",
+          appId: "sheets",
+          appName: "Google Sheets",
+          actionName: "Add Row",
           configured: true,
           config: {}
         }
-      ],
-      createdBy: "Productivity Team",
-      isOfficial: true
+      ]
     },
     {
       id: "template-3",
-      name: "Multi-step Email Campaign",
-      description: "Send a series of timed emails to new subscribers.",
-      category: "marketing",
-      tags: ["email", "automation", "marketing"],
-      popularity: 4.7,
-      complexity: "intermediate",
-      steps: [
-        {
-          id: "trigger-1",
-          type: "trigger",
-          appId: "form",
-          appName: "Form Submission",
-          actionName: "New Subscriber",
-          configured: true,
-          config: {}
-        },
-        {
-          id: "action-1",
-          type: "action",
-          appId: "email",
-          appName: "Email",
-          actionName: "Send Welcome Email",
-          configured: true,
-          config: {}
-        },
-        {
-          id: "action-2",
-          type: "action",
-          appId: "delay",
-          appName: "Delay",
-          actionName: "Wait 2 Days",
-          configured: true,
-          config: {}
-        },
-        {
-          id: "action-3",
-          type: "action",
-          appId: "email",
-          appName: "Email",
-          actionName: "Send Follow-up",
-          configured: true,
-          config: {}
-        }
-      ],
-      schedule: {
-        frequency: "daily",
-        time: "09:00",
-        active: true
-      },
-      createdBy: "Marketing Team",
-      isOfficial: true
-    },
-    {
-      id: "template-4",
-      name: "Order Fulfillment Workflow",
-      description: "Process orders from your e-commerce platform to your fulfillment system.",
-      category: "ecommerce",
-      tags: ["orders", "inventory", "shipping"],
-      popularity: 4.6,
-      complexity: "advanced",
+      name: "Shopify Order to Trello Card",
+      description: "Create a Trello card for each new order in your Shopify store",
+      category: "E-commerce",
+      popular: true,
       steps: [
         {
           id: "trigger-1",
           type: "trigger",
           appId: "shopify",
           appName: "Shopify",
-          actionName: "New Paid Order",
+          actionName: "New Order",
           configured: true,
           config: {}
         },
         {
           id: "action-1",
           type: "action",
-          appId: "inventory",
-          appName: "Inventory System",
-          actionName: "Check Stock",
-          configured: true,
-          config: {}
-        },
-        {
-          id: "action-2",
-          type: "action",
-          appId: "shipping",
-          appName: "Shipping Partner",
-          actionName: "Create Shipment",
-          configured: true,
-          config: {}
-        },
-        {
-          id: "action-3",
-          type: "action",
-          appId: "email",
-          appName: "Email",
-          actionName: "Send Tracking Info",
+          appId: "trello",
+          appName: "Trello",
+          actionName: "Create Card",
           configured: true,
           config: {}
         }
-      ],
-      createdBy: "E-commerce Solutions",
-      isOfficial: true
+      ]
+    },
+    {
+      id: "template-4",
+      name: "Lead Form to CRM",
+      description: "Automatically add new form submissions as leads in your CRM",
+      category: "Marketing",
+      featured: true,
+      steps: [
+        {
+          id: "trigger-1",
+          type: "trigger",
+          appId: "forms",
+          appName: "Form Service",
+          actionName: "New Submission",
+          configured: true,
+          config: {}
+        },
+        {
+          id: "action-1",
+          type: "action",
+          appId: "crm",
+          appName: "CRM System",
+          actionName: "Create Lead",
+          configured: true,
+          config: {}
+        }
+      ]
+    },
+    {
+      id: "template-5",
+      name: "Invoice Paid to Thank You Email",
+      description: "Send an automated thank you email when an invoice is paid",
+      category: "Finance",
+      steps: [
+        {
+          id: "trigger-1",
+          type: "trigger",
+          appId: "accounting",
+          appName: "Accounting Software",
+          actionName: "Invoice Paid",
+          configured: true,
+          config: {}
+        },
+        {
+          id: "action-1",
+          type: "action",
+          appId: "email",
+          appName: "Email Service",
+          actionName: "Send Email",
+          configured: true,
+          config: {}
+        }
+      ]
+    },
+    {
+      id: "template-6",
+      name: "Calendar Event to Task Reminder",
+      description: "Create a task reminder when new calendar events are added",
+      category: "Productivity",
+      new: true,
+      steps: [
+        {
+          id: "trigger-1",
+          type: "trigger",
+          appId: "calendar",
+          appName: "Calendar App",
+          actionName: "New Event",
+          configured: true,
+          config: {}
+        },
+        {
+          id: "action-1",
+          type: "action",
+          appId: "tasks",
+          appName: "Task Manager",
+          actionName: "Create Task",
+          configured: true,
+          config: {}
+        }
+      ]
     }
   ];
-
-  // Filter templates based on search and category
+  
+  // Filter templates based on active tab and search query
   const filteredTemplates = templates.filter(template => {
-    const matchesSearch = searchQuery === "" || 
-      template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      template.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      template.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         template.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         template.category.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesCategory = activeCategory === "all" || template.category === activeCategory;
+    if (!matchesSearch) return false;
     
-    return matchesSearch && matchesCategory;
+    switch (activeTab) {
+      case "featured":
+        return template.featured;
+      case "popular":
+        return template.popular;
+      case "new":
+        return template.new;
+      default:
+        return true;
+    }
   });
-
-  const handleTemplateSelect = (template: Template) => {
+  
+  const handleViewDetails = (template: WorkflowTemplate) => {
+    setSelectedTemplate(template);
+    setIsDetailsOpen(true);
+  };
+  
+  const handleUseTemplate = (template: WorkflowTemplate) => {
     onSelectTemplate(template);
-    toast({
-      title: "Template Selected",
-      description: `"${template.name}" template has been applied to your workflow.`,
-    });
   };
-
-  // Get icon for category
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case "sales":
-        return <ShoppingCart className="h-5 w-5" />;
-      case "productivity":
-        return <Clock className="h-5 w-5" />;
-      case "marketing":
-        return <Mail className="h-5 w-5" />;
-      case "ecommerce":
-        return <ShoppingCart className="h-5 w-5" />;
-      case "content":
-        return <FileText className="h-5 w-5" />;
-      case "database":
-        return <Database className="h-5 w-5" />;
-      default:
-        return <Star className="h-5 w-5" />;
-    }
-  };
-
-  // Get icon for complexity
-  const getComplexityColor = (complexity: string) => {
-    switch (complexity) {
-      case "beginner":
-        return "bg-green-100 text-green-800";
-      case "intermediate":
-        return "bg-yellow-100 text-yellow-800";
-      case "advanced":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
+  
   return (
     <div className="space-y-4">
-      <div className="flex flex-col md:flex-row gap-2 md:items-center justify-between">
-        <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-          <Input
-            placeholder="Search templates..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Button variant="outline" className="gap-2">
-          <Filter className="h-4 w-4" />
-          Filter
-        </Button>
+      <div className="relative">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+        <Input
+          placeholder="Search templates..."
+          className="pl-8"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
       
-      <Tabs defaultValue="all" value={activeCategory} onValueChange={setActiveCategory}>
-        <TabsList className="mb-4 flex w-full flex-wrap">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-4">
           <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="sales">Sales</TabsTrigger>
-          <TabsTrigger value="productivity">Productivity</TabsTrigger>
-          <TabsTrigger value="marketing">Marketing</TabsTrigger>
-          <TabsTrigger value="ecommerce">E-Commerce</TabsTrigger>
-          <TabsTrigger value="content">Content</TabsTrigger>
+          <TabsTrigger value="featured">
+            <Star className="h-3.5 w-3.5 mr-1" />
+            Featured
+          </TabsTrigger>
+          <TabsTrigger value="popular">
+            <Zap className="h-3.5 w-3.5 mr-1" />
+            Popular
+          </TabsTrigger>
+          <TabsTrigger value="new">New</TabsTrigger>
         </TabsList>
         
         <TabsContent value="all" className="mt-0">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTemplates.map((template) => (
-              <Card key={template.id} className="overflow-hidden">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {getCategoryIcon(template.category)}
-                      <CardTitle className="text-base">{template.name}</CardTitle>
-                    </div>
-                    {template.isOfficial && (
-                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                        Official
-                      </Badge>
-                    )}
-                  </div>
-                  <CardDescription className="line-clamp-2">
-                    {template.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pb-2">
-                  <div className="flex flex-wrap gap-1 mb-2">
-                    {template.tags.map(tag => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
-                      <span>{template.popularity}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <Users className="h-4 w-4 mr-1 text-gray-500" /> 
-                      <span>{Math.floor(Math.random() * 900) + 100} users</span>
-                    </div>
-                    <Badge className={getComplexityColor(template.complexity)}>
-                      {template.complexity}
-                    </Badge>
-                  </div>
-                </CardContent>
-                <CardFooter className="pt-2">
-                  <Button 
-                    className="w-full"
-                    onClick={() => handleTemplateSelect(template)}
-                  >
-                    Use Template
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
+            {filteredTemplates.length > 0 ? (
+              filteredTemplates.map(template => (
+                <TemplateCard 
+                  key={template.id} 
+                  template={template} 
+                  onViewDetails={handleViewDetails}
+                  onUseTemplate={handleUseTemplate}
+                />
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-8 border border-dashed rounded-md">
+                <p className="text-gray-500">No templates found matching your search</p>
+              </div>
+            )}
           </div>
         </TabsContent>
         
-        {["sales", "productivity", "marketing", "ecommerce", "content"].map((category) => (
-          <TabsContent key={category} value={category} className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredTemplates.length > 0 ? (
-                filteredTemplates.map((template) => (
-                  <Card key={template.id} className="overflow-hidden">
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {getCategoryIcon(template.category)}
-                          <CardTitle className="text-base">{template.name}</CardTitle>
-                        </div>
-                        {template.isOfficial && (
-                          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                            Official
-                          </Badge>
-                        )}
-                      </div>
-                      <CardDescription className="line-clamp-2">
-                        {template.description}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pb-2">
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {template.tags.map(tag => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
-                          <span>{template.popularity}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Users className="h-4 w-4 mr-1 text-gray-500" /> 
-                          <span>{Math.floor(Math.random() * 900) + 100} users</span>
-                        </div>
-                        <Badge className={getComplexityColor(template.complexity)}>
-                          {template.complexity}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                    <CardFooter className="pt-2">
-                      <Button 
-                        className="w-full"
-                        onClick={() => handleTemplateSelect(template)}
-                      >
-                        Use Template
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))
-              ) : (
-                <div className="col-span-3 py-10 text-center">
-                  <p className="text-gray-500">No templates found in this category matching your search.</p>
-                </div>
-              )}
-            </div>
-          </TabsContent>
-        ))}
+        <TabsContent value="featured" className="mt-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredTemplates.length > 0 ? (
+              filteredTemplates.map(template => (
+                <TemplateCard 
+                  key={template.id} 
+                  template={template} 
+                  onViewDetails={handleViewDetails}
+                  onUseTemplate={handleUseTemplate}
+                />
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-8 border border-dashed rounded-md">
+                <p className="text-gray-500">No featured templates found</p>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="popular" className="mt-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredTemplates.length > 0 ? (
+              filteredTemplates.map(template => (
+                <TemplateCard 
+                  key={template.id} 
+                  template={template} 
+                  onViewDetails={handleViewDetails}
+                  onUseTemplate={handleUseTemplate}
+                />
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-8 border border-dashed rounded-md">
+                <p className="text-gray-500">No popular templates found</p>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="new" className="mt-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredTemplates.length > 0 ? (
+              filteredTemplates.map(template => (
+                <TemplateCard 
+                  key={template.id} 
+                  template={template} 
+                  onViewDetails={handleViewDetails}
+                  onUseTemplate={handleUseTemplate}
+                />
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-8 border border-dashed rounded-md">
+                <p className="text-gray-500">No new templates found</p>
+              </div>
+            )}
+          </div>
+        </TabsContent>
       </Tabs>
+      
+      <TemplateDetails 
+        template={selectedTemplate}
+        isOpen={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+        onUseTemplate={handleUseTemplate}
+      />
     </div>
+  );
+};
+
+interface TemplateCardProps {
+  template: WorkflowTemplate;
+  onViewDetails: (template: WorkflowTemplate) => void;
+  onUseTemplate: (template: WorkflowTemplate) => void;
+}
+
+const TemplateCard: React.FC<TemplateCardProps> = ({ 
+  template, 
+  onViewDetails,
+  onUseTemplate
+}) => {
+  return (
+    <Card className="overflow-hidden">
+      <CardHeader className="pb-2">
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-base">{template.name}</CardTitle>
+            <CardDescription className="line-clamp-2">
+              {template.description}
+            </CardDescription>
+          </div>
+          <Button variant="ghost" size="icon" className="mt-[-4px]">
+            <Heart className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="pb-2">
+        <div className="flex flex-wrap gap-1">
+          <Badge variant="outline">{template.category}</Badge>
+          {template.featured && <Badge variant="secondary">Featured</Badge>}
+          {template.new && <Badge variant="default" className="bg-green-500">New</Badge>}
+        </div>
+      </CardContent>
+      <CardFooter className="flex justify-between pt-0">
+        <Button variant="ghost" size="sm" onClick={() => onViewDetails(template)}>
+          View Details
+        </Button>
+        <Button size="sm" className="gap-1" onClick={() => onUseTemplate(template)}>
+          <Check className="h-3 w-3" />
+          Use
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };

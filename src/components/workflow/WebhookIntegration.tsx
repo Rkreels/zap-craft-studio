@@ -1,19 +1,25 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Copy, Rocket, ExternalLink, Trash2 } from "lucide-react";
+import { Copy, Rocket, ExternalLink, Trash2, Code, Key, Lock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AdvancedWebhook, WebhookAdvancedConfig } from "./AdvancedWebhook";
 
 export interface WebhookConfig {
   url: string;
   method: "GET" | "POST" | "PUT" | "DELETE";
   headers: Record<string, string>;
   bodyTemplate: string;
+  advanced?: boolean;
+  advancedConfig?: WebhookAdvancedConfig;
 }
 
 interface WebhookIntegrationProps {
@@ -31,6 +37,7 @@ export const WebhookIntegration: React.FC<WebhookIntegrationProps> = ({
   const [activeTab, setActiveTab] = useState("incoming");
   const [headerKey, setHeaderKey] = useState("");
   const [headerValue, setHeaderValue] = useState("");
+  const [isAdvancedMode, setIsAdvancedMode] = useState(config.advanced || false);
 
   const copyToClipboard = (text: string, message: string) => {
     navigator.clipboard.writeText(text);
@@ -75,14 +82,94 @@ export const WebhookIntegration: React.FC<WebhookIntegrationProps> = ({
   const updateBodyTemplate = (bodyTemplate: string) => {
     onChange({ ...config, bodyTemplate });
   };
+  
+  const handleToggleAdvanced = () => {
+    const newValue = !isAdvancedMode;
+    setIsAdvancedMode(newValue);
+    
+    // Initialize advanced config if switching to advanced mode
+    if (newValue && !config.advancedConfig) {
+      onChange({
+        ...config,
+        advanced: newValue,
+        advancedConfig: {
+          url: config.url,
+          method: config.method,
+          headers: { ...config.headers },
+          bodyTemplate: config.bodyTemplate,
+          authType: "none",
+          authConfig: {},
+          useSubscription: false
+        }
+      });
+    } else {
+      onChange({
+        ...config,
+        advanced: newValue
+      });
+    }
+  };
+  
+  const handleAdvancedConfigChange = (advancedConfig: WebhookAdvancedConfig) => {
+    onChange({
+      ...config,
+      advancedConfig,
+      // Keep basic config in sync with advanced
+      url: advancedConfig.url,
+      method: advancedConfig.method,
+      headers: { ...advancedConfig.headers },
+      bodyTemplate: advancedConfig.bodyTemplate,
+    });
+  };
 
+  // If in advanced mode, render the advanced component
+  if (isAdvancedMode && config.advancedConfig) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="bg-blue-50">Advanced Mode</Badge>
+            <Button 
+              variant="link" 
+              size="sm" 
+              className="text-sm h-auto p-0" 
+              onClick={handleToggleAdvanced}
+            >
+              Switch to Basic Mode
+            </Button>
+          </div>
+        </div>
+        
+        <AdvancedWebhook
+          config={config.advancedConfig}
+          onChange={handleAdvancedConfigChange}
+          generatedWebhookUrl={generatedWebhookUrl}
+        />
+      </div>
+    );
+  }
+
+  // Otherwise, render the standard webhook interface
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Webhook Integration</CardTitle>
-        <CardDescription>
-          Configure webhooks to trigger or perform actions in your workflow
-        </CardDescription>
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle>Webhook Integration</CardTitle>
+            <CardDescription>
+              Configure webhooks to trigger or perform actions in your workflow
+            </CardDescription>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-1"
+            onClick={handleToggleAdvanced}
+          >
+            <Code className="h-4 w-4" />
+            Advanced Mode
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
