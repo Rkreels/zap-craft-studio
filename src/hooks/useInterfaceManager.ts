@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { InterfaceItem } from "@/types/interfaces";
 import { toast } from "@/hooks/use-toast";
-// Remove the direct import of Lucide icons as we'll use the utility function
 
 // Mock placeholder image URLs
 const formPreview = "https://placehold.co/600x400/e2e8f0/64748b?text=Form+Interface";
@@ -154,8 +153,6 @@ export const useInterfaceManager = () => {
       default: return formPreview;
     }
   };
-
-  // We removed the getTypeIcon function from here as it's now in a separate file
 
   // Toggle sort direction
   const toggleSort = (field: string) => {
@@ -337,8 +334,16 @@ export const useInterfaceManager = () => {
     }
   };
   
-  const openInterfaceDetails = (item: InterfaceItem) => {
-    setViewingInterface(item);
+  const openInterfaceDetails = (id: string) => {
+    const interface_ = interfaces.find(item => item.id === id);
+    if (interface_) {
+      // Increment view count
+      const updatedInterfaces = interfaces.map(item => 
+        item.id === id ? { ...item, viewCount: (item.viewCount || 0) + 1 } : item
+      );
+      setInterfaces(updatedInterfaces);
+      setViewingInterface(interface_);
+    }
   };
   
   const handleSelectInterface = (id: string) => {
@@ -394,7 +399,6 @@ export const useInterfaceManager = () => {
     setNewInterface,
     formatDate,
     getPreviewImage,
-    // We no longer return getTypeIcon from this hook
     toggleSort,
     createInterface,
     updateInterface,

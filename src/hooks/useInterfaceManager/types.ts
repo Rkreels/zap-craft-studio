@@ -48,7 +48,7 @@ export interface InterfaceManagerHook {
   duplicateInterface: (item: InterfaceItem) => void;
   confirmDelete: (id: string) => void;
   openInterfaceEditor: (id: string) => void;
-  openInterfaceDetails: (id: string) => void;
+  openInterfaceDetails: (id: string) => void;  // Changed from (item: InterfaceItem) => void to (id: string) => void
   handleSelectInterface: (id: string) => void;
   toggleSelectAll: () => void;
 }
