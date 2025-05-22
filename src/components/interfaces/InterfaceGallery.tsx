@@ -9,7 +9,7 @@ export interface InterfaceGalleryProps {
   openInterfaceEditor: (id: string) => void;
   duplicateInterface: (item: InterfaceItem) => void;
   confirmDelete: (id: string) => void;
-  openInterfaceDetails: (id: string) => void; // Updated to use id instead of item
+  openInterfaceDetails: (id: string) => void;
   openVersionHistory: (interfaceId: string) => void;
 }
 

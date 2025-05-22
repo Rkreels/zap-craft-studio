@@ -69,6 +69,7 @@ export default function VoiceTrainingPage() {
             apiKey={apiKey} 
             setApiKey={setApiKey} 
             isTrainingCompleted={isTrainingCompleted}
+            setIsTrainingCompleted={setIsTrainingCompleted}
             onTrainingComplete={handleTrainingComplete}
             setActiveTab={setActiveTab}
           />

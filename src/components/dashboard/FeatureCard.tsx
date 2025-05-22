@@ -11,6 +11,7 @@ interface FeatureCardProps {
   icon: LucideIcon;
   path: string;
   className?: string;
+  onClick?: () => boolean; // Added onClick prop
 }
 
 export function FeatureCard({ 
@@ -18,7 +19,8 @@ export function FeatureCard({
   description, 
   icon: Icon, 
   path,
-  className 
+  className,
+  onClick 
 }: FeatureCardProps) {
   const voiceProps = {
     elementName: `${title} feature card`,
@@ -28,6 +30,14 @@ export function FeatureCard({
   
   const { handleMouseEnter, handleClick } = useVoiceGuidance(voiceProps);
   
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (onClick && !onClick()) {
+      e.preventDefault();
+    }
+    
+    handleClick(e);
+  };
+
   return (
     <Link
       to={path}
@@ -37,7 +47,7 @@ export function FeatureCard({
         className
       )}
       onMouseEnter={handleMouseEnter}
-      onClick={handleClick}
+      onClick={handleCardClick}
     >
       <div className="flex flex-col h-full">
         <div className="mb-3">

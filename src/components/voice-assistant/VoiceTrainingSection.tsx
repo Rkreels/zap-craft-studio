@@ -12,6 +12,7 @@ interface VoiceTrainingSectionProps {
   setApiKey: (key: string) => void;
   isTrainingCompleted: boolean;
   onTrainingComplete: () => void;
+  setIsTrainingCompleted: (completed: boolean) => void; // Added this prop
   setActiveTab: (tab: string) => void;
 }
 
@@ -20,6 +21,7 @@ export const VoiceTrainingSection: React.FC<VoiceTrainingSectionProps> = ({
   setApiKey,
   isTrainingCompleted,
   onTrainingComplete,
+  setIsTrainingCompleted,
   setActiveTab
 }) => {
   return (
