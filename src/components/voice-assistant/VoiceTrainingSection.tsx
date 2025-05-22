@@ -45,6 +45,7 @@ export const VoiceTrainingSection: React.FC<VoiceTrainingSectionProps> = ({
             </div>
           </div>
         ) : apiKey ? (
+          // Pass onTrainingComplete prop to EnhancedAudioTrainer
           <EnhancedAudioTrainer onTrainingComplete={onTrainingComplete} />
         ) : (
           <div className="space-y-4">

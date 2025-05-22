@@ -35,7 +35,8 @@ export function FeatureCard({
       e.preventDefault();
     }
     
-    handleClick(e);
+    // Call handleClick without passing the event - this fixes the error
+    handleClick();
   };
 
   return (
