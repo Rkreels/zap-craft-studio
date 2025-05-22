@@ -240,7 +240,7 @@ export const WebhookIntegration: React.FC<WebhookIntegrationProps> = ({
                   rows={6}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Use {{variable}} syntax to include dynamic data from previous steps
+                  Use {'{{variable}}'} syntax to include dynamic data from previous steps
                 </p>
               </div>
             </div>

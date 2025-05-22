@@ -22,7 +22,20 @@ import VersionHistoryDialog from "@/components/interfaces/VersionHistoryDialog";
 import { WebhookIntegration, WebhookConfig } from "@/components/workflow/WebhookIntegration";
 import { DataTransformer, DataTransformConfig } from "@/components/workflow/DataTransformer";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Play, Code, Activity } from "lucide-react";
+import { TemplateGallery } from "@/components/workflow/TemplateGallery";
+import { TeamCollaboration } from "@/components/workflow/TeamCollaboration";
+import { ConditionalLogic } from "@/components/workflow/ConditionalLogic";
+import { 
+  AlertCircle, 
+  Play, 
+  Code, 
+  Activity, 
+  FileText, 
+  Users, 
+  Settings,
+  Zap
+} from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Define the ZapHeaderProps type to fix TypeScript error
 interface ZapHeaderProps {
@@ -64,6 +77,7 @@ export default function ZapCreator() {
   };
   
   const { handleMouseEnter, handleClick } = useVoiceGuidance(workflowVoiceProps);
+  const isMobile = useIsMobile();
 
   // Auto-save functionality
   useEffect(() => {
@@ -238,6 +252,21 @@ export default function ZapCreator() {
     bodyTemplate: "{\n  \"data\": \"{{step1.output}}\",\n  \"timestamp\": \"{{timestamp}}\"\n}"
   });
 
+  // Handle template selection
+  const handleTemplateSelect = (template: any) => {
+    setSteps(template.steps);
+    if (template.schedule) {
+      setSchedule(template.schedule);
+    }
+    setZapName(`Copy of ${template.name}`);
+    setActiveTab("build");
+    
+    toast({
+      title: "Template applied",
+      description: `The "${template.name}" template has been applied to your workflow.`,
+    });
+  };
+
   return (
     <div className="max-w-7xl mx-auto pb-16">
       <ZapHeader 
@@ -254,9 +283,14 @@ export default function ZapCreator() {
       />
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
-        <TabsList className="mb-6">
+        <TabsList className="mb-6 overflow-x-auto flex-nowrap">
           <TabsTrigger value="build" className="flex items-center gap-1">
+            <Zap className="h-4 w-4" />
             Build Workflow
+          </TabsTrigger>
+          <TabsTrigger value="templates" className="flex items-center gap-1">
+            <FileText className="h-4 w-4" />
+            Templates
           </TabsTrigger>
           <TabsTrigger value="transform" className="flex items-center gap-1">
             <Code className="h-4 w-4" />
@@ -269,6 +303,14 @@ export default function ZapCreator() {
           <TabsTrigger value="monitor" className="flex items-center gap-1">
             <Activity className="h-4 w-4" />
             Monitoring
+          </TabsTrigger>
+          <TabsTrigger value="team" className="flex items-center gap-1">
+            <Users className="h-4 w-4" />
+            Team
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex items-center gap-1">
+            <Settings className="h-4 w-4" />
+            Settings
           </TabsTrigger>
         </TabsList>
         
@@ -303,6 +345,20 @@ export default function ZapCreator() {
                 {isLoading ? "Saving..." : "Save & Continue"}
               </Button>
             </CardFooter>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="templates">
+          <Card>
+            <CardHeader>
+              <CardTitle>Workflow Templates</CardTitle>
+              <CardDescription>
+                Pre-built automation templates to help you get started quickly
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <TemplateGallery onSelectTemplate={handleTemplateSelect} />
+            </CardContent>
           </Card>
         </TabsContent>
         
@@ -486,6 +542,43 @@ export default function ZapCreator() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+        
+        <TabsContent value="team">
+          <TeamCollaboration 
+            currentUserId="current-user"
+            workflowId="workflow-1"
+            workflowName={zapName}
+          />
+        </TabsContent>
+        
+        <TabsContent value="settings">
+          <div className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Workflow Settings</CardTitle>
+                <CardDescription>
+                  Configure general settings for your workflow
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Advanced Conditions</h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Set global conditions that determine when this workflow should run
+                  </p>
+                  <ConditionalLogic 
+                    conditionGroup={{
+                      id: "global-conditions",
+                      type: "all",
+                      conditions: []
+                    }}
+                    onChange={() => {}}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
       
