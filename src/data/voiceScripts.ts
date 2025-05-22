@@ -1,4 +1,3 @@
-
 // Dashboard components
 export const dashboardScripts = {
   featureCard: {
@@ -142,3 +141,27 @@ export const navigationScripts = {
     click: (name: string) => `You're navigating to the ${name} section where you can manage related tasks and settings.`
   }
 };
+
+// Voice training scripts
+export const voiceTrainingScripts = [
+  {
+    phrase: "Open the dashboard and show recent activity",
+    description: "Navigate to dashboard view"
+  },
+  {
+    phrase: "Create a new workflow automation",
+    description: "Start workflow creation process"
+  },
+  {
+    phrase: "Search for email integration templates",
+    description: "Search for specific templates"
+  },
+  {
+    phrase: "Show me analytics for the past month",
+    description: "Display analytics data"
+  },
+  {
+    phrase: "Connect my Google account",
+    description: "Initiate external account connection"
+  }
+];

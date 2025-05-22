@@ -1,13 +1,9 @@
 
 import React, { useState } from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
 import { BookOpen, Info, Mic, Volume } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { PageVoiceCommands } from "@/components/voice-assistant/PageVoiceCommands";
 
@@ -110,14 +106,7 @@ export default function VoiceTrainingPage() {
 
         <div className="mt-6">
           <TabsContent value="trainer">
-            <VoiceTrainingSection 
-              apiKey={apiKey} 
-              setApiKey={setApiKey} 
-              isTrainingCompleted={isTrainingCompleted}
-              setIsTrainingCompleted={setIsTrainingCompleted}
-              onTrainingComplete={handleTrainingComplete}
-              setActiveTab={setActiveTab}
-            />
+            <VoiceTrainingSection onComplete={handleTrainingComplete} />
           </TabsContent>
 
           <TabsContent value="commands">

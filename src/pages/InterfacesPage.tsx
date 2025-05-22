@@ -23,12 +23,17 @@ const InterfacesPage = () => {
     duplicateInterface,
     confirmDelete,
     formatDate,
-    openVersionHistory,
     createInterface,
     newInterface,
     setNewInterface,
     setFilterStatus
   } = useInterfaceManager();
+
+  // Function to open version history
+  const openVersionHistory = (id: string) => {
+    console.log(`Opening version history for interface ${id}`);
+    // This would typically open a dialog or navigate to a version history page
+  };
 
   return (
     <>

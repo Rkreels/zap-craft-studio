@@ -12,6 +12,15 @@ interface SpeechRecognitionError extends Event {
   message: string;
 }
 
+// Define voice command type
+export interface VoiceCommand {
+  command: string;
+  description: string;
+  action?: () => void;
+  aliases?: string[];
+  pageSpecific?: boolean;
+}
+
 // Define the context type
 interface VoiceAssistantContextType {
   isEnabled: boolean;
@@ -24,7 +33,11 @@ interface VoiceAssistantContextType {
   speakText: (text: string) => void;
   trainingProgress: number;
   commandHistory: string[];
-  availableCommands: { command: string; description: string }[];
+  availableCommands: VoiceCommand[];
+  registerCommand: (command: VoiceCommand) => void;
+  unregisterCommand: (command: string) => void;
+  currentPage: string;
+  setCurrentPage: (page: string) => void;
 }
 
 // Create the context with default values
@@ -40,6 +53,10 @@ const VoiceAssistantContext = createContext<VoiceAssistantContextType>({
   trainingProgress: 0,
   commandHistory: [],
   availableCommands: [],
+  registerCommand: () => {},
+  unregisterCommand: () => {},
+  currentPage: "",
+  setCurrentPage: () => {}
 });
 
 // Create a custom hook for using the context
@@ -57,10 +74,30 @@ export const VoiceAssistantProvider: React.FC<VoiceAssistantProviderProps> = ({ 
   const [confidenceLevel, setConfidenceLevel] = useState(0);
   const [trainingProgress, setTrainingProgress] = useState(0);
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
-  const [availableCommands, setAvailableCommands] = useState<{ command: string; description: string }[]>([]);
+  const [availableCommands, setAvailableCommands] = useState<VoiceCommand[]>([]);
+  const [currentPage, setCurrentPage] = useState("");
 
   // Create speech recognition instance
   const [recognition, setRecognition] = useState<any>(null);
+
+  // Register a new command
+  const registerCommand = useCallback((command: VoiceCommand) => {
+    setAvailableCommands(prev => {
+      // Check if command already exists to avoid duplicates
+      const exists = prev.some(cmd => cmd.command === command.command);
+      if (!exists) {
+        return [...prev, command];
+      }
+      return prev;
+    });
+  }, []);
+
+  // Unregister a command
+  const unregisterCommand = useCallback((commandName: string) => {
+    setAvailableCommands(prev => 
+      prev.filter(cmd => cmd.command !== commandName)
+    );
+  }, []);
 
   // Initialize speech recognition
   useEffect(() => {
@@ -156,13 +193,45 @@ export const VoiceAssistantProvider: React.FC<VoiceAssistantProviderProps> = ({ 
 
   // Effect to update available commands
   useEffect(() => {
-    // Example commands
-    setAvailableCommands([
-      { command: "open dashboard", description: "Navigate to dashboard" },
-      { command: "create interface", description: "Open interface creation dialog" },
-      { command: "search for", description: "Search for interfaces" }
-    ]);
+    // Example global commands
+    const globalCommands: VoiceCommand[] = [
+      { command: "open dashboard", description: "Navigate to dashboard", aliases: ["go to dashboard", "show dashboard"] },
+      { command: "create interface", description: "Open interface creation dialog", aliases: ["new interface", "add interface"] },
+      { command: "search for", description: "Search for interfaces", aliases: ["find", "look for"] }
+    ];
+    
+    setAvailableCommands(globalCommands);
   }, []);
+
+  // Handle commands when last command changes
+  useEffect(() => {
+    if (!lastCommand || !isEnabled) return;
+
+    const processCommand = () => {
+      const lowerCommand = lastCommand.toLowerCase().trim();
+      
+      // Check if the command matches any registered command including aliases
+      const matchedCommand = availableCommands.find(cmd => {
+        if (lowerCommand === cmd.command.toLowerCase()) return true;
+        if (cmd.aliases) {
+          return cmd.aliases.some(alias => 
+            lowerCommand === alias.toLowerCase() || 
+            lowerCommand.includes(alias.toLowerCase())
+          );
+        }
+        return false;
+      });
+
+      if (matchedCommand?.action) {
+        matchedCommand.action();
+        return true;
+      }
+      
+      return false;
+    };
+
+    processCommand();
+  }, [lastCommand, isEnabled, availableCommands]);
 
   // The context value
   const value = {
@@ -176,7 +245,11 @@ export const VoiceAssistantProvider: React.FC<VoiceAssistantProviderProps> = ({ 
     speakText,
     trainingProgress,
     commandHistory,
-    availableCommands
+    availableCommands,
+    registerCommand,
+    unregisterCommand,
+    currentPage,
+    setCurrentPage
   };
 
   return (

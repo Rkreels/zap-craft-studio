@@ -1,71 +1,44 @@
 
-import React, { useState } from "react";
-import { useVoiceAssistant } from "@/contexts/VoiceAssistantContext";
+import { useCallback } from 'react';
+import { useVoiceAssistant } from '@/contexts/VoiceAssistantContext';
 
 interface VoiceGuidanceProps {
-  hoverText?: string;
-  clickText?: string;
   elementName: string;
+  hoverText: string;
+  clickText: string;
 }
 
-// Higher order component for voice guidance
-export function withVoiceGuidance<P extends object>(
-  WrappedComponent: React.ComponentType<P>,
-  guidanceProps: VoiceGuidanceProps
-) {
-  // Return a new component
-  return (props: P) => {
-    const { speakText, isEnabled } = useVoiceAssistant();
-    const [hasSpoken, setHasSpoken] = useState(false);
+export function useVoiceGuidance(props: VoiceGuidanceProps) {
+  const { speakText, isEnabled } = useVoiceAssistant();
+  const { elementName, hoverText, clickText } = props;
 
-    // Handlers
-    const handleMouseEnter = () => {
-      if (isEnabled && guidanceProps.hoverText && !hasSpoken) {
-        speakText(guidanceProps.hoverText);
-        setHasSpoken(true);
-        // Reset hasSpoken after a delay
-        setTimeout(() => setHasSpoken(false), 5000);
-      }
-    };
+  const handleMouseEnter = useCallback(() => {
+    if (isEnabled) {
+      speakText(hoverText);
+    }
+  }, [isEnabled, speakText, hoverText]);
 
-    const handleClick = () => {
-      if (isEnabled && guidanceProps.clickText) {
-        speakText(guidanceProps.clickText, true);
-      }
-    };
+  const handleClick = useCallback(() => {
+    if (isEnabled) {
+      speakText(clickText);
+    }
+  }, [isEnabled, speakText, clickText]);
 
-    // Return the wrapped component with enhanced props
+  return { handleMouseEnter, handleClick };
+}
+
+// Higher-order component for voice guidance
+export const withVoiceGuidance = (WrappedComponent: React.ComponentType<any>, guidanceProps: VoiceGuidanceProps) => {
+  return function EnhancedComponent(props: any) {
+    const { handleMouseEnter, handleClick } = useVoiceGuidance(guidanceProps);
+
     return (
-      <div 
-        onMouseEnter={handleMouseEnter} 
+      <div
+        onMouseEnter={handleMouseEnter}
         onClick={handleClick}
-        className="voice-guidance-wrapper"
       >
         <WrappedComponent {...props} />
       </div>
     );
   };
-}
-
-// Voice guidance hook for use directly in components
-export const useVoiceGuidance = (guidanceProps: VoiceGuidanceProps) => {
-  const { speakText, isEnabled } = useVoiceAssistant();
-  const [hasSpoken, setHasSpoken] = useState(false);
-
-  const handleMouseEnter = () => {
-    if (isEnabled && guidanceProps.hoverText && !hasSpoken) {
-      speakText(guidanceProps.hoverText);
-      setHasSpoken(true);
-      // Reset hasSpoken after a delay
-      setTimeout(() => setHasSpoken(false), 5000);
-    }
-  };
-
-  const handleClick = () => {
-    if (isEnabled && guidanceProps.clickText) {
-      speakText(guidanceProps.clickText, true);
-    }
-  };
-
-  return { handleMouseEnter, handleClick };
 };
