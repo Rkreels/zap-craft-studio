@@ -1,37 +1,38 @@
 
 import { InterfaceItem } from "@/types/interfaces";
+import { Dispatch, SetStateAction } from "react";
 
 export interface InterfaceManagerHook {
   interfaces: InterfaceItem[];
   searchQuery: string;
-  setSearchQuery: (query: string) => void;
+  setSearchQuery: Dispatch<SetStateAction<string>>;
   filterType: string;
-  setFilterType: (type: string) => void;
+  setFilterType: Dispatch<SetStateAction<string>>;
   filterStatus: string;
-  setFilterStatus: (status: string) => void;
+  setFilterStatus: Dispatch<SetStateAction<string>>;
   sortBy: string;
-  setSortBy: (field: string) => void;
+  setSortBy: Dispatch<SetStateAction<string>>;
   sortDirection: "asc" | "desc";
-  setSortDirection: (direction: "asc" | "desc") => void;
+  setSortDirection: Dispatch<SetStateAction<"asc" | "desc">>;
   isLoading: boolean;
   editingInterface: InterfaceItem | null;
-  setEditingInterface: React.Dispatch<React.SetStateAction<InterfaceItem | null>>;
+  setEditingInterface: Dispatch<SetStateAction<InterfaceItem | null>>;
   viewingInterface: InterfaceItem | null;
-  setViewingInterface: React.Dispatch<React.SetStateAction<InterfaceItem | null>>;
+  setViewingInterface: Dispatch<SetStateAction<InterfaceItem | null>>;
   isDeleteDialogOpen: boolean;
-  setIsDeleteDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsDeleteDialogOpen: Dispatch<SetStateAction<boolean>>;
   interfaceToDelete: string | null;
-  setInterfaceToDelete: React.Dispatch<React.SetStateAction<string | null>>;
+  setInterfaceToDelete: Dispatch<SetStateAction<string | null>>;
   isZapierDialogOpen: boolean;
-  setIsZapierDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsZapierDialogOpen: Dispatch<SetStateAction<boolean>>;
   selectedForAction: string[];
-  setSelectedForAction: React.Dispatch<React.SetStateAction<string[]>>;
+  setSelectedForAction: Dispatch<SetStateAction<string[]>>;
   newInterface: {
     name: string;
     type: "form" | "page" | "dashboard";
     description: string;
   };
-  setNewInterface: React.Dispatch<React.SetStateAction<{
+  setNewInterface: Dispatch<SetStateAction<{
     name: string;
     type: "form" | "page" | "dashboard";
     description: string;
