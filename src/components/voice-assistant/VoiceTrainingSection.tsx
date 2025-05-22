@@ -1,269 +1,238 @@
 
-import React, { useState, useEffect } from "react";
-import { EnhancedAudioTrainer } from "@/components/voice-assistant/EnhancedAudioTrainer";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Info, Mic, Volume2 } from "lucide-react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import { useVoiceAssistant } from "@/contexts/VoiceAssistantContext";
-import { usePageVoiceCommands } from "./VoiceCommandRegistry";
-import { toast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
-import { useNavigate } from "react-router-dom";
+import { Separator } from "@/components/ui/separator";
+import { Mic, MicOff, Play, Volume2 } from "lucide-react";
+import { useVoiceAssistant } from "@/contexts/VoiceAssistantContext";
+import { voiceTrainingScripts } from "@/data/voiceScripts";
+import { cn } from "@/lib/utils";
 
 interface VoiceTrainingSectionProps {
-  apiKey: string;
-  setApiKey: (key: string) => void;
-  isTrainingCompleted: boolean;
-  onTrainingComplete: () => void;
-  setIsTrainingCompleted: (completed: boolean) => void;
-  setActiveTab: (tab: string) => void;
+  onComplete?: () => void;
 }
 
-export const VoiceTrainingSection: React.FC<VoiceTrainingSectionProps> = ({
-  apiKey,
-  setApiKey,
-  isTrainingCompleted,
-  onTrainingComplete,
-  setIsTrainingCompleted,
-  setActiveTab
-}) => {
-  const { isEnabled, speakText, startListening } = useVoiceAssistant();
-  const [learnProgress, setLearnProgress] = useState(0);
-  const navigate = useNavigate();
+export const VoiceTrainingSection: React.FC<VoiceTrainingSectionProps> = ({ onComplete }) => {
+  const { 
+    isEnabled, 
+    isListening, 
+    startListening, 
+    stopListening, 
+    lastCommand,
+    confidenceLevel,
+    speakText,
+    trainingProgress 
+  } = useVoiceAssistant();
   
-  // Register voice commands specific to this page
-  usePageVoiceCommands("Voice Training", [
-    {
-      command: "start training",
-      description: "Begin voice assistant training",
-      action: () => {
-        if (!isTrainingCompleted && apiKey) {
-          speakText("Starting voice training session.");
-          // Additional logic if needed
-        } else if (!apiKey) {
-          speakText("Please enter your API key first.");
-        } else {
-          speakText("You have already completed training.");
-        }
-      },
-      aliases: ["begin training", "start voice training"]
-    },
-    {
-      command: "view commands",
-      description: "Show all available voice commands",
-      action: () => {
-        setActiveTab("commands");
-        speakText("Showing available commands.");
-      },
-      aliases: ["show commands", "list commands"]
-    },
-    {
-      command: "reset training",
-      description: "Reset voice training progress",
-      action: () => {
-        if (isTrainingCompleted) {
-          setIsTrainingCompleted(false);
-          speakText("Training progress has been reset.");
-        } else {
-          speakText("Training has not been completed yet.");
-        }
-      },
-      aliases: ["restart training", "clear training"]
-    }
-  ]);
+  const [currentScriptIndex, setCurrentScriptIndex] = useState(0);
+  const [recordedPhrases, setRecordedPhrases] = useState<string[]>([]);
+  const [showResults, setShowResults] = useState(false);
   
-  // Simulate progress when training is active
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    if (!isTrainingCompleted && apiKey && isEnabled) {
-      interval = setInterval(() => {
-        setLearnProgress(prev => {
-          const newProgress = prev + 0.5;
-          if (newProgress >= 100) {
-            clearInterval(interval);
-            return 100;
-          }
-          return newProgress;
-        });
-      }, 500);
+  const currentScript = voiceTrainingScripts[currentScriptIndex];
+  
+  // Handle recording completion
+  const handleRecordingComplete = () => {
+    if (lastCommand) {
+      setRecordedPhrases(prev => [...prev, lastCommand]);
     }
     
-    return () => clearInterval(interval);
-  }, [isTrainingCompleted, apiKey, isEnabled]);
-  
-  // Complete training when progress reaches 100
-  useEffect(() => {
-    if (learnProgress >= 100 && !isTrainingCompleted) {
-      onTrainingComplete();
-      speakText("Congratulations! You've completed the voice training successfully.");
+    // Move to next script or show results
+    if (currentScriptIndex < voiceTrainingScripts.length - 1) {
+      setCurrentScriptIndex(prev => prev + 1);
+    } else {
+      setShowResults(true);
+      if (onComplete) {
+        onComplete();
+      }
     }
-  }, [learnProgress, isTrainingCompleted, onTrainingComplete, speakText]);
+  };
   
-  // Introduction when component mounts
-  useEffect(() => {
-    if (isEnabled) {
-      const timer = setTimeout(() => {
-        speakText("Welcome to voice training. Here you can train your voice to control the application.");
-      }, 1000);
-      return () => clearTimeout(timer);
+  // Play the current phrase using text-to-speech
+  const playCurrentPhrase = () => {
+    if (currentScript) {
+      speakText(currentScript.phrase);
     }
-  }, [isEnabled, speakText]);
-
-  return (
-    <Card className="w-full border-purple-200 shadow-md">
-      <CardHeader className="bg-purple-50 rounded-t-lg border-b border-purple-100">
-        <CardTitle className="flex items-center text-purple-800">
-          <Volume2 className="mr-2 text-purple-600" size={20} />
-          Voice Command Training
-        </CardTitle>
-        <CardDescription className="text-purple-700">
-          {isTrainingCompleted 
-            ? "Training completed! Try out your voice commands anywhere in the app."
-            : "Follow the steps below to learn how to use voice commands with our application."}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4 pt-6">
-        {isTrainingCompleted ? (
-          <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-4">
-            <div className="flex items-center">
-              <Badge className="bg-green-500">Completed</Badge>
-              <p className="ml-2 text-green-700">You've successfully completed the voice training!</p>
-            </div>
-            <div className="mt-4">
-              <p className="text-sm text-green-700">
-                You can now use voice commands throughout the application. 
-                Click the microphone button in the bottom right corner to start listening, 
-                or say "Hey Assistant" to activate voice recognition.
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Badge variant="outline" className="text-xs py-1 px-2">
-                  "go to dashboard"
-                </Badge>
-                <Badge variant="outline" className="text-xs py-1 px-2">
-                  "create new interface"
-                </Badge>
-                <Badge variant="outline" className="text-xs py-1 px-2">
-                  "show available commands"
-                </Badge>
-              </div>
-            </div>
+  };
+  
+  // Calculate match score between original phrase and recorded phrase
+  const calculateMatchScore = (original: string, recorded: string): number => {
+    if (!recorded) return 0;
+    
+    const originalWords = original.toLowerCase().split(' ');
+    const recordedWords = recorded.toLowerCase().split(' ');
+    
+    let matchCount = 0;
+    originalWords.forEach(word => {
+      if (recordedWords.includes(word)) {
+        matchCount++;
+      }
+    });
+    
+    return (matchCount / originalWords.length) * 100;
+  };
+  
+  // Render training interface
+  const renderTrainingInterface = () => {
+    return (
+      <div className="space-y-6">
+        <div className="p-6 border rounded-lg bg-white dark:bg-gray-800 shadow-sm">
+          <h3 className="text-lg font-medium mb-4">Phrase {currentScriptIndex + 1} of {voiceTrainingScripts.length}</h3>
+          
+          <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-md mb-6">
+            <p className="text-lg">{currentScript.phrase}</p>
           </div>
-        ) : apiKey ? (
-          <div className="space-y-6">
-            <div className="bg-purple-50 border border-purple-100 rounded-md p-4">
-              <h3 className="font-semibold text-purple-800 flex items-center">
-                <Mic className="mr-2" size={16} />
-                Training in Progress
-              </h3>
-              <p className="text-sm text-purple-700 mt-1">
-                Follow along with the exercises below to learn how to use voice commands.
-              </p>
+          
+          <div className="flex items-center justify-between mb-6">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={playCurrentPhrase}
+              className="h-10 w-10"
+            >
+              <Play className="h-4 w-4" />
+            </Button>
+            
+            <div className="flex items-center gap-2">
+              <Button
+                variant={isListening ? "default" : "outline"}
+                onClick={() => isListening ? stopListening() : startListening()}
+                disabled={!isEnabled}
+                className={cn(
+                  "gap-2",
+                  isListening && "bg-red-500 hover:bg-red-600"
+                )}
+              >
+                {isListening ? (
+                  <>
+                    <MicOff className="h-4 w-4" />
+                    Stop Recording
+                  </>
+                ) : (
+                  <>
+                    <Mic className="h-4 w-4" />
+                    Start Recording
+                  </>
+                )}
+              </Button>
               
-              <div className="mt-4 space-y-2">
-                <div className="flex justify-between items-center text-xs text-purple-800">
-                  <span>Learning Progress</span>
-                  <span>{Math.round(learnProgress)}%</span>
-                </div>
-                <Progress 
-                  value={learnProgress} 
-                  className="h-2 bg-purple-100" 
-                  indicatorClassName="bg-purple-600" 
-                />
-              </div>
-            </div>
-            
-            <EnhancedAudioTrainer onTrainingComplete={onTrainingComplete} />
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-              <div className="flex items-start">
-                <Info className="text-yellow-600 mt-0.5 mr-2" size={18} />
-                <div>
-                  <h3 className="font-medium text-yellow-800">API Key Required</h3>
-                  <p className="text-sm text-yellow-700">
-                    To use the voice assistant, please enter your ElevenLabs API key. 
-                    You can get one by signing up at{" "}
-                    <a href="https://elevenlabs.io" className="text-purple-600 hover:underline" target="_blank" rel="noreferrer">
-                      ElevenLabs
-                    </a>
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="apiKey">ElevenLabs API Key</Label>
-              <div className="flex gap-2 flex-wrap md:flex-nowrap">
-                <input
-                  id="apiKey"
-                  type="password" 
-                  className="flex-1 min-w-[200px] border rounded-md px-3 py-2"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="Enter your API key"
-                />
-                <Button 
-                  onClick={() => setApiKey("demo-key-for-testing")}
-                  className="whitespace-nowrap"
-                >
-                  Use Demo Key
-                </Button>
-              </div>
+              <Button
+                variant="default"
+                onClick={handleRecordingComplete}
+                disabled={!lastCommand}
+              >
+                Next
+              </Button>
             </div>
           </div>
-        )}
-      </CardContent>
-      <CardFooter className="flex flex-wrap gap-2 justify-between border-t pt-4">
-        {isTrainingCompleted ? (
-          <>
-            <Button variant="outline" onClick={() => setIsTrainingCompleted(false)}>
-              Restart Training
-            </Button>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setActiveTab("commands")}>
-                View All Commands
-              </Button>
-              <Button 
-                className="bg-purple-600 hover:bg-purple-700"
-                onClick={() => {
-                  navigate("/");
-                  startListening();
-                  toast({
-                    title: "Voice Assistant Activated",
-                    description: "Try saying 'Show available commands' or 'Go to interfaces'",
-                  });
-                }}
-              >
-                Try in App
-              </Button>
+          
+          {lastCommand && (
+            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-md mb-4">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Recorded phrase:</p>
+              <p>{lastCommand}</p>
             </div>
-          </>
-        ) : (
-          <>
-            <Button variant="outline" onClick={() => setActiveTab("commands")}>
-              View Commands
-            </Button>
-            {apiKey && (
-              <Button 
-                className="bg-purple-600 hover:bg-purple-700"
-                onClick={() => {
-                  startListening();
-                  toast({
-                    title: "Voice Recognition Started",
-                    description: "Try saying 'Start training'",
-                  });
-                }}
-              >
-                Start Voice Recognition
-              </Button>
-            )}
-          </>
-        )}
-      </CardFooter>
-    </Card>
+          )}
+          
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Recognition confidence</span>
+              <span>{Math.round(confidenceLevel * 100)}%</span>
+            </div>
+            <Progress 
+              value={confidenceLevel * 100} 
+              className="h-2 bg-gray-200 dark:bg-gray-700"
+            />
+          </div>
+        </div>
+        
+        <div className="p-6 border rounded-lg bg-white dark:bg-gray-800 shadow-sm">
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Training progress</span>
+              <span>{trainingProgress}%</span>
+            </div>
+            <Progress 
+              value={trainingProgress} 
+              className="h-2 bg-gray-200 dark:bg-gray-700"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  // Render results
+  const renderResults = () => {
+    return (
+      <div className="p-6 border rounded-lg bg-white dark:bg-gray-800 shadow-sm space-y-6">
+        <h3 className="text-lg font-medium">Training Results</h3>
+        
+        <div className="space-y-4">
+          {voiceTrainingScripts.map((script, index) => {
+            const recorded = recordedPhrases[index] || "";
+            const matchScore = calculateMatchScore(script.phrase, recorded);
+            
+            return (
+              <div key={index} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-md">
+                <p className="font-medium mb-2">Phrase {index + 1}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Original</p>
+                    <p>{script.phrase}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Recorded</p>
+                    <p>{recorded || "No recording"}</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Match accuracy</span>
+                    <span>{Math.round(matchScore)}%</span>
+                  </div>
+                  <Progress 
+                    value={matchScore} 
+                    className="h-2 bg-gray-200 dark:bg-gray-700"
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        
+        <div className="flex justify-end">
+          <Button onClick={() => {
+            setShowResults(false);
+            setCurrentScriptIndex(0);
+            setRecordedPhrases([]);
+          }}>
+            Train Again
+          </Button>
+        </div>
+      </div>
+    );
+  };
+  
+  return (
+    <div className="space-y-6 w-full max-w-3xl mx-auto">
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight">Voice Recognition Training</h2>
+        <p className="text-muted-foreground mt-2">
+          Improve the voice assistant's ability to understand your commands
+        </p>
+      </div>
+      
+      <Separator />
+      
+      {!isEnabled && (
+        <div className="p-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-900/50 rounded-lg text-center">
+          <Volume2 className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
+          <p>Voice assistant is currently disabled. Enable it to start training.</p>
+        </div>
+      )}
+      
+      {isEnabled && (showResults ? renderResults() : renderTrainingInterface())}
+    </div>
   );
 };
+
+export default VoiceTrainingSection;
