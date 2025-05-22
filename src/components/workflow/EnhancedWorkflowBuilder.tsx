@@ -11,6 +11,13 @@ import { TriggerEvent } from "@/components/zap-creator/EventSelector";
 import { mockApps, getTriggerEventsForApp, getActionEventsForApp } from "@/data/mockApps";
 import { toast } from "@/components/ui/use-toast";
 import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
+import { ConditionalLogic, ConditionGroup } from "./ConditionalLogic";
+import { ErrorHandling, ErrorHandlingConfig } from "./ErrorHandling";
+import { WebhookIntegration, WebhookConfig } from "./WebhookIntegration";
+import { DataTransformer, DataTransformConfig } from "./DataTransformer";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface EnhancedWorkflowBuilderProps {
   onSave?: (steps: WorkflowStepData[], schedule?: ScheduleConfig) => void;
@@ -36,17 +43,45 @@ export const EnhancedWorkflowBuilder = ({
   ]);
   
   const [activeTab, setActiveTab] = useState("workflow");
+  const [configTab, setConfigTab] = useState("basic");
   const [activeStepId, setActiveStepId] = useState<string>(steps[0]?.id || "");
   const [selectedApp, setSelectedApp] = useState<AppItem | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<TriggerEvent | null>(null);
   const [configStage, setConfigStage] = useState<'app' | 'event' | 'config'>('app');
   const [schedule, setSchedule] = useState<ScheduleConfig | undefined>(initialSchedule);
+  const [conditionalLogic, setConditionalLogic] = useState<ConditionGroup>({
+    id: "main-condition",
+    type: "all",
+    conditions: []
+  });
+  const [errorHandling, setErrorHandling] = useState<ErrorHandlingConfig>({
+    retryEnabled: false,
+    maxRetries: 3,
+    retryDelay: 60,
+    notifyOnError: true,
+    stopWorkflowOnError: true
+  });
+  const [webhookConfig, setWebhookConfig] = useState<WebhookConfig>({
+    url: "",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    bodyTemplate: ""
+  });
+  const [dataTransformConfig, setDataTransformConfig] = useState<DataTransformConfig>({
+    mappings: [],
+    rawMode: false,
+    customCode: ""
+  });
+  
+  const isMobile = useIsMobile();
   
   // Voice guidance for workflow builder
   const builderVoiceProps = {
     elementName: "Workflow Builder",
-    hoverText: "Build your workflow by adding trigger and action steps.",
-    clickText: "Configure each step to create an automated workflow."
+    hoverText: "Build your workflow by adding trigger and action steps with advanced options for conditions and error handling.",
+    clickText: "Configure each step to create an automated workflow with robust error handling and data transformation."
   };
   const builderGuidance = useVoiceGuidance(builderVoiceProps);
   
@@ -58,6 +93,23 @@ export const EnhancedWorkflowBuilder = ({
   const events = activeStep?.type === 'trigger' 
     ? getTriggerEventsForApp(selectedApp?.id || '') 
     : getActionEventsForApp(selectedApp?.id || '');
+  
+  // Sample fields for data transformation
+  const sourceFields = [
+    { id: "name", label: "Name" },
+    { id: "email", label: "Email" },
+    { id: "phone", label: "Phone" },
+    { id: "status", label: "Status" },
+    { id: "created_at", label: "Created At" }
+  ];
+  
+  const targetFields = [
+    { id: "customer_name", label: "Customer Name" },
+    { id: "customer_email", label: "Customer Email" },
+    { id: "contact", label: "Contact" },
+    { id: "user_status", label: "User Status" },
+    { id: "registration_date", label: "Registration Date" }
+  ];
   
   // Reset selected event when app changes
   useEffect(() => {
@@ -207,6 +259,106 @@ export const EnhancedWorkflowBuilder = ({
       onSave(steps, newSchedule);
     }
   };
+  
+  // Handle conditional logic update
+  const handleConditionalLogicUpdate = (newConditionGroup: ConditionGroup) => {
+    setConditionalLogic(newConditionGroup);
+    
+    // Update the step's config
+    const updatedSteps = steps.map(step => {
+      if (step.id === activeStepId) {
+        return {
+          ...step,
+          config: {
+            ...step.config,
+            conditions: newConditionGroup
+          }
+        };
+      }
+      return step;
+    });
+    
+    setSteps(updatedSteps);
+    
+    if (onSave) {
+      onSave(updatedSteps, schedule);
+    }
+  };
+  
+  // Handle error handling update
+  const handleErrorHandlingUpdate = (newErrorHandling: ErrorHandlingConfig) => {
+    setErrorHandling(newErrorHandling);
+    
+    // Update the step's config
+    const updatedSteps = steps.map(step => {
+      if (step.id === activeStepId) {
+        return {
+          ...step,
+          config: {
+            ...step.config,
+            errorHandling: newErrorHandling
+          }
+        };
+      }
+      return step;
+    });
+    
+    setSteps(updatedSteps);
+    
+    if (onSave) {
+      onSave(updatedSteps, schedule);
+    }
+  };
+  
+  // Handle webhook config update
+  const handleWebhookConfigUpdate = (newWebhookConfig: WebhookConfig) => {
+    setWebhookConfig(newWebhookConfig);
+    
+    // Update the step's config
+    const updatedSteps = steps.map(step => {
+      if (step.id === activeStepId) {
+        return {
+          ...step,
+          config: {
+            ...step.config,
+            webhook: newWebhookConfig
+          }
+        };
+      }
+      return step;
+    });
+    
+    setSteps(updatedSteps);
+    
+    if (onSave) {
+      onSave(updatedSteps, schedule);
+    }
+  };
+  
+  // Handle data transform update
+  const handleDataTransformUpdate = (newDataTransformConfig: DataTransformConfig) => {
+    setDataTransformConfig(newDataTransformConfig);
+    
+    // Update the step's config
+    const updatedSteps = steps.map(step => {
+      if (step.id === activeStepId) {
+        return {
+          ...step,
+          config: {
+            ...step.config,
+            dataTransform: newDataTransformConfig
+          }
+        };
+      }
+      return step;
+    });
+    
+    setSteps(updatedSteps);
+    
+    if (onSave) {
+      onSave(updatedSteps, schedule);
+    }
+  };
 
   return (
     <div 
@@ -241,15 +393,88 @@ export const EnhancedWorkflowBuilder = ({
             {/* Configuration panel */}
             <div className="flex-1 bg-white rounded-lg border border-gray-200">
               {activeStepId && (
-                <StepConfigPanel
-                  activeStep={activeStep}
-                  configStage={configStage}
-                  selectedApp={selectedApp}
-                  selectedEvent={selectedEvent}
-                  events={events}
-                  handleAppSelect={handleAppSelect}
-                  handleEventSelect={handleEventSelect}
-                />
+                <div className="p-4">
+                  {/* Basic configuration first */}
+                  <StepConfigPanel
+                    activeStep={activeStep}
+                    configStage={configStage}
+                    selectedApp={selectedApp}
+                    selectedEvent={selectedEvent}
+                    events={events}
+                    handleAppSelect={handleAppSelect}
+                    handleEventSelect={handleEventSelect}
+                  />
+                  
+                  {/* Show advanced options only if the step is configured */}
+                  {activeStep.configured && (
+                    <div className="mt-6">
+                      <Tabs value={configTab} onValueChange={setConfigTab}>
+                        <TabsList className="w-full">
+                          <TabsTrigger value="basic" className="flex-1">Basic</TabsTrigger>
+                          <TabsTrigger value="conditions" className="flex-1">Conditions</TabsTrigger>
+                          <TabsTrigger value="transform" className="flex-1">Transform Data</TabsTrigger>
+                          <TabsTrigger value="error" className="flex-1">Error Handling</TabsTrigger>
+                          {activeStep.type === 'trigger' && (
+                            <TabsTrigger value="webhook" className="flex-1">Webhook</TabsTrigger>
+                          )}
+                        </TabsList>
+                        
+                        <TabsContent value="basic">
+                          <div className="py-4">
+                            <Alert>
+                              <AlertCircle className="h-4 w-4" />
+                              <AlertTitle>Basic Configuration</AlertTitle>
+                              <AlertDescription>
+                                The basic configuration for this step is already complete. Use the tabs above to configure advanced options.
+                              </AlertDescription>
+                            </Alert>
+                          </div>
+                        </TabsContent>
+                        
+                        <TabsContent value="conditions">
+                          <div className="py-4">
+                            <ConditionalLogic
+                              conditionGroup={activeStep.config.conditions || conditionalLogic}
+                              onChange={handleConditionalLogicUpdate}
+                            />
+                          </div>
+                        </TabsContent>
+                        
+                        <TabsContent value="transform">
+                          <div className="py-4">
+                            <DataTransformer
+                              config={activeStep.config.dataTransform || dataTransformConfig}
+                              onChange={handleDataTransformUpdate}
+                              sourceFields={sourceFields}
+                              targetFields={targetFields}
+                            />
+                          </div>
+                        </TabsContent>
+                        
+                        <TabsContent value="error">
+                          <div className="py-4">
+                            <ErrorHandling
+                              config={activeStep.config.errorHandling || errorHandling}
+                              onChange={handleErrorHandlingUpdate}
+                            />
+                          </div>
+                        </TabsContent>
+                        
+                        {activeStep.type === 'trigger' && (
+                          <TabsContent value="webhook">
+                            <div className="py-4">
+                              <WebhookIntegration
+                                config={activeStep.config.webhook || webhookConfig}
+                                onChange={handleWebhookConfigUpdate}
+                                generatedWebhookUrl={`https://api.example.com/webhooks/${activeStepId}`}
+                              />
+                            </div>
+                          </TabsContent>
+                        )}
+                      </Tabs>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>
