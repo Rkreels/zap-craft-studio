@@ -1,4 +1,59 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
+import { 
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { 
+  Mic, 
+  MicOff, 
+  VolumeX, 
+  Volume2, 
+  Play, 
+  Pause,
+  ChevronDown, 
+  ChevronUp,
+  BookOpen,
+  Check,
+  Repeat,
+  ArrowRight,
+  Volume,
+  Info
+} from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { toast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { useVoiceAssistant } from "@/contexts/VoiceAssistantContext";
+
+// Define the TrainingScenario interface
+interface TrainingScenario {
+  id: string;
+  name: string;
+  description: string;
+  commands: {
+    text: string;
+    explanation: string;
+  }[];
+  steps: {
+    instruction: string;
+    expectedCommand: string;
+    hint?: string;
+    feedback?: string;
+  }[];
+  skillLevel: "beginner" | "intermediate" | "advanced";
+  completed: boolean;
+}
 
 interface EnhancedAudioTrainerProps {
   onTrainingComplete: () => void;
@@ -586,3 +641,4 @@ export const EnhancedAudioTrainer: React.FC<EnhancedAudioTrainerProps> = ({ onTr
     </Card>
   );
 };
+
