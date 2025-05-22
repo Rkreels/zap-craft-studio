@@ -17,6 +17,7 @@ import DataTransformationPage from "./pages/DataTransformationPage";
 import VoiceTrainingPage from "./pages/VoiceTrainingPage";
 import WebhooksPage from "./pages/WebhooksPage";
 import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import CanvasPage from "./pages/CanvasPage";
 import TableCreatorPage from "./pages/TableCreatorPage";
@@ -26,6 +27,7 @@ function App() {
     <VoiceAssistantWrapper>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route element={<AppLayout>
           {/* AppLayout now accepts children */}
