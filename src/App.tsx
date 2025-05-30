@@ -39,6 +39,7 @@ function App() {
           <Route path="zaps" element={<HistoryPage />} />
           <Route path="zaps/create" element={<ZapCreator />} />
           <Route path="canvas" element={<CanvasPage />} />
+          <Route path="canvas/create" element={<CanvasPage />} />
           <Route path="agents" element={<AgentsPage />} />
           <Route path="app-connections" element={<ConnectedApps />} />
           <Route path="zap-history" element={<HistoryPage />} />
@@ -54,7 +55,6 @@ function App() {
           <Route path="data-transformation" element={<DataTransformationPage />} />
           <Route path="voice-training" element={<VoiceTrainingPage />} />
           <Route path="webhooks" element={<WebhooksPage />} />
-          <Route path="canvas/create" element={<CanvasPage />} />
           <Route path="settings" element={<NotFound />} />
           <Route path="more" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />

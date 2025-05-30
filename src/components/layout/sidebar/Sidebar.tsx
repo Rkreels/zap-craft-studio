@@ -11,7 +11,14 @@ import {
   History,
   MoreHorizontal,
   Plus,
-  Settings
+  Settings,
+  MessageSquare,
+  Table,
+  Layers,
+  Webhook,
+  BarChart3,
+  Mic,
+  Users
 } from "lucide-react";
 import { SidebarItem } from "./SidebarItem";
 import { cn } from "@/lib/utils";
@@ -43,6 +50,15 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
     { icon: Bot, label: "Agents", path: "/agents" },
     { icon: Grid, label: "App Connections", path: "/app-connections" },
     { icon: History, label: "Zap History", path: "/zap-history" },
+    { icon: Layers, label: "Interfaces", path: "/interfaces" },
+    { icon: Users, label: "Connected Apps", path: "/connected-apps" },
+    { icon: Grid, label: "Explore Apps", path: "/explore-apps" },
+    { icon: Table, label: "Tables", path: "/tables" },
+    { icon: MessageSquare, label: "Chatbot", path: "/chatbot" },
+    { icon: History, label: "History", path: "/history" },
+    { icon: BarChart3, label: "Data Transformation", path: "/data-transformation" },
+    { icon: Mic, label: "Voice Training", path: "/voice-training" },
+    { icon: Webhook, label: "Webhooks", path: "/webhooks" },
     { icon: Settings, label: "Settings", path: "/settings" },
     { icon: MoreHorizontal, label: "More", path: "/more" },
   ];
