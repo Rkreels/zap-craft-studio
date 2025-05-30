@@ -31,30 +31,30 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route element={<AppLayout>
-          {/* AppLayout now accepts children */}
-        </AppLayout>}>
+        <Route element={<AppLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="discover" element={<DiscoverPage />} />
           <Route path="zaps" element={<HistoryPage />} />
           <Route path="zaps/create" element={<ZapCreator />} />
+          <Route path="tables" element={<TablesPage />} />
+          <Route path="tables/create" element={<TableCreatorPage />} />
+          <Route path="interfaces" element={<InterfacesPage />} />
+          <Route path="chatbot" element={<ChatbotPage />} />
           <Route path="canvas" element={<CanvasPage />} />
           <Route path="canvas/create" element={<CanvasPage />} />
           <Route path="agents" element={<AgentsPage />} />
           <Route path="app-connections" element={<ConnectedApps />} />
           <Route path="zap-history" element={<HistoryPage />} />
-          <Route path="interfaces" element={<InterfacesPage />} />
           <Route path="connected-apps" element={<ConnectedApps />} />
           <Route path="explore-apps" element={<ExploreApps />} />
-          <Route path="tables" element={<TablesPage />} />
-          <Route path="tables/create" element={<TableCreatorPage />} />
-          <Route path="chatbot" element={<ChatbotPage />} />
           <Route path="history" element={<HistoryPage />} />
           <Route path="templates" element={<TemplatesPage />} />
           <Route path="templates/:id" element={<TemplateDetails />} />
           <Route path="data-transformation" element={<DataTransformationPage />} />
           <Route path="voice-training" element={<VoiceTrainingPage />} />
           <Route path="webhooks" element={<WebhooksPage />} />
+          <Route path="functions" element={<NotFound />} />
+          <Route path="developer-platform" element={<NotFound />} />
           <Route path="settings" element={<NotFound />} />
           <Route path="more" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />

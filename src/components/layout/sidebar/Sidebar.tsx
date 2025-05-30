@@ -18,7 +18,9 @@ import {
   Webhook,
   BarChart3,
   Mic,
-  Users
+  Users,
+  Function,
+  Code
 } from "lucide-react";
 import { SidebarItem } from "./SidebarItem";
 import { cn } from "@/lib/utils";
@@ -46,21 +48,16 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
     { icon: Home, label: "Home", path: "/" },
     { icon: Search, label: "Discover", path: "/discover" },
     { icon: Zap, label: "Zaps", path: "/zaps" },
+    { icon: Table, label: "Tables", path: "/tables" },
+    { icon: Layers, label: "Interfaces", path: "/interfaces" },
+    { icon: MessageSquare, label: "Chatbot", path: "/chatbot" },
     { icon: PenTool, label: "Canvas", path: "/canvas" },
     { icon: Bot, label: "Agents", path: "/agents" },
     { icon: Grid, label: "App Connections", path: "/app-connections" },
     { icon: History, label: "Zap History", path: "/zap-history" },
-    { icon: Layers, label: "Interfaces", path: "/interfaces" },
-    { icon: Users, label: "Connected Apps", path: "/connected-apps" },
-    { icon: Grid, label: "Explore Apps", path: "/explore-apps" },
-    { icon: Table, label: "Tables", path: "/tables" },
-    { icon: MessageSquare, label: "Chatbot", path: "/chatbot" },
-    { icon: History, label: "History", path: "/history" },
-    { icon: BarChart3, label: "Data Transformation", path: "/data-transformation" },
-    { icon: Mic, label: "Voice Training", path: "/voice-training" },
-    { icon: Webhook, label: "Webhooks", path: "/webhooks" },
-    { icon: Settings, label: "Settings", path: "/settings" },
     { icon: MoreHorizontal, label: "More", path: "/more" },
+    { icon: Function, label: "Functions", path: "/functions" },
+    { icon: Code, label: "Developer Platform", path: "/developer-platform" },
   ];
 
   return (
@@ -68,7 +65,7 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "fixed left-0 top-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-20",
+        "fixed left-0 top-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-50 shadow-lg",
         isExpanded ? "w-64" : "w-16"
       )}
     >

@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
 interface AppLayoutProps {
-  children?: React.ReactNode; // Make children optional
+  children?: React.ReactNode;
 }
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
@@ -53,10 +53,8 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         isExpanded={isSidebarExpanded}
         setIsExpanded={setIsSidebarExpanded}
       />
-      <div className={cn(
-        "flex flex-col flex-1 transition-all duration-300",
-        isSidebarExpanded ? "ml-64" : "ml-16"
-      )}>
+      {/* Main content area - always takes full width, sidebar floats over it */}
+      <div className="flex flex-col flex-1 w-full">
         <Header />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           {children || <Outlet />}
