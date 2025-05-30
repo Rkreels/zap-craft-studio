@@ -3,17 +3,15 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { 
   Home, 
-  Table, 
-  Layout, 
-  MessageSquare, 
-  PenTool, 
-  History, 
-  Settings, 
-  MoreHorizontal, 
-  Plus, 
+  Search, 
   Zap,
+  PenTool,
+  Bot,
   Grid,
-  Search 
+  History,
+  MoreHorizontal,
+  Plus,
+  Settings
 } from "lucide-react";
 import { SidebarItem } from "./SidebarItem";
 import { cn } from "@/lib/utils";
@@ -39,14 +37,12 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
 
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
+    { icon: Search, label: "Discover", path: "/discover" },
     { icon: Zap, label: "Zaps", path: "/zaps" },
-    { icon: Search, label: "Explore Apps", path: "/explore-apps" },
-    { icon: Table, label: "Tables", path: "/tables" },
-    { icon: Layout, label: "Interfaces", path: "/interfaces" },
-    { icon: MessageSquare, label: "Chatbot", path: "/chatbot" },
     { icon: PenTool, label: "Canvas", path: "/canvas" },
-    { icon: History, label: "History", path: "/history" },
-    { icon: Grid, label: "Connected Apps", path: "/connected-apps" },
+    { icon: Bot, label: "Agents", path: "/agents" },
+    { icon: Grid, label: "App Connections", path: "/app-connections" },
+    { icon: History, label: "Zap History", path: "/zap-history" },
     { icon: Settings, label: "Settings", path: "/settings" },
     { icon: MoreHorizontal, label: "More", path: "/more" },
   ];

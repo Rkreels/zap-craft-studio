@@ -21,6 +21,8 @@ import SignupPage from "./pages/SignupPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import CanvasPage from "./pages/CanvasPage";
 import TableCreatorPage from "./pages/TableCreatorPage";
+import DiscoverPage from "./pages/DiscoverPage";
+import AgentsPage from "./pages/AgentsPage";
 
 function App() {
   return (
@@ -33,8 +35,14 @@ function App() {
           {/* AppLayout now accepts children */}
         </AppLayout>}>
           <Route index element={<Dashboard />} />
-          <Route path="interfaces" element={<InterfacesPage />} />
+          <Route path="discover" element={<DiscoverPage />} />
+          <Route path="zaps" element={<HistoryPage />} />
           <Route path="zaps/create" element={<ZapCreator />} />
+          <Route path="canvas" element={<CanvasPage />} />
+          <Route path="agents" element={<AgentsPage />} />
+          <Route path="app-connections" element={<ConnectedApps />} />
+          <Route path="zap-history" element={<HistoryPage />} />
+          <Route path="interfaces" element={<InterfacesPage />} />
           <Route path="connected-apps" element={<ConnectedApps />} />
           <Route path="explore-apps" element={<ExploreApps />} />
           <Route path="tables" element={<TablesPage />} />
@@ -46,8 +54,9 @@ function App() {
           <Route path="data-transformation" element={<DataTransformationPage />} />
           <Route path="voice-training" element={<VoiceTrainingPage />} />
           <Route path="webhooks" element={<WebhooksPage />} />
-          <Route path="canvas" element={<CanvasPage />} />
           <Route path="canvas/create" element={<CanvasPage />} />
+          <Route path="settings" element={<NotFound />} />
+          <Route path="more" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
