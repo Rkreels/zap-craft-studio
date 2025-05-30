@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Download, Lightning } from "lucide-react";
+import { Copy, Download, Zap } from "lucide-react";
 import { WorkflowTemplate } from "./TemplateGallery";
 
 interface TemplateDetailsProps {
@@ -121,7 +121,7 @@ export const TemplateDetails: React.FC<TemplateDetailsProps> = ({
               Duplicate
             </Button>
             <Button onClick={handleUseTemplate} className="gap-1">
-              <Lightning className="h-4 w-4" />
+              <Zap className="h-4 w-4" />
               Use Template
             </Button>
           </div>

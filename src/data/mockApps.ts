@@ -3,18 +3,18 @@ import { AppItem } from "@/components/zap-creator/AppSelector";
 import { TriggerEvent } from "@/components/zap-creator/EventSelector";
 
 export const mockApps: AppItem[] = [
-  { id: "gmail", name: "Gmail", icon: "G", description: "Send and manage emails", color: "bg-red-500", popular: true },
-  { id: "slack", name: "Slack", icon: "S", description: "Chat and collaboration", color: "bg-green-500", popular: true },
-  { id: "sheets", name: "Google Sheets", icon: "Sh", description: "Spreadsheet management", color: "bg-green-700", popular: true },
-  { id: "trello", name: "Trello", icon: "T", description: "Project management", color: "bg-blue-500", popular: true },
-  { id: "twitter", name: "Twitter", icon: "Tw", description: "Social media engagement", color: "bg-blue-400" },
-  { id: "mailchimp", name: "Mailchimp", icon: "M", description: "Email marketing", color: "bg-yellow-500" },
-  { id: "dropbox", name: "Dropbox", icon: "D", description: "File storage", color: "bg-blue-600" },
-  { id: "asana", name: "Asana", icon: "A", description: "Task management", color: "bg-pink-500" },
-  { id: "github", name: "GitHub", icon: "GH", description: "Code management", color: "bg-gray-800" },
-  { id: "stripe", name: "Stripe", icon: "St", description: "Payment processing", color: "bg-purple-600" },
-  { id: "jira", name: "Jira", icon: "J", description: "Issue tracking", color: "bg-blue-700" },
-  { id: "salesforce", name: "Salesforce", icon: "SF", description: "CRM platform", color: "bg-blue-800" },
+  { id: "gmail", name: "Gmail", icon: "G", description: "Send and manage emails", color: "bg-red-500", popular: true, category: "Email" },
+  { id: "slack", name: "Slack", icon: "S", description: "Chat and collaboration", color: "bg-green-500", popular: true, category: "Communication" },
+  { id: "sheets", name: "Google Sheets", icon: "Sh", description: "Spreadsheet management", color: "bg-green-700", popular: true, category: "Productivity" },
+  { id: "trello", name: "Trello", icon: "T", description: "Project management", color: "bg-blue-500", popular: true, category: "Productivity" },
+  { id: "twitter", name: "Twitter", icon: "Tw", description: "Social media engagement", color: "bg-blue-400", category: "Social Media" },
+  { id: "mailchimp", name: "Mailchimp", icon: "M", description: "Email marketing", color: "bg-yellow-500", category: "Marketing" },
+  { id: "dropbox", name: "Dropbox", icon: "D", description: "File storage", color: "bg-blue-600", category: "Storage" },
+  { id: "asana", name: "Asana", icon: "A", description: "Task management", color: "bg-pink-500", category: "Productivity" },
+  { id: "github", name: "GitHub", icon: "GH", description: "Code management", color: "bg-gray-800", category: "Utilities" },
+  { id: "stripe", name: "Stripe", icon: "St", description: "Payment processing", color: "bg-purple-600", category: "Finance" },
+  { id: "jira", name: "Jira", icon: "J", description: "Issue tracking", color: "bg-blue-700", category: "Productivity" },
+  { id: "salesforce", name: "Salesforce", icon: "SF", description: "CRM platform", color: "bg-blue-800", category: "CRM" },
 ];
 
 export const getTriggerEventsForApp = (appId: string): TriggerEvent[] => {

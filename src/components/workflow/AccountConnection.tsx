@@ -153,7 +153,7 @@ export const AccountConnection: React.FC<AccountConnectionProps> = ({
                   </div>
                 </div>
                 
-                <Alert variant="outline" className="bg-blue-50">
+                <Alert variant="default" className="bg-blue-50">
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Secure Connection</AlertTitle>
                   <AlertDescription>
