@@ -19,7 +19,7 @@ import {
   BarChart3,
   Mic,
   Users,
-  Function,
+  Code2,
   Code
 } from "lucide-react";
 import { SidebarItem } from "./SidebarItem";
@@ -56,7 +56,7 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
     { icon: Grid, label: "App Connections", path: "/app-connections" },
     { icon: History, label: "Zap History", path: "/zap-history" },
     { icon: MoreHorizontal, label: "More", path: "/more" },
-    { icon: Function, label: "Functions", path: "/functions" },
+    { icon: Code2, label: "Functions", path: "/functions" },
     { icon: Code, label: "Developer Platform", path: "/developer-platform" },
   ];
 
