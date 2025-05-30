@@ -41,11 +41,9 @@ export const StepConfigPanel = ({
       
       {configStage === 'app' && (
         <AppSelector
-          title="Select an App"
-          description="Choose from the available apps"
-          apps={mockApps}
+          selectedApp={selectedApp}
           onSelectApp={handleAppSelect}
-          selectedAppId={selectedApp?.id}
+          availableApps={mockApps}
         />
       )}
       
