@@ -97,6 +97,9 @@ export default function ZapCreator() {
   const { handleMouseEnter, handleClick } = useVoiceGuidance(workflowVoiceProps);
   const isMobile = useIsMobile();
 
+  // Add the workflow execution hook
+  const { executeWorkflow } = useWorkflowExecution();
+
   // Auto-save functionality
   useEffect(() => {
     if (steps.length > 0) {
