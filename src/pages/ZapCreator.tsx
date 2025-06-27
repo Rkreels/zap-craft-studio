@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "@/components/ui/use-toast"; // Notice updated path for toast
 import { 
@@ -45,6 +44,8 @@ import {
   Network
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useWorkflowExecution } from "@/hooks/useWorkflowExecution";
+import { WorkflowExecutor } from "@/components/workflow/WorkflowExecutor";
 
 // Define the ZapHeaderProps type to fix TypeScript error
 interface ZapHeaderProps {
@@ -144,63 +145,6 @@ export default function ZapCreator() {
       });
       // In a real app, we would navigate back to the zap listing
     }
-  };
-
-  const handleTest = () => {
-    setIsLoading(true);
-    setTestOutput("Starting test...\n");
-    
-    toast({
-      title: "Testing your Zap",
-      description: "Running a test with sample data...",
-    });
-    
-    // Simulate test process with step-by-step output
-    setTimeout(() => {
-      setTestOutput(prev => prev + "Initializing workflow...\n");
-      
-      setTimeout(() => {
-        setTestOutput(prev => prev + "Running trigger step...\n");
-        
-        setTimeout(() => {
-          setTestOutput(prev => prev + "Trigger successful - received sample data\n");
-          setTestOutput(prev => prev + "{\n  \"id\": 12345,\n  \"name\": \"Test Item\",\n  \"status\": \"active\",\n  \"created\": \"2025-05-22T14:30:00Z\"\n}\n");
-          
-          setTimeout(() => {
-            setTestOutput(prev => prev + "Processing conditions...\n");
-            
-            setTimeout(() => {
-              setTestOutput(prev => prev + "Conditions met. Proceeding with action steps...\n");
-              
-              setTimeout(() => {
-                setTestOutput(prev => prev + "Running action steps...\n");
-                
-                setTimeout(() => {
-                  setTestOutput(prev => prev + "All steps completed successfully!\n");
-                  setTestOutput(prev => prev + "Test completed in 1.23 seconds\n");
-                  
-                  setIsLoading(false);
-                  
-                  // Update monitoring stats
-                  setMonitoringData(prev => ({
-                    ...prev,
-                    runs: prev.runs + 1,
-                    successful: prev.successful + 1,
-                    lastRun: new Date(),
-                    avgRunTime: prev.runs === 0 ? 1.23 : (prev.avgRunTime * prev.runs + 1.23) / (prev.runs + 1)
-                  }));
-                  
-                  toast({
-                    title: "Test completed",
-                    description: "Your Zap completed successfully with test data.",
-                  });
-                }, 600);
-              }, 500);
-            }, 400);
-          }, 400);
-        }, 600);
-      }, 500);
-    }, 400);
   };
 
   const handleWorkflowUpdate = (updatedSteps: WorkflowStepData[], updatedSchedule?: ScheduleConfig) => {
@@ -369,6 +313,69 @@ export default function ZapCreator() {
     }));
   };
 
+  const handleTest = async () => {
+    setIsLoading(true);
+    setTestOutput("Starting test...\n");
+    
+    toast({
+      title: "Testing your Zap",
+      description: "Running a test with sample data...",
+    });
+    
+    try {
+      // Use the real workflow execution
+      const testData = {
+        id: 12345,
+        name: "Test Item",
+        email: "test@example.com",
+        status: "active",
+        tags: ["important", "customer"],
+        created: new Date().toISOString(),
+        metadata: {
+          source: "API",
+          importance: "high"
+        }
+      };
+
+      const execution = await executeWorkflow(`zap-${Date.now()}`, steps, testData);
+      
+      setTestOutput(prev => prev + `Execution completed with status: ${execution.status}\n`);
+      setTestOutput(prev => prev + `Total execution time: ${execution.totalExecutionTime || 0}ms\n`);
+      
+      execution.steps.forEach((step, index) => {
+        setTestOutput(prev => prev + `Step ${index + 1}: ${step.status} (${step.executionTime}ms)\n`);
+        if (step.data) {
+          setTestOutput(prev => prev + `  Data: ${JSON.stringify(step.data, null, 2)}\n`);
+        }
+        if (step.error) {
+          setTestOutput(prev => prev + `  Error: ${step.error}\n`);
+        }
+      });
+
+      // Update monitoring stats with real data
+      setMonitoringData(prev => ({
+        runs: prev.runs + 1,
+        successful: execution.status === 'completed' ? prev.successful + 1 : prev.successful,
+        failed: execution.status === 'failed' ? prev.failed + 1 : prev.failed,
+        lastRun: new Date(),
+        avgRunTime: execution.totalExecutionTime ? 
+          (prev.runs === 0 ? execution.totalExecutionTime : (prev.avgRunTime * prev.runs + execution.totalExecutionTime) / (prev.runs + 1)) :
+          prev.avgRunTime
+      }));
+      
+    } catch (error) {
+      setTestOutput(prev => prev + `Error: ${error}\n`);
+      setMonitoringData(prev => ({
+        ...prev,
+        runs: prev.runs + 1,
+        failed: prev.failed + 1,
+        lastRun: new Date()
+      }));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto pb-16">
       <ZapHeader 
@@ -450,6 +457,18 @@ export default function ZapCreator() {
                 initialSteps={steps.length ? steps : undefined}
                 initialSchedule={schedule}
               />
+              
+              {steps.length > 1 && (
+                <div className="mt-8">
+                  <WorkflowExecutor
+                    workflowId={`zap-${zapName.replace(/\s+/g, '-').toLowerCase()}`}
+                    steps={steps}
+                    onExecutionComplete={(result) => {
+                      console.log('Workflow execution completed:', result);
+                    }}
+                  />
+                </div>
+              )}
             </CardContent>
             <CardFooter className="flex justify-between border-t pt-4">
               <Button variant="outline" onClick={handleTest} disabled={isLoading}>
