@@ -23,6 +23,7 @@ import CanvasPage from "./pages/CanvasPage";
 import TableCreatorPage from "./pages/TableCreatorPage";
 import DiscoverPage from "./pages/DiscoverPage";
 import AgentsPage from "./pages/AgentsPage";
+import AdvancedDashboard from "./pages/AdvancedDashboard";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
         {/* Main App Routes */}
         <Route element={<AppLayout />}>
           <Route index element={<Dashboard />} />
+          <Route path="advanced" element={<AdvancedDashboard />} />
           <Route path="discover" element={<DiscoverPage />} />
           <Route path="zaps" element={<HistoryPage />} />
           <Route path="zaps/create" element={<ZapCreator />} />
@@ -48,6 +50,12 @@ function App() {
           <Route path="agents" element={<AgentsPage />} />
           <Route path="app-connections" element={<ConnectedApps />} />
           <Route path="zap-history" element={<HistoryPage />} />
+          
+          {/* New Zapier-like feature routes */}
+          <Route path="filters" element={<NotFound />} />
+          <Route path="storage" element={<NotFound />} />
+          <Route path="scheduler" element={<NotFound />} />
+          <Route path="analytics" element={<AdvancedDashboard />} />
           
           {/* Legacy routes for backwards compatibility */}
           <Route path="connected-apps" element={<ConnectedApps />} />

@@ -48,25 +48,25 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   }
 
   return (
-    <div className="flex h-screen w-full bg-gray-50">
+    <div className="flex h-screen w-full bg-gray-50 overflow-hidden">
       <Sidebar 
         isExpanded={isSidebarExpanded}
         setIsExpanded={setIsSidebarExpanded}
       />
       
-      {/* Main content area - positioned beside the sidebar */}
+      {/* Main content area - properly positioned with dynamic margin */}
       <div className={cn(
-        "flex flex-col flex-1 transition-all duration-300 ease-in-out",
-        "ml-16" // Always account for collapsed sidebar width
+        "flex flex-col flex-1 transition-all duration-300 ease-in-out min-h-screen",
+        isSidebarExpanded ? "ml-64" : "ml-16"
       )}>
         <Header />
-        <main className="flex-1 overflow-y-auto p-4 md:p-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
           {children || <Outlet />}
         </main>
         
         {/* Bottom action bar for Zap Creator */}
         {isZapCreator && (
-          <div className="bg-white border-t border-gray-200 py-3 px-4 flex justify-between items-center">
+          <div className="bg-white border-t border-gray-200 py-3 px-4 flex justify-between items-center shadow-lg">
             <div>
               <span className="text-gray-500 text-sm">Draft saved</span>
             </div>

@@ -20,7 +20,12 @@ import {
   Mic,
   Users,
   Code2,
-  Code
+  Code,
+  Filter,
+  Database,
+  Timer,
+  FileText,
+  Activity
 } from "lucide-react";
 import { SidebarItem } from "./SidebarItem";
 import { cn } from "@/lib/utils";
@@ -36,28 +41,38 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
   
   const handleMouseEnter = () => {
     setIsHovering(true);
-    setIsExpanded(true);
+    if (!isExpanded) {
+      setIsExpanded(true);
+    }
   };
 
   const handleMouseLeave = () => {
     setIsHovering(false);
-    setIsExpanded(false);
+    if (isHovering) {
+      setIsExpanded(false);
+    }
   };
 
   const navItems = [
-    { icon: Home, label: "Home", path: "/" },
+    { icon: Home, label: "Dashboard", path: "/" },
     { icon: Search, label: "Discover", path: "/discover" },
     { icon: Zap, label: "Zaps", path: "/zaps" },
     { icon: Table, label: "Tables", path: "/tables" },
     { icon: Layers, label: "Interfaces", path: "/interfaces" },
     { icon: MessageSquare, label: "Chatbot", path: "/chatbot" },
     { icon: PenTool, label: "Canvas", path: "/canvas" },
-    { icon: Bot, label: "Agents", path: "/agents" },
+    { icon: Bot, label: "AI Agents", path: "/agents" },
     { icon: Grid, label: "App Connections", path: "/app-connections" },
-    { icon: History, label: "Zap History", path: "/zap-history" },
-    { icon: MoreHorizontal, label: "More", path: "/more" },
+    { icon: History, label: "History", path: "/zap-history" },
     { icon: Code2, label: "Functions", path: "/functions" },
     { icon: Code, label: "Developer Platform", path: "/developer-platform" },
+    { icon: Webhook, label: "Webhooks", path: "/webhooks" },
+    { icon: Filter, label: "Filters", path: "/filters" },
+    { icon: Database, label: "Storage", path: "/storage" },
+    { icon: Timer, label: "Scheduler", path: "/scheduler" },
+    { icon: FileText, label: "Templates", path: "/templates" },
+    { icon: Activity, label: "Analytics", path: "/analytics" },
+    { icon: MoreHorizontal, label: "More", path: "/more" },
   ];
 
   return (
@@ -65,14 +80,14 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "fixed left-0 top-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-50 shadow-lg",
+        "fixed left-0 top-0 h-screen bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-50 shadow-lg flex flex-col",
         isExpanded ? "w-64" : "w-16"
       )}
     >
       {/* Logo/Brand */}
-      <div className="flex justify-center items-center py-4 px-3">
+      <div className="flex justify-center items-center py-4 px-3 border-b border-gray-100">
         <div className={cn("transition-all duration-300", isExpanded ? "block" : "hidden")}>
-          <span className="text-2xl font-bold text-orange-500">Zapier</span>
+          <span className="text-2xl font-bold text-orange-500">Zapier Clone</span>
         </div>
         <div className={cn("transition-all duration-300", isExpanded ? "hidden" : "block")}>
           <span className="text-2xl font-bold text-orange-500">Z</span>
@@ -80,19 +95,19 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
       </div>
 
       {/* Create Zap button */}
-      <div className="px-3 mb-4">
+      <div className="px-3 mb-4 mt-4">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
               <NavLink to="/zaps/create" className="w-full block">
                 <button 
                   className={cn(
-                    "w-full bg-purple-600 hover:bg-purple-700 text-white rounded-md flex items-center justify-center py-2 transition-all",
+                    "w-full bg-orange-600 hover:bg-orange-700 text-white rounded-md flex items-center justify-center py-2.5 transition-all font-medium",
                     isExpanded ? "px-4" : "px-2"
                   )}
                 >
                   <Plus size={20} />
-                  {isExpanded && <span className="ml-2 font-medium">Create Zap</span>}
+                  {isExpanded && <span className="ml-2">Create Zap</span>}
                 </button>
               </NavLink>
             </TooltipTrigger>
@@ -106,8 +121,8 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto">
-        <ul className="space-y-1 px-2">
+      <nav className="flex-1 overflow-y-auto px-2">
+        <ul className="space-y-1">
           {navItems.map((item) => (
             <li key={item.label}>
               <SidebarItem 
@@ -129,21 +144,21 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex items-center cursor-pointer">
-                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-medium">
+              <div className="flex items-center cursor-pointer hover:bg-gray-50 rounded-md p-2 transition-colors">
+                <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-medium">
                   JD
                 </div>
                 {isExpanded && (
                   <div className="ml-3">
                     <p className="text-sm font-medium">John Doe</p>
-                    <p className="text-xs text-gray-500">Free Plan</p>
+                    <p className="text-xs text-gray-500">Pro Plan</p>
                   </div>
                 )}
               </div>
             </TooltipTrigger>
             {!isExpanded && (
               <TooltipContent side="right">
-                <p>John Doe - Free Plan</p>
+                <p>John Doe - Pro Plan</p>
               </TooltipContent>
             )}
           </Tooltip>

@@ -4,410 +4,391 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { 
-  Clock, 
+  Filter, 
+  GitBranch, 
+  Timer, 
   Code, 
   Database, 
-  GitBranch, 
-  Repeat, 
-  Shield, 
-  Zap,
   AlertTriangle,
-  CheckCircle,
-  Timer,
-  Cpu,
-  Network
+  Play,
+  Pause,
+  RotateCcw,
+  Settings,
+  Zap
 } from "lucide-react";
-import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
 
-interface AdvancedFeature {
-  id: string;
-  name: string;
-  description: string;
-  icon: React.ElementType;
-  status: "available" | "beta" | "coming_soon";
-  category: string;
+interface AdvancedWorkflowFeaturesProps {
+  workflowId: string;
+  onUpdate?: (features: any) => void;
 }
 
-const advancedFeatures: AdvancedFeature[] = [
-  {
-    id: "multi-step-unlimited",
-    name: "Unlimited Workflow Steps",
-    description: "Create workflows with unlimited steps and complex logic",
-    icon: Zap,
-    status: "available",
-    category: "Core"
-  },
-  {
-    id: "custom-code",
-    name: "Custom Code Execution",
-    description: "Run JavaScript/Python code within your workflows",
-    icon: Code,
-    status: "beta",
-    category: "Advanced"
-  },
-  {
-    id: "data-storage",
-    name: "Workflow Data Storage",
-    description: "Store and retrieve data between workflow runs",
-    icon: Database,
-    status: "available",
-    category: "Data"
-  },
-  {
-    id: "parallel-execution",
-    name: "Parallel Path Execution",
-    description: "Execute multiple workflow paths simultaneously",
-    icon: GitBranch,
-    status: "beta",
-    category: "Advanced"
-  },
-  {
-    id: "advanced-retry",
-    name: "Smart Retry Logic",
-    description: "Intelligent retry mechanisms with exponential backoff",
-    icon: Repeat,
-    status: "available",
-    category: "Reliability"
-  },
-  {
-    id: "advanced-auth",
-    name: "Enterprise Authentication",
-    description: "SAML, LDAP, and custom OAuth implementations",
-    icon: Shield,
-    status: "coming_soon",
-    category: "Security"
-  },
-  {
-    id: "cron-scheduling",
-    name: "Advanced Scheduling",
-    description: "Cron expressions and complex time-based triggers",
-    icon: Clock,
-    status: "available",
-    category: "Scheduling"
-  },
-  {
-    id: "error-recovery",
-    name: "Automatic Error Recovery",
-    description: "Self-healing workflows with intelligent error handling",
-    icon: AlertTriangle,
-    status: "beta",
-    category: "Reliability"
-  },
-  {
-    id: "performance-optimization",
-    name: "Performance Optimization",
-    description: "Automatic workflow optimization and caching",
-    icon: Cpu,
-    status: "available",
-    category: "Performance"
-  },
-  {
-    id: "multi-region",
-    name: "Multi-Region Deployment",
-    description: "Deploy workflows across multiple geographic regions",
-    icon: Network,
-    status: "coming_soon",
-    category: "Infrastructure"
-  }
-];
-
-export const AdvancedWorkflowFeatures: React.FC = () => {
-  const [selectedFeature, setSelectedFeature] = useState<string | null>(null);
-  const [customCodeInput, setCustomCodeInput] = useState("");
-  const [cronExpression, setCronExpression] = useState("");
-
-  const voiceGuidanceProps = {
-    elementName: "Advanced Workflow Features",
-    hoverText: "Explore advanced workflow capabilities and enterprise features",
-    clickText: "Configure advanced features for your automation workflows"
-  };
-  
-  const { handleMouseEnter, handleClick } = useVoiceGuidance(voiceGuidanceProps);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "available": return "bg-green-100 text-green-800";
-      case "beta": return "bg-yellow-100 text-yellow-800";
-      case "coming_soon": return "bg-gray-100 text-gray-800";
-      default: return "bg-gray-100 text-gray-800";
+export const AdvancedWorkflowFeatures: React.FC<AdvancedWorkflowFeaturesProps> = ({ 
+  workflowId, 
+  onUpdate 
+}) => {
+  const [features, setFeatures] = useState({
+    filters: [],
+    paths: [],
+    schedules: [],
+    customCode: '',
+    storage: {},
+    errorHandling: {
+      retries: 3,
+      timeout: 30,
+      fallback: null
+    },
+    monitoring: {
+      alerts: true,
+      logging: true,
+      analytics: true
     }
+  });
+
+  const [activeTab, setActiveTab] = useState("filters");
+
+  const addFilter = () => {
+    const newFilter = {
+      id: Date.now(),
+      field: '',
+      operator: 'equals',
+      value: '',
+      enabled: true
+    };
+    setFeatures(prev => ({
+      ...prev,
+      filters: [...prev.filters, newFilter]
+    }));
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "available": return "Available";
-      case "beta": return "Beta";
-      case "coming_soon": return "Coming Soon";
-      default: return "Unknown";
-    }
+  const addPath = () => {
+    const newPath = {
+      id: Date.now(),
+      name: 'New Path',
+      condition: '',
+      actions: [],
+      enabled: true
+    };
+    setFeatures(prev => ({
+      ...prev,
+      paths: [...prev.paths, newPath]
+    }));
   };
 
-  const categories = [...new Set(advancedFeatures.map(f => f.category))];
+  const addSchedule = () => {
+    const newSchedule = {
+      id: Date.now(),
+      type: 'interval',
+      value: '5',
+      unit: 'minutes',
+      enabled: true
+    };
+    setFeatures(prev => ({
+      ...prev,
+      schedules: [...prev.schedules, newSchedule]
+    }));
+  };
 
   return (
-    <div className="space-y-6" onMouseEnter={handleMouseEnter} onClick={handleClick}>
-      <Card>
-        <CardHeader>
-          <CardTitle>Advanced Workflow Features</CardTitle>
-          <CardDescription>
-            Enterprise-grade features for complex automation workflows
-          </CardDescription>
-        </CardHeader>
-        
-        <CardContent>
-          <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="code-execution">Code Execution</TabsTrigger>
-              <TabsTrigger value="scheduling">Advanced Scheduling</TabsTrigger>
-              <TabsTrigger value="reliability">Reliability</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="overview" className="space-y-4">
-              {categories.map(category => (
-                <div key={category}>
-                  <h3 className="text-lg font-semibold mb-3">{category}</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    {advancedFeatures
-                      .filter(feature => feature.category === category)
-                      .map(feature => (
-                        <Card 
-                          key={feature.id} 
-                          className="cursor-pointer hover:shadow-md transition-shadow"
-                          onClick={() => setSelectedFeature(feature.id)}
-                        >
-                          <CardContent className="pt-4">
-                            <div className="flex items-start justify-between mb-2">
-                              <feature.icon className="h-5 w-5 text-purple-600" />
-                              <Badge className={getStatusColor(feature.status)}>
-                                {getStatusText(feature.status)}
-                              </Badge>
-                            </div>
-                            <h4 className="font-medium mb-1">{feature.name}</h4>
-                            <p className="text-sm text-gray-600">{feature.description}</p>
-                          </CardContent>
-                        </Card>
-                      ))}
-                  </div>
-                  <Separator />
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Advanced Workflow Features</h2>
+          <p className="text-gray-600">Configure advanced automation capabilities</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm">
+            <Play className="w-4 h-4 mr-2" />
+            Test Workflow
+          </Button>
+          <Button size="sm">
+            <Zap className="w-4 h-4 mr-2" />
+            Activate
+          </Button>
+        </div>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="filters">Filters</TabsTrigger>
+          <TabsTrigger value="paths">Paths</TabsTrigger>
+          <TabsTrigger value="schedules">Schedule</TabsTrigger>
+          <TabsTrigger value="code">Custom Code</TabsTrigger>
+          <TabsTrigger value="storage">Storage</TabsTrigger>
+          <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="filters" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Filter className="w-5 h-5" />
+                Filters & Conditions
+              </CardTitle>
+              <CardDescription>
+                Only run actions when data meets specific conditions
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {features.filters.map((filter: any, index) => (
+                <div key={filter.id} className="flex items-center gap-2 p-3 border rounded-lg">
+                  <Input placeholder="Field name" className="flex-1" />
+                  <select className="px-3 py-2 border rounded">
+                    <option>equals</option>
+                    <option>contains</option>
+                    <option>greater than</option>
+                    <option>less than</option>
+                    <option>is empty</option>
+                    <option>is not empty</option>
+                  </select>
+                  <Input placeholder="Value" className="flex-1" />
+                  <Switch />
+                  <Button variant="ghost" size="sm">×</Button>
                 </div>
               ))}
-            </TabsContent>
-            
-            <TabsContent value="code-execution" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Code className="h-5 w-5" />
-                    <span>Custom Code Execution</span>
-                    <Badge className="bg-yellow-100 text-yellow-800">Beta</Badge>
-                  </CardTitle>
-                  <CardDescription>
-                    Execute custom JavaScript or Python code within your workflows
-                  </CardDescription>
-                </CardHeader>
-                
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Custom Code (JavaScript)</Label>
-                    <textarea
-                      className="w-full h-32 p-3 border rounded-md font-mono text-sm"
-                      placeholder="// Enter your JavaScript code here
-function processData(input) {
-  // Transform your data
+              <Button onClick={addFilter} variant="outline" className="w-full">
+                <Filter className="w-4 h-4 mr-2" />
+                Add Filter
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="paths" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <GitBranch className="w-5 h-5" />
+                Conditional Paths
+              </CardTitle>
+              <CardDescription>
+                Create different workflows based on conditions
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {features.paths.map((path: any) => (
+                <div key={path.id} className="p-4 border rounded-lg space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Input placeholder="Path name" defaultValue={path.name} />
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary">3 actions</Badge>
+                      <Switch />
+                      <Button variant="ghost" size="sm">×</Button>
+                    </div>
+                  </div>
+                  <Input placeholder="Condition (e.g., status equals 'active')" />
+                  <div className="text-sm text-gray-500">
+                    Actions: Send email → Update database → Post to Slack
+                  </div>
+                </div>
+              ))}
+              <Button onClick={addPath} variant="outline" className="w-full">
+                <GitBranch className="w-4 h-4 mr-2" />
+                Add Path
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="schedules" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Timer className="w-5 h-5" />
+                Schedule & Triggers
+              </CardTitle>
+              <CardDescription>
+                Run workflows on a schedule or based on time conditions
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {features.schedules.map((schedule: any) => (
+                <div key={schedule.id} className="flex items-center gap-2 p-3 border rounded-lg">
+                  <select className="px-3 py-2 border rounded">
+                    <option>Every</option>
+                    <option>Daily at</option>
+                    <option>Weekly on</option>
+                    <option>Monthly on</option>
+                    <option>Cron expression</option>
+                  </select>
+                  <Input placeholder="5" className="w-20" />
+                  <select className="px-3 py-2 border rounded">
+                    <option>minutes</option>
+                    <option>hours</option>
+                    <option>days</option>
+                  </select>
+                  <Switch />
+                  <Button variant="ghost" size="sm">×</Button>
+                </div>
+              ))}
+              <Button onClick={addSchedule} variant="outline" className="w-full">
+                <Timer className="w-4 h-4 mr-2" />
+                Add Schedule
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="code" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Code className="w-5 h-5" />
+                Custom Code
+              </CardTitle>
+              <CardDescription>
+                Add custom JavaScript or Python code to your workflow
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Code Language</Label>
+                <select className="w-full px-3 py-2 border rounded">
+                  <option>JavaScript</option>
+                  <option>Python</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>Custom Code</Label>
+                <textarea 
+                  className="w-full h-48 p-3 border rounded font-mono text-sm"
+                  placeholder="// Your custom code here
+function transform(inputData) {
+  // Process the data
   return {
+    ...inputData,
     processed: true,
-    result: input.data.toUpperCase(),
     timestamp: new Date().toISOString()
   };
-}
+}"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm">Test Code</Button>
+                <Button size="sm">Save Code</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-// Return the result
-return processData(inputData);"
-                      value={customCodeInput}
-                      onChange={(e) => setCustomCodeInput(e.target.value)}
-                    />
-                  </div>
-                  
-                  <div className="flex space-x-2">
-                    <Button variant="outline">
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Validate Code
-                    </Button>
-                    <Button>
-                      <Zap className="h-4 w-4 mr-2" />
-                      Test Execution
-                    </Button>
-                  </div>
-                  
-                  <div className="bg-gray-50 p-3 rounded-md">
-                    <h5 className="font-medium mb-2">Available Variables:</h5>
-                    <ul className="text-sm space-y-1">
-                      <li><code>inputData</code> - Data from previous step</li>
-                      <li><code>meta</code> - Workflow metadata</li>
-                      <li><code>env</code> - Environment variables</li>
-                      <li><code>utils</code> - Utility functions</li>
-                    </ul>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="scheduling" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Clock className="h-5 w-5" />
-                    <span>Advanced Scheduling</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Configure complex time-based triggers with cron expressions
-                  </CardDescription>
-                </CardHeader>
-                
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Cron Expression</Label>
-                    <Input
-                      placeholder="0 9 * * MON-FRI"
-                      value={cronExpression}
-                      onChange={(e) => setCronExpression(e.target.value)}
-                    />
-                    <p className="text-sm text-gray-500">
-                      Example: "0 9 * * MON-FRI" runs at 9 AM on weekdays
-                    </p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Common Patterns</Label>
-                      <div className="space-y-1">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full justify-start text-xs"
-                          onClick={() => setCronExpression("0 9 * * *")}
-                        >
-                          Daily at 9 AM
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full justify-start text-xs"
-                          onClick={() => setCronExpression("0 9 * * MON")}
-                        >
-                          Monday at 9 AM
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full justify-start text-xs"
-                          onClick={() => setCronExpression("0 */2 * * *")}
-                        >
-                          Every 2 hours
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label>Next Executions</Label>
-                      <div className="bg-gray-50 p-3 rounded text-sm">
-                        <div className="space-y-1">
-                          <div>Next: Today at 9:00 AM</div>
-                          <div>Then: Tomorrow at 9:00 AM</div>
-                          <div>Then: Day after at 9:00 AM</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <Button>
-                    <Timer className="h-4 w-4 mr-2" />
-                    Apply Schedule
-                  </Button>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="reliability" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <TabsContent value="storage" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Database className="w-5 h-5" />
+                Data Storage
+              </CardTitle>
+              <CardDescription>
+                Store and retrieve data between workflow runs
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Repeat className="h-5 w-5" />
-                      <span>Smart Retry Logic</span>
-                    </CardTitle>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm">Store Value</CardTitle>
                   </CardHeader>
-                  
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>Retry Attempts</Label>
-                      <Input type="number" defaultValue="3" min="1" max="10" />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label>Backoff Strategy</Label>
-                      <select className="w-full p-2 border rounded">
-                        <option value="exponential">Exponential Backoff</option>
-                        <option value="linear">Linear Backoff</option>
-                        <option value="fixed">Fixed Delay</option>
-                      </select>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label>Initial Delay (seconds)</Label>
-                      <Input type="number" defaultValue="1" min="1" />
-                    </div>
+                  <CardContent className="space-y-2">
+                    <Input placeholder="Key name" />
+                    <Input placeholder="Value" />
+                    <Button size="sm" className="w-full">Store</Button>
                   </CardContent>
                 </Card>
-                
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <AlertTriangle className="h-5 w-5" />
-                      <span>Error Recovery</span>
-                    </CardTitle>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm">Retrieve Value</CardTitle>
                   </CardHeader>
-                  
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>Error Handling Strategy</Label>
-                      <select className="w-full p-2 border rounded">
-                        <option value="stop">Stop on Error</option>
-                        <option value="continue">Continue on Error</option>
-                        <option value="retry">Retry on Error</option>
-                        <option value="skip">Skip Failed Steps</option>
-                      </select>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label>Error Notification</Label>
-                      <div className="space-y-1">
-                        <label className="flex items-center space-x-2">
-                          <input type="checkbox" defaultChecked />
-                          <span className="text-sm">Email notifications</span>
-                        </label>
-                        <label className="flex items-center space-x-2">
-                          <input type="checkbox" />
-                          <span className="text-sm">Slack notifications</span>
-                        </label>
-                        <label className="flex items-center space-x-2">
-                          <input type="checkbox" />
-                          <span className="text-sm">Webhook alerts</span>
-                        </label>
-                      </div>
-                    </div>
+                  <CardContent className="space-y-2">
+                    <Input placeholder="Key name" />
+                    <Button size="sm" className="w-full">Retrieve</Button>
                   </CardContent>
                 </Card>
               </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+              <div className="space-y-2">
+                <Label>Stored Values</Label>
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <span className="text-sm">user_count</span>
+                    <span className="text-sm text-gray-600">1,234</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <span className="text-sm">last_sync</span>
+                    <span className="text-sm text-gray-600">2024-01-15</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="monitoring" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5" />
+                Monitoring & Error Handling
+              </CardTitle>
+              <CardDescription>
+                Configure alerts, retries, and error handling
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <h4 className="font-medium">Error Handling</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Max Retries</Label>
+                    <Input type="number" defaultValue="3" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Timeout (seconds)</Label>
+                    <Input type="number" defaultValue="30" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Fallback Action</Label>
+                  <select className="w-full px-3 py-2 border rounded">
+                    <option>None</option>
+                    <option>Send notification</option>
+                    <option>Run alternate workflow</option>
+                    <option>Stop workflow</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="font-medium">Monitoring</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span>Email alerts on failure</span>
+                    <Switch />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Detailed logging</span>
+                    <Switch />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Performance analytics</span>
+                    <Switch />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Webhook notifications</span>
+                    <Switch />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Notification Email</Label>
+                <Input type="email" placeholder="admin@company.com" />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

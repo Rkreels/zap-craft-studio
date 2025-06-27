@@ -1,242 +1,306 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { 
   Play, 
   Pause, 
   Square, 
-  Clock, 
+  RotateCcw, 
   CheckCircle, 
   XCircle, 
-  AlertCircle,
-  Activity 
-} from 'lucide-react';
-import { useWorkflowExecution } from '@/hooks/useWorkflowExecution';
-import { WorkflowStepData } from './WorkflowStep';
-import { useVoiceGuidance } from '@/components/voice-assistant/withVoiceGuidance';
+  Clock,
+  AlertTriangle,
+  Activity,
+  Zap
+} from "lucide-react";
+
+interface ExecutionStep {
+  id: string;
+  name: string;
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
+  startTime?: Date;
+  endTime?: Date;
+  duration?: number;
+  error?: string;
+  data?: any;
+}
 
 interface WorkflowExecutorProps {
   workflowId: string;
-  steps: WorkflowStepData[];
-  onExecutionComplete?: (result: any) => void;
+  steps: any[];
+  onExecute?: (result: any) => void;
 }
 
-export const WorkflowExecutor: React.FC<WorkflowExecutorProps> = ({
-  workflowId,
-  steps,
-  onExecutionComplete
+export const WorkflowExecutor: React.FC<WorkflowExecutorProps> = ({ 
+  workflowId, 
+  steps, 
+  onExecute 
 }) => {
-  const { 
-    executions, 
-    currentExecution, 
-    executeWorkflow, 
-    pauseExecution, 
-    resumeExecution 
-  } = useWorkflowExecution();
-  
-  const [inputData, setInputData] = useState('{}');
+  const [isRunning, setIsRunning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [executionSteps, setExecutionSteps] = useState<ExecutionStep[]>([]);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [executionId, setExecutionId] = useState<string>('');
 
-  const voiceGuidanceProps = {
-    elementName: "Workflow Executor",
-    hoverText: "Execute your workflow with real-time monitoring and step-by-step progress tracking",
-    clickText: "Run, pause, or monitor your automated workflow execution with detailed feedback"
-  };
-  
-  const { handleMouseEnter, handleClick } = useVoiceGuidance(voiceGuidanceProps);
+  useEffect(() => {
+    // Initialize execution steps
+    const initialSteps: ExecutionStep[] = steps.map((step, index) => ({
+      id: step.id || `step-${index}`,
+      name: step.actionName || `Step ${index + 1}`,
+      status: 'pending'
+    }));
+    setExecutionSteps(initialSteps);
+  }, [steps]);
 
-  const handleExecute = async () => {
-    try {
-      const data = JSON.parse(inputData);
-      const result = await executeWorkflow(workflowId, steps, data);
-      if (onExecutionComplete) {
-        onExecutionComplete(result);
-      }
-    } catch (error) {
-      console.error('Failed to parse input data:', error);
+  const startExecution = async () => {
+    setIsRunning(true);
+    setIsPaused(false);
+    setCurrentStepIndex(0);
+    setProgress(0);
+    setExecutionId(`exec_${Date.now()}`);
+
+    // Reset all steps to pending
+    setExecutionSteps(prev => prev.map(step => ({
+      ...step,
+      status: 'pending',
+      startTime: undefined,
+      endTime: undefined,
+      error: undefined
+    })));
+
+    // Execute steps sequentially
+    for (let i = 0; i < executionSteps.length; i++) {
+      if (isPaused) break;
+      
+      setCurrentStepIndex(i);
+      await executeStep(i);
+      setProgress(((i + 1) / executionSteps.length) * 100);
     }
+
+    setIsRunning(false);
   };
 
-  const getStatusIcon = (status: string) => {
+  const executeStep = async (stepIndex: number) => {
+    return new Promise((resolve) => {
+      // Update step status to running
+      setExecutionSteps(prev => prev.map((step, index) => 
+        index === stepIndex 
+          ? { ...step, status: 'running', startTime: new Date() }
+          : step
+      ));
+
+      // Simulate step execution
+      setTimeout(() => {
+        const success = Math.random() > 0.1; // 90% success rate
+        
+        setExecutionSteps(prev => prev.map((step, index) => 
+          index === stepIndex 
+            ? { 
+                ...step, 
+                status: success ? 'completed' : 'failed',
+                endTime: new Date(),
+                duration: 1000 + Math.random() * 2000,
+                error: success ? undefined : 'Simulated error for testing'
+              }
+            : step
+        ));
+
+        resolve(success);
+      }, 1000 + Math.random() * 2000);
+    });
+  };
+
+  const pauseExecution = () => {
+    setIsPaused(true);
+    setIsRunning(false);
+  };
+
+  const resumeExecution = () => {
+    setIsPaused(false);
+    setIsRunning(true);
+    // Continue from current step
+  };
+
+  const stopExecution = () => {
+    setIsRunning(false);
+    setIsPaused(false);
+    setCurrentStepIndex(0);
+    setProgress(0);
+  };
+
+  const retryFailedSteps = () => {
+    // Reset failed steps and retry
+    setExecutionSteps(prev => prev.map(step => 
+      step.status === 'failed' 
+        ? { ...step, status: 'pending', error: undefined }
+        : step
+    ));
+  };
+
+  const getStatusIcon = (status: ExecutionStep['status']) => {
     switch (status) {
-      case 'success': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'error': return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'running': return <Activity className="h-4 w-4 text-blue-500 animate-spin" />;
-      default: return <Clock className="h-4 w-4 text-gray-400" />;
+      case 'running':
+        return <Activity className="w-4 h-4 text-blue-500 animate-spin" />;
+      case 'completed':
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'failed':
+        return <XCircle className="w-4 h-4 text-red-500" />;
+      case 'skipped':
+        return <Clock className="w-4 h-4 text-gray-400" />;
+      default:
+        return <Clock className="w-4 h-4 text-gray-400" />;
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'failed': return 'bg-red-100 text-red-800';
-      case 'running': return 'bg-blue-100 text-blue-800';
-      case 'paused': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  const getStatusBadge = (status: ExecutionStep['status']) => {
+    const variants = {
+      pending: 'secondary',
+      running: 'default',
+      completed: 'success',
+      failed: 'destructive',
+      skipped: 'outline'
+    } as const;
+
+    return (
+      <Badge variant={variants[status] || 'secondary'}>
+        {status}
+      </Badge>
+    );
   };
 
   return (
-    <div 
-      className="space-y-6"
-      onMouseEnter={handleMouseEnter}
-      onClick={handleClick}
-    >
+    <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>Workflow Execution</span>
-            {currentExecution && (
-              <Badge className={getStatusColor(currentExecution.status)}>
-                {currentExecution.status.toUpperCase()}
-              </Badge>
-            )}
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="w-5 h-5" />
+            Workflow Execution
           </CardTitle>
+          <CardDescription>
+            Monitor and control workflow execution in real-time
+          </CardDescription>
         </CardHeader>
-        
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Input Data (JSON)</label>
-            <textarea
-              className="w-full h-32 p-3 border rounded-md font-mono text-sm"
-              value={inputData}
-              onChange={(e) => setInputData(e.target.value)}
-              placeholder='{"key": "value", "data": "sample input"}'
-            />
-          </div>
-          
-          <div className="flex space-x-2">
+          {/* Execution Controls */}
+          <div className="flex items-center gap-2">
             <Button 
-              onClick={handleExecute}
-              disabled={currentExecution?.status === 'running'}
-              className="flex items-center space-x-2"
+              onClick={startExecution} 
+              disabled={isRunning}
+              className="flex items-center gap-2"
             >
-              <Play className="h-4 w-4" />
-              <span>Execute Workflow</span>
+              <Play className="w-4 h-4" />
+              {isRunning ? 'Running...' : 'Start'}
             </Button>
-            
-            {currentExecution?.status === 'running' && (
-              <Button 
-                variant="outline"
-                onClick={() => pauseExecution(currentExecution.id)}
-                className="flex items-center space-x-2"
-              >
-                <Pause className="h-4 w-4" />
-                <span>Pause</span>
-              </Button>
-            )}
-            
-            {currentExecution?.status === 'paused' && (
-              <Button 
-                variant="outline"
-                onClick={() => resumeExecution(currentExecution.id)}
-                className="flex items-center space-x-2"
-              >
-                <Play className="h-4 w-4" />
-                <span>Resume</span>
-              </Button>
-            )}
+            <Button 
+              onClick={pauseExecution} 
+              disabled={!isRunning}
+              variant="outline"
+            >
+              <Pause className="w-4 h-4" />
+              Pause
+            </Button>
+            <Button 
+              onClick={resumeExecution} 
+              disabled={!isPaused}
+              variant="outline"
+            >
+              <Play className="w-4 h-4" />
+              Resume
+            </Button>
+            <Button 
+              onClick={stopExecution} 
+              disabled={!isRunning && !isPaused}
+              variant="outline"
+            >
+              <Square className="w-4 h-4" />
+              Stop
+            </Button>
+            <Button 
+              onClick={retryFailedSteps} 
+              variant="outline"
+            >
+              <RotateCcw className="w-4 h-4" />
+              Retry Failed
+            </Button>
           </div>
-          
-          {currentExecution && (
-            <div className="space-y-4">
-              <div className="flex justify-between text-sm">
-                <span>Progress</span>
-                <span>
-                  {currentExecution.steps.length} / {steps.length} steps
-                </span>
-              </div>
-              
-              <Progress 
-                value={(currentExecution.steps.length / steps.length) * 100} 
-                className="w-full"
-              />
-              
-              <div className="space-y-2">
-                <h4 className="font-medium">Step Results</h4>
-                {currentExecution.steps.map((stepResult, index) => {
-                  const step = steps.find(s => s.id === stepResult.stepId);
-                  return (
-                    <div key={stepResult.stepId} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
-                      <div className="flex items-center space-x-3">
-                        {getStatusIcon(stepResult.status)}
-                        <div>
-                          <p className="font-medium text-sm">
-                            {step?.appName || 'Unknown Step'}: {step?.actionName || 'Unknown Action'}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            Executed in {stepResult.executionTime}ms
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {stepResult.error && (
-                        <div className="flex items-center space-x-2">
-                          <AlertCircle className="h-4 w-4 text-red-500" />
-                          <span className="text-xs text-red-600">{stepResult.error}</span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              
-              {currentExecution.status === 'completed' && currentExecution.totalExecutionTime && (
-                <div className="p-4 bg-green-50 rounded-md">
-                  <p className="text-sm text-green-800">
-                    ✅ Workflow completed successfully in {currentExecution.totalExecutionTime}ms
-                  </p>
-                </div>
-              )}
-              
-              {currentExecution.status === 'failed' && (
-                <div className="p-4 bg-red-50 rounded-md">
-                  <p className="text-sm text-red-800">
-                    ❌ Workflow execution failed. Check the step results above for details.
-                  </p>
-                </div>
-              )}
+
+          {/* Progress */}
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Progress</span>
+              <span>{Math.round(progress)}%</span>
             </div>
-          )}
+            <Progress value={progress} className="w-full" />
+          </div>
+
+          {/* Execution Info */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <div className="text-gray-500">Execution ID</div>
+              <div className="font-mono">{executionId || 'N/A'}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Current Step</div>
+              <div>{currentStepIndex + 1} of {executionSteps.length}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Status</div>
+              <div>{isRunning ? 'Running' : isPaused ? 'Paused' : 'Stopped'}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Duration</div>
+              <div>--:--</div>
+            </div>
+          </div>
         </CardContent>
       </Card>
-      
-      {executions.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Execution History</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {executions.slice().reverse().slice(0, 5).map((execution) => (
-                <div key={execution.id} className="flex items-center justify-between p-3 border rounded-md">
-                  <div className="flex items-center space-x-3">
-                    <Badge className={getStatusColor(execution.status)}>
-                      {execution.status}
-                    </Badge>
-                    <div>
-                      <p className="text-sm font-medium">
-                        {execution.startTime.toLocaleString()}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {execution.steps.length} steps executed
-                      </p>
-                    </div>
+
+      {/* Step Execution Details */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Execution Steps</CardTitle>
+          <CardDescription>
+            Detailed view of each step's execution status
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {executionSteps.map((step, index) => (
+              <div 
+                key={step.id}
+                className={`flex items-center justify-between p-3 border rounded-lg ${
+                  index === currentStepIndex && isRunning ? 'bg-blue-50 border-blue-200' : ''
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  {getStatusIcon(step.status)}
+                  <div>
+                    <div className="font-medium">{step.name}</div>
+                    {step.error && (
+                      <div className="text-sm text-red-600 flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3" />
+                        {step.error}
+                      </div>
+                    )}
                   </div>
-                  
-                  {execution.totalExecutionTime && (
+                </div>
+                <div className="flex items-center gap-2">
+                  {step.duration && (
                     <span className="text-sm text-gray-500">
-                      {execution.totalExecutionTime}ms
+                      {Math.round(step.duration)}ms
                     </span>
                   )}
+                  {getStatusBadge(step.status)}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
