@@ -53,8 +53,12 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         isExpanded={isSidebarExpanded}
         setIsExpanded={setIsSidebarExpanded}
       />
-      {/* Main content area - always takes full width, sidebar floats over it */}
-      <div className="flex flex-col flex-1 w-full">
+      
+      {/* Main content area - positioned beside the sidebar */}
+      <div className={cn(
+        "flex flex-col flex-1 transition-all duration-300 ease-in-out",
+        "ml-16" // Always account for collapsed sidebar width
+      )}>
         <Header />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
           {children || <Outlet />}
@@ -62,7 +66,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         
         {/* Bottom action bar for Zap Creator */}
         {isZapCreator && (
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-4 flex justify-between items-center z-10">
+          <div className="bg-white border-t border-gray-200 py-3 px-4 flex justify-between items-center">
             <div>
               <span className="text-gray-500 text-sm">Draft saved</span>
             </div>

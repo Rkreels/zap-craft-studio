@@ -69,26 +69,30 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
         isExpanded ? "w-64" : "w-16"
       )}
     >
-      <div className="flex justify-center py-4">
-        <span className={cn("text-2xl font-bold text-orange-500", !isExpanded && "hidden")}>
-          Zapier
-        </span>
-        <span className={cn("text-2xl font-bold text-orange-500", isExpanded && "hidden")}>
-          Z
-        </span>
+      {/* Logo/Brand */}
+      <div className="flex justify-center items-center py-4 px-3">
+        <div className={cn("transition-all duration-300", isExpanded ? "block" : "hidden")}>
+          <span className="text-2xl font-bold text-orange-500">Zapier</span>
+        </div>
+        <div className={cn("transition-all duration-300", isExpanded ? "hidden" : "block")}>
+          <span className="text-2xl font-bold text-orange-500">Z</span>
+        </div>
       </div>
 
-      {/* Create Zap button with tooltip */}
-      <div className="px-3 mb-4 mt-2">
+      {/* Create Zap button */}
+      <div className="px-3 mb-4">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <NavLink to="/zaps/create" className="w-full">
+              <NavLink to="/zaps/create" className="w-full block">
                 <button 
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-md flex items-center justify-center py-2 transition-all"
+                  className={cn(
+                    "w-full bg-purple-600 hover:bg-purple-700 text-white rounded-md flex items-center justify-center py-2 transition-all",
+                    isExpanded ? "px-4" : "px-2"
+                  )}
                 >
                   <Plus size={20} />
-                  <span className={cn("ml-2 font-medium", !isExpanded && "hidden")}>Create Zap</span>
+                  {isExpanded && <span className="ml-2 font-medium">Create Zap</span>}
                 </button>
               </NavLink>
             </TooltipTrigger>
@@ -101,6 +105,7 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
         </TooltipProvider>
       </div>
 
+      {/* Navigation */}
       <nav className="flex-1 overflow-y-auto">
         <ul className="space-y-1 px-2">
           {navItems.map((item) => (
@@ -116,22 +121,33 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
         </ul>
       </nav>
 
-      {/* User profile section at bottom */}
+      {/* User profile section */}
       <div className={cn(
-        "border-t border-gray-200 p-3 mt-auto", 
+        "border-t border-gray-200 p-3 mt-auto",
         !isExpanded && "flex justify-center"
       )}>
-        <div className="flex items-center">
-          <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-medium">
-            JD
-          </div>
-          {isExpanded && (
-            <div className="ml-3">
-              <p className="text-sm font-medium">John Doe</p>
-              <p className="text-xs text-gray-500">Free Plan</p>
-            </div>
-          )}
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center cursor-pointer">
+                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-medium">
+                  JD
+                </div>
+                {isExpanded && (
+                  <div className="ml-3">
+                    <p className="text-sm font-medium">John Doe</p>
+                    <p className="text-xs text-gray-500">Free Plan</p>
+                  </div>
+                )}
+              </div>
+            </TooltipTrigger>
+            {!isExpanded && (
+              <TooltipContent side="right">
+                <p>John Doe - Free Plan</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
   );
