@@ -1,155 +1,66 @@
 
-/**
- * Utility functions for transforming interface data similar to Zapier's data transformation tools
- */
+import { InterfaceItem } from '@/types/interfaces';
 
-import { InterfaceItem } from "@/types/interfaces";
-
-// Transform interface data for export
-export const transformForExport = (interfaces: InterfaceItem[], format: 'json' | 'csv' = 'json') => {
-  // Basic data for export
-  const baseData = interfaces.map(item => ({
-    id: item.id,
-    name: item.name,
-    type: item.type,
-    description: item.description || '',
-    status: item.status,
-    createdAt: item.createdAt,
-    updatedAt: item.updatedAt,
-    fieldsCount: (item.fields || []).length,
-    integrationsCount: (item.integrations || []).length
-  }));
-
+export const transformForExport = (interfaces: InterfaceItem[], format: 'json' | 'csv'): string => {
   if (format === 'json') {
-    return JSON.stringify(baseData, null, 2);
+    return JSON.stringify(interfaces, null, 2);
   } else if (format === 'csv') {
-    // Header row
-    let csv = 'id,name,type,description,status,created_at,updated_at,fields_count,integrations_count\n';
+    // Create CSV headers
+    const headers = ['ID', 'Name', 'Type', 'Description', 'Status', 'Created At', 'Updated At', 'View Count'];
     
-    // Data rows
-    baseData.forEach(item => {
-      csv += `${item.id},${item.name.replace(/,/g, '')},${item.type},${item.description.replace(/,/g, '')},${item.status},${item.createdAt},${item.updatedAt},${item.fieldsCount},${item.integrationsCount}\n`;
+    // Create CSV rows
+    const rows = interfaces.map(interface_ => [
+      interface_.id,
+      interface_.name,
+      interface_.type,
+      interface_.description || '',
+      interface_.status,
+      interface_.createdAt,
+      interface_.updatedAt,
+      interface_.viewCount || 0
+    ]);
+    
+    // Combine headers and rows
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${cell}"`).join(','))
+      .join('\n');
+    
+    return csvContent;
+  }
+  
+  throw new Error('Unsupported export format');
+};
+
+export const parseImportData = (data: string, format: 'json' | 'csv'): InterfaceItem[] => {
+  if (format === 'json') {
+    try {
+      const parsed = JSON.parse(data);
+      return Array.isArray(parsed) ? parsed : [parsed];
+    } catch (error) {
+      throw new Error('Invalid JSON format');
+    }
+  } else if (format === 'csv') {
+    // Basic CSV parsing (for more complex CSV, consider using a library)
+    const lines = data.split('\n');
+    const headers = lines[0].split(',').map(h => h.replace(/"/g, ''));
+    
+    return lines.slice(1).map((line, index) => {
+      const values = line.split(',').map(v => v.replace(/"/g, ''));
+      return {
+        id: values[0] || `imported-${index}`,
+        name: values[1] || 'Imported Interface',
+        type: (values[2] as 'form' | 'page' | 'dashboard') || 'form',
+        description: values[3] || '',
+        status: (values[4] as 'published' | 'draft') || 'draft',
+        createdAt: values[5] || new Date().toISOString(),
+        updatedAt: values[6] || new Date().toISOString(),
+        viewCount: parseInt(values[7]) || 0,
+        preview: 'https://placehold.co/600x400/e2e8f0/64748b?text=Imported+Interface',
+        fields: [],
+        integrations: []
+      };
     });
-    
-    return csv;
   }
   
-  return '';
-};
-
-// Filter interfaces by date range
-export const filterByDateRange = (
-  interfaces: InterfaceItem[], 
-  startDate?: Date, 
-  endDate?: Date
-): InterfaceItem[] => {
-  if (!startDate && !endDate) return interfaces;
-  
-  return interfaces.filter(item => {
-    const updatedAt = new Date(item.updatedAt);
-    
-    if (startDate && endDate) {
-      return updatedAt >= startDate && updatedAt <= endDate;
-    } else if (startDate) {
-      return updatedAt >= startDate;
-    } else if (endDate) {
-      return updatedAt <= endDate;
-    }
-    
-    return true;
-  });
-};
-
-// Map field types between different formats
-export const mapFieldType = (
-  sourceType: string, 
-  targetFormat: 'html' | 'json' | 'airtable' | 'notion' = 'html'
-): string => {
-  const typeMap: Record<string, Record<string, string>> = {
-    text: {
-      html: 'text',
-      json: 'string',
-      airtable: 'singleLineText',
-      notion: 'text'
-    },
-    email: {
-      html: 'email',
-      json: 'string',
-      airtable: 'email',
-      notion: 'email'
-    },
-    tel: {
-      html: 'tel',
-      json: 'string',
-      airtable: 'phoneNumber',
-      notion: 'phone_number'
-    },
-    number: {
-      html: 'number',
-      json: 'number',
-      airtable: 'number',
-      notion: 'number'
-    },
-    checkbox: {
-      html: 'checkbox',
-      json: 'boolean',
-      airtable: 'checkbox',
-      notion: 'checkbox'
-    },
-    date: {
-      html: 'date',
-      json: 'string',
-      airtable: 'date',
-      notion: 'date'
-    }
-  };
-  
-  if (typeMap[sourceType] && typeMap[sourceType][targetFormat]) {
-    return typeMap[sourceType][targetFormat];
-  }
-  
-  // Default to original type if mapping not found
-  return sourceType;
-};
-
-// Generate sample data for an interface based on its fields
-export const generateSampleData = (interfaceItem: InterfaceItem): Record<string, any> => {
-  if (!interfaceItem.fields || interfaceItem.fields.length === 0) {
-    return {};
-  }
-  
-  const sampleData: Record<string, any> = {};
-  
-  interfaceItem.fields.forEach(field => {
-    switch (field.type) {
-      case 'text':
-        sampleData[field.name] = `Sample ${field.label}`;
-        break;
-      case 'email':
-        sampleData[field.name] = 'user@example.com';
-        break;
-      case 'tel':
-        sampleData[field.name] = '+1234567890';
-        break;
-      case 'number':
-        sampleData[field.name] = 42;
-        break;
-      case 'checkbox':
-        sampleData[field.name] = true;
-        break;
-      case 'date':
-        sampleData[field.name] = new Date().toISOString().split('T')[0];
-        break;
-      default:
-        sampleData[field.name] = `Sample data for ${field.name}`;
-    }
-  });
-  
-  return sampleData;
-};
-
-// Create a webhook URL format for an interface (similar to Zapier's webhook triggers)
-export const generateWebhookUrl = (interfaceId: string): string => {
-  // In a real implementation, this would generate a secure, unique URL
-  return `https://api.example.com/webhooks/${interfaceId}-${Date.now()}`;
+  throw new Error('Unsupported import format');
 };
