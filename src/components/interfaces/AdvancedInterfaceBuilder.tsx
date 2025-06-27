@@ -19,10 +19,11 @@ import {
   Palette,
   Layout,
   Zap,
-  Save
+  Save,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import { InterfaceItem, InterfaceField } from '@/types/interfaces';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 interface AdvancedInterfaceBuilderProps {
   interface_: InterfaceItem;
@@ -94,16 +95,22 @@ export const AdvancedInterfaceBuilder: React.FC<AdvancedInterfaceBuilderProps> =
     setSelectedField(null);
   }, []);
 
-  const handleDragEnd = useCallback((result: any) => {
-    if (!result.destination) return;
-
-    const fields = Array.from(currentInterface.fields || []);
-    const [reorderedField] = fields.splice(result.source.index, 1);
-    fields.splice(result.destination.index, 0, reorderedField);
-
+  const moveField = useCallback((fieldId: string, direction: 'up' | 'down') => {
+    const fields = currentInterface.fields || [];
+    const currentIndex = fields.findIndex(field => field.id === fieldId);
+    
+    if (currentIndex === -1) return;
+    
+    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    
+    if (newIndex < 0 || newIndex >= fields.length) return;
+    
+    const newFields = [...fields];
+    [newFields[currentIndex], newFields[newIndex]] = [newFields[newIndex], newFields[currentIndex]];
+    
     setCurrentInterface(prev => ({
       ...prev,
-      fields
+      fields: newFields
     }));
   }, [currentInterface.fields]);
 
@@ -218,56 +225,65 @@ export const AdvancedInterfaceBuilder: React.FC<AdvancedInterfaceBuilderProps> =
 
                 <div>
                   <h3 className="font-medium mb-3">Field List</h3>
-                  <DragDropContext onDragEnd={handleDragEnd}>
-                    <Droppable droppableId="fields">
-                      {(provided) => (
-                        <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-                          {(currentInterface.fields || []).map((field, index) => (
-                            <Draggable key={field.id} draggableId={field.id} index={index}>
-                              {(provided) => (
-                                <Card
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  className={`cursor-pointer ${selectedField?.id === field.id ? 'ring-2 ring-blue-500' : ''}`}
-                                  onClick={() => setSelectedField(field)}
+                  <div className="space-y-2">
+                    {(currentInterface.fields || []).map((field, index) => (
+                      <Card
+                        key={field.id}
+                        className={`cursor-pointer ${selectedField?.id === field.id ? 'ring-2 ring-blue-500' : ''}`}
+                        onClick={() => setSelectedField(field)}
+                      >
+                        <CardContent className="p-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="flex flex-col gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    moveField(field.id, 'up');
+                                  }}
+                                  disabled={index === 0}
                                 >
-                                  <CardContent className="p-3">
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        <div {...provided.dragHandleProps}>
-                                          <Move size={16} className="text-gray-400" />
-                                        </div>
-                                        <div>
-                                          <p className="font-medium">{field.label}</p>
-                                          <p className="text-sm text-gray-500">{field.type}</p>
-                                        </div>
-                                      </div>
-                                      <div className="flex items-center gap-1">
-                                        {field.required && (
-                                          <Badge variant="secondary" className="text-xs">Required</Badge>
-                                        )}
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            removeField(field.id);
-                                          }}
-                                        >
-                                          <Trash2 size={14} />
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  </CardContent>
-                                </Card>
+                                  <ArrowUp size={12} />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    moveField(field.id, 'down');
+                                  }}
+                                  disabled={index === (currentInterface.fields || []).length - 1}
+                                >
+                                  <ArrowDown size={12} />
+                                </Button>
+                              </div>
+                              <div>
+                                <p className="font-medium">{field.label}</p>
+                                <p className="text-sm text-gray-500">{field.type}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {field.required && (
+                                <Badge variant="secondary" className="text-xs">Required</Badge>
                               )}
-                            </Draggable>
-                          ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  </DragDropContext>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeField(field.id);
+                                }}
+                              >
+                                <Trash2 size={14} />
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
               </div>
             </TabsContent>
