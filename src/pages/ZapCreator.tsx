@@ -466,7 +466,7 @@ export default function ZapCreator() {
                   <WorkflowExecutor
                     workflowId={`zap-${zapName.replace(/\s+/g, '-').toLowerCase()}`}
                     steps={steps}
-                    onExecutionComplete={(result) => {
+                    onExecute={(result) => {
                       console.log('Workflow execution completed:', result);
                     }}
                   />

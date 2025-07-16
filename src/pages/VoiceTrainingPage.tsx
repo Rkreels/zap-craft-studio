@@ -132,7 +132,7 @@ export default function VoiceTrainingPage() {
           </TabsContent>
 
           <TabsContent value="advanced">
-            <AdvancedWorkflowFeatures />
+            <AdvancedWorkflowFeatures workflowId="voice-training-workflow" />
           </TabsContent>
 
           <TabsContent value="trainer">

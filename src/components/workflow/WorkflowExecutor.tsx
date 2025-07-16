@@ -160,7 +160,7 @@ export const WorkflowExecutor: React.FC<WorkflowExecutorProps> = ({
     const variants = {
       pending: 'secondary',
       running: 'default',
-      completed: 'success',
+      completed: 'default',
       failed: 'destructive',
       skipped: 'outline'
     } as const;
