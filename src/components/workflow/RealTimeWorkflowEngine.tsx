@@ -153,7 +153,7 @@ export const RealTimeWorkflowEngine: React.FC<RealTimeWorkflowEngineProps> = ({
             // Handle step failure
             if (step.config?.stopOnError !== false) {
               newExecution.status = 'failed';
-              newExecution.error = `Step ${i + 1} failed: ${result.error}`;
+              newExecution.error = `Step ${i + 1} failed: ${'error' in result ? result.error : 'Unknown error'}`;
               break;
             } else {
               stepResult.status = 'skipped';

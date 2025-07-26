@@ -488,7 +488,7 @@ export async function deleteRow(id) {
                   <div className="border rounded-lg overflow-hidden">
                     <Table>
                       <TableHeader>
-                        <TableRow>
+                        <UITableRow>
                           {columns.map(column => (
                             <TableHead 
                               key={column.id}
@@ -511,7 +511,7 @@ export async function deleteRow(id) {
                             </TableHead>
                           ))}
                           <TableHead>Actions</TableHead>
-                        </TableRow>
+                        </UITableRow>
                       </TableHeader>
                       <TableBody>
                         {filteredAndSortedRows.map(row => (
@@ -554,7 +554,7 @@ export async function deleteRow(id) {
                                 )}
                               </div>
                             </TableCell>
-                          </TableRow>
+                          </UITableRow>
                         ))}
                       </TableBody>
                     </Table>
