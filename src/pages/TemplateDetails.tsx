@@ -118,31 +118,29 @@ export default function TemplateDetails() {
         <h2 className="text-lg font-semibold mb-4">How this Zap works</h2>
         <div className="flex flex-col md:flex-row gap-4">
           {template.steps.map((step, index) => (
-            <React.Fragment key={index}>
-              <div className="flex-1 border border-gray-200 rounded-lg p-4">
-                <Badge className={step.type === "trigger" ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"}>
-                  {step.type === "trigger" ? "Trigger" : "Action"}
-                </Badge>
-                <div className="mt-3 flex items-start gap-3">
-                  <div className="flex-shrink-0">
-                    {getAppIcon(step.app.toLowerCase())}
-                  </div>
-                  <div>
-                    <p className="font-medium">{step.app}</p>
-                    <p className="text-sm text-gray-700">{step.name}</p>
-                    <p className="text-xs text-gray-500 mt-1">{step.description}</p>
-                  </div>
+            <div key={index} className="flex-1 border border-gray-200 rounded-lg p-4">
+              <Badge className={step.type === "trigger" ? "bg-blue-100 text-blue-700" : "bg-green-100 text-green-700"}>
+                {step.type === "trigger" ? "Trigger" : "Action"}
+              </Badge>
+              <div className="mt-3 flex items-start gap-3">
+                <div className="flex-shrink-0">
+                  {getAppIcon(step.app.toLowerCase())}
+                </div>
+                <div>
+                  <p className="font-medium">{step.app}</p>
+                  <p className="text-sm text-gray-700">{step.name}</p>
+                  <p className="text-xs text-gray-500 mt-1">{step.description}</p>
                 </div>
               </div>
               
               {index < template.steps.length - 1 && (
-                <div className="hidden md:flex items-center">
+                <div className="hidden md:flex items-center absolute right-[-20px] top-1/2 transform -translate-y-1/2">
                   <div className="w-6 h-0.5 bg-gray-300"></div>
                   <div className="w-3 h-3 rounded-full border-2 border-gray-300"></div>
                   <div className="w-6 h-0.5 bg-gray-300"></div>
                 </div>
               )}
-            </React.Fragment>
+            </div>
           ))}
         </div>
       </div>

@@ -217,7 +217,7 @@ export default function ZapCreator() {
 
   // Handle template selection
   const handleTemplateSelect = (template: any) => {
-    setSteps(template.steps);
+    setSteps(template.steps || []);
     if (template.schedule) {
       setSchedule(template.schedule);
     }
@@ -228,6 +228,13 @@ export default function ZapCreator() {
       title: "Template applied",
       description: `The "${template.name}" template has been applied to your workflow.`,
     });
+    
+    // Voice feedback
+    if ('speechSynthesis' in window) {
+      const speech = new SpeechSynthesisUtterance(`Template "${template.name}" loaded successfully. You can now customize your workflow.`);
+      speech.rate = 0.9;
+      window.speechSynthesis.speak(speech);
+    }
   };
   
   // Mock apps for integration directory

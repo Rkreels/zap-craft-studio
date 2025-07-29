@@ -231,6 +231,12 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
   
   const handleUseTemplate = (template: WorkflowTemplate) => {
     onSelectTemplate(template);
+    // Provide voice feedback
+    if ('speechSynthesis' in window) {
+      const speech = new SpeechSynthesisUtterance(`Template "${template.name}" has been applied to your workflow.`);
+      speech.rate = 0.9;
+      window.speechSynthesis.speak(speech);
+    }
   };
   
   return (

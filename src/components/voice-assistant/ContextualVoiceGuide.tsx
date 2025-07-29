@@ -56,20 +56,6 @@ const contextCommands = {
       action: "view:table",
       responseText: "Switching to table view.",
       aliases: ["show table", "list view"]
-    },
-    {
-      command: "filter by forms",
-      description: "Filter to show only form interfaces",
-      action: "filter:form",
-      responseText: "Filtering to show form interfaces.",
-      aliases: ["show forms", "forms only"]
-    },
-    {
-      command: "filter by pages",
-      description: "Filter to show only page interfaces",
-      action: "filter:page",
-      responseText: "Filtering to show page interfaces.",
-      aliases: ["show pages", "pages only"]
     }
   ],
   workflow: [
@@ -100,13 +86,6 @@ const contextCommands = {
       action: "test",
       responseText: "Testing workflow.",
       aliases: ["test automation", "run test"]
-    },
-    {
-      command: "publish workflow",
-      description: "Publish the workflow",
-      action: "publish",
-      responseText: "Publishing workflow.",
-      aliases: ["activate workflow", "turn on"]
     }
   ],
   chatbot: [
@@ -123,13 +102,6 @@ const contextCommands = {
       action: "test",
       responseText: "Starting chatbot test.",
       aliases: ["test bot", "try chatbot"]
-    },
-    {
-      command: "train chatbot",
-      description: "Start training the chatbot",
-      action: "train",
-      responseText: "Starting chatbot training.",
-      aliases: ["train bot", "improve recognition"]
     }
   ],
   tables: [
@@ -146,13 +118,6 @@ const contextCommands = {
       action: "add:record",
       responseText: "Adding new record.",
       aliases: ["new record", "create record"]
-    },
-    {
-      command: "import data",
-      description: "Import data into the table",
-      action: "import",
-      responseText: "Starting data import.",
-      aliases: ["upload data", "import csv"]
     }
   ]
 };
@@ -206,10 +171,8 @@ export const ContextualVoiceGuide: React.FC<ContextualVoiceGuideProps> = ({ onAc
           }
           
           if (cmd.action.startsWith("/")) {
-            // Navigation action
             navigate(cmd.action);
           } else {
-            // Custom action
             onActionTrigger?.(cmd.action);
           }
         }
@@ -240,23 +203,16 @@ export const ContextualVoiceGuide: React.FC<ContextualVoiceGuideProps> = ({ onAc
       // Register new commands
       registerContextCommands(newContext);
       
-      // Update context
+      // Update context immediately
       setCurrentPageContext(newContext);
       setCurrentContext(newContext);
       
       // Announce context change if voice assistant is enabled
       if (isEnabled && isInitialized) {
         const contextName = newContext.charAt(0).toUpperCase() + newContext.slice(1);
-        speakText(`Switched to ${contextName} context. New voice commands are now available.`);
-        
-        // Show available commands after a delay
         setTimeout(() => {
-          if (isEnabled) {
-            const commands = contextCommands[newContext as keyof typeof contextCommands] || [];
-            const commandList = commands.slice(0, 3).map(cmd => cmd.command).join(", ");
-            speakText(`Available commands include: ${commandList}. Say 'help' for more commands.`);
-          }
-        }, 2000);
+          speakText(`Switched to ${contextName} context. New voice commands are now available.`, true);
+        }, 100);
       }
       
       setIsInitialized(true);
@@ -272,39 +228,6 @@ export const ContextualVoiceGuide: React.FC<ContextualVoiceGuideProps> = ({ onAc
     speakText,
     isInitialized
   ]);
-
-  // Provide contextual help
-  useEffect(() => {
-    if (!isEnabled || !lastCommand) return;
-
-    const lowerCommand = lastCommand.toLowerCase().trim();
-    
-    if (lowerCommand.includes("help") || lowerCommand.includes("what can i say")) {
-      const commands = contextCommands[currentPageContext as keyof typeof contextCommands] || [];
-      const commandList = commands.map(cmd => cmd.command).join(", ");
-      
-      speakText(`In the ${currentPageContext} context, you can say: ${commandList}`);
-      
-      toast({
-        title: `${currentPageContext.charAt(0).toUpperCase() + currentPageContext.slice(1)} Commands`,
-        description: `Available: ${commandList}`,
-      });
-    }
-  }, [lastCommand, isEnabled, currentPageContext, speakText]);
-
-  // Provide training guidance
-  useEffect(() => {
-    if (!isTraining || !isEnabled) return;
-
-    const commands = contextCommands[currentPageContext as keyof typeof contextCommands] || [];
-    if (commands.length > 0) {
-      const randomCommand = commands[Math.floor(Math.random() * commands.length)];
-      
-      setTimeout(() => {
-        speakText(`Try saying: ${randomCommand.command}`);
-      }, 3000);
-    }
-  }, [isTraining, currentPageContext, isEnabled, speakText]);
 
   // Auto-register global navigation commands
   useEffect(() => {
@@ -335,7 +258,7 @@ export const ContextualVoiceGuide: React.FC<ContextualVoiceGuideProps> = ({ onAc
         command: "start voice training",
         description: "Begin voice training session",
         aliases: ["train voice", "improve recognition", "voice practice"],
-        action: () => navigate("/voice-training"),
+        action: () => navigate("/voice-training-enhanced"),
         responseText: "Starting voice training session.",
         priority: 1
       }

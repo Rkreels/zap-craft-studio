@@ -12,7 +12,7 @@ export interface ZapHeaderProps {
   handleSave: (showToast?: boolean) => void;
   handleTest: () => void;
   handleDelete: () => void;
-  lastSaved: Date;
+  lastSaved: Date | null;
   isLoading: boolean;
   onViewVersionHistory: () => void; // Added this prop
 }

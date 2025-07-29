@@ -26,10 +26,13 @@ export function TemplateCard({ template }: TemplateCardProps) {
     );
   };
 
+  const handleUseTemplate = () => {
+    // Navigate to workflow creator with template pre-loaded
+    window.location.href = `/zaps/create?template=${template.id}`;
+  };
+
   return (
-    <Link 
-      to={`/templates/${template.id}`} 
-      className="block bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+    <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
     >
       {/* App icons */}
       <div className="flex items-center gap-1 mb-3">
@@ -45,11 +48,19 @@ export function TemplateCard({ template }: TemplateCardProps) {
       <p className="text-sm text-gray-600 mb-3">{template.description}</p>
       
       {/* AI badge if applicable */}
-      {template.isAIPowered && (
-        <Badge className="bg-purple-100 text-purple-600 border border-purple-200">
-          <Sparkles className="w-3 h-3 mr-1" /> AI-powered
-        </Badge>
-      )}
-    </Link>
+      <div className="flex justify-between items-end">
+        {template.isAIPowered && (
+          <Badge className="bg-purple-100 text-purple-600 border border-purple-200">
+            <Sparkles className="w-3 h-3 mr-1" /> AI-powered
+          </Badge>
+        )}
+        <button 
+          onClick={handleUseTemplate}
+          className="ml-auto bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors"
+        >
+          Use Template
+        </button>
+      </div>
+    </div>
   );
 }

@@ -1,20 +1,19 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
 
-// Enhanced voice command type with context awareness
+// Enhanced Voice Command Interface
 export interface EnhancedVoiceCommand {
   command: string;
   description: string;
-  action?: () => void;
+  action: () => void;
   aliases?: string[];
-  pageSpecific?: boolean;
   contextTags?: string[];
   priority?: number;
-  trainingPhrases?: string[];
   responseText?: string;
+  pageSpecific?: boolean;
 }
 
-// Training session data
+// Training Session Interface
 export interface TrainingSession {
   id: string;
   startTime: Date;
@@ -22,142 +21,122 @@ export interface TrainingSession {
   commands: string[];
   accuracy: number;
   context: string;
+  duration?: number;
   improvements: string[];
 }
 
-// Enhanced context type
+// Enhanced Context Interface
 interface EnhancedVoiceAssistantContextType {
+  // Basic voice controls
   isEnabled: boolean;
   isListening: boolean;
-  isTraining: boolean;
-  lastCommand: string;
-  confidenceLevel: number;
-  currentContext: string;
-  trainingProgress: number;
-  trainingAccuracy: number;
   toggleVoiceAssistant: () => void;
   startListening: () => void;
   stopListening: () => void;
+  
+  // Speech synthesis
   speakText: (text: string, interrupt?: boolean) => void;
   stopSpeaking: () => void;
-  commandHistory: string[];
+  lastSpokenText: string;
+  
+  // Command management
   availableCommands: EnhancedVoiceCommand[];
   registerCommand: (command: EnhancedVoiceCommand) => void;
-  unregisterCommand: (command: string) => void;
+  unregisterCommand: (commandName: string) => void;
+  getContextualCommands: () => EnhancedVoiceCommand[];
+  
+  // Context awareness
+  currentContext: string;
   setCurrentContext: (context: string) => void;
+  
+  // Training system
+  isTraining: boolean;
+  trainingMode: boolean;
+  setTrainingMode: (enabled: boolean) => void;
   startTrainingSession: (context: string) => void;
   endTrainingSession: () => void;
-  getContextualCommands: () => EnhancedVoiceCommand[];
-  trainSpecificCommand: (command: string) => void;
-  isCommandActive: (command: string) => boolean;
-  getTrainingFeedback: () => string;
-  setTrainingMode: (mode: boolean) => void;
-  resetTraining: () => void;
+  currentTrainingSession: TrainingSession | null;
   trainingSessions: TrainingSession[];
+  trainingProgress: number;
+  trainingAccuracy: number;
+  
+  // Recognition data
+  lastCommand: string;
+  recognitionConfidence: number;
+  confidenceLevel: number;
+  
+  // Learning capabilities
+  adaptToUserVoice: boolean;
+  userVoiceProfile: any;
+  improveRecognition: (command: string, wasCorrect: boolean) => void;
+  getTrainingFeedback: () => string;
+  resetTraining: () => void;
 }
 
-const EnhancedVoiceAssistantContext = createContext<EnhancedVoiceAssistantContextType>({
-  isEnabled: false,
-  isListening: false,
-  isTraining: false,
-  lastCommand: "",
-  confidenceLevel: 0,
-  currentContext: "",
-  trainingProgress: 0,
-  trainingAccuracy: 0,
-  toggleVoiceAssistant: () => {},
-  startListening: () => {},
-  stopListening: () => {},
-  speakText: () => {},
-  stopSpeaking: () => {},
-  commandHistory: [],
-  availableCommands: [],
-  registerCommand: () => {},
-  unregisterCommand: () => {},
-  setCurrentContext: () => {},
-  startTrainingSession: () => {},
-  endTrainingSession: () => {},
-  getContextualCommands: () => [],
-  trainSpecificCommand: () => {},
-  isCommandActive: () => false,
-  getTrainingFeedback: () => "",
-  setTrainingMode: () => {},
-  resetTraining: () => {},
-  trainingSessions: []
-});
-
-export const useEnhancedVoiceAssistant = () => useContext(EnhancedVoiceAssistantContext);
+const EnhancedVoiceAssistantContext = createContext<EnhancedVoiceAssistantContextType | undefined>(undefined);
 
 interface EnhancedVoiceAssistantProviderProps {
   children: React.ReactNode;
 }
 
 export const EnhancedVoiceAssistantProvider: React.FC<EnhancedVoiceAssistantProviderProps> = ({ children }) => {
+  // Basic state
   const [isEnabled, setIsEnabled] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [isTraining, setIsTraining] = useState(false);
-  const [lastCommand, setLastCommand] = useState("");
-  const [confidenceLevel, setConfidenceLevel] = useState(0);
-  const [currentContext, setCurrentContext] = useState("dashboard");
-  const [trainingProgress, setTrainingProgress] = useState(0);
-  const [trainingAccuracy, setTrainingAccuracy] = useState(0);
-  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [lastSpokenText, setLastSpokenText] = useState("");
+  const [currentContext, setCurrentContextState] = useState<string>("dashboard");
+  
+  // Command management
   const [availableCommands, setAvailableCommands] = useState<EnhancedVoiceCommand[]>([]);
+  const [lastCommand, setLastCommand] = useState("");
+  const [recognitionConfidence, setRecognitionConfidence] = useState(0);
+  
+  // Training system
+  const [isTraining, setIsTraining] = useState(false);
+  const [trainingMode, setTrainingMode] = useState(false);
   const [currentTrainingSession, setCurrentTrainingSession] = useState<TrainingSession | null>(null);
   const [trainingSessions, setTrainingSessions] = useState<TrainingSession[]>([]);
-  const [lastSpokenText, setLastSpokenText] = useState("");
-
+  const [trainingProgress, setTrainingProgress] = useState(0);
+  const [trainingAccuracy, setTrainingAccuracy] = useState(0);
+  
+  // Learning system
+  const [adaptToUserVoice, setAdaptToUserVoice] = useState(true);
+  const [userVoiceProfile, setUserVoiceProfile] = useState({});
+  
+  // Refs for cleanup
   const recognitionRef = useRef<any>(null);
-  const speechSynthesisRef = useRef<any>(null);
+  const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   const trainingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Initialize speech recognition with enhanced features
+  // Initialize speech recognition
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
+    if ('webkitSpeechRecognition' in window) {
+      const recognition = new (window as any).webkitSpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = 'en-US';
-      recognition.maxAlternatives = 3;
       
       recognition.onstart = () => {
-        console.log('Voice recognition started');
+        setIsListening(true);
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
       };
       
       recognition.onresult = (event: any) => {
-        const transcript = Array.from(event.results)
-          .map((result: any) => result[0].transcript)
-          .join('');
+        const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+        const confidence = event.results[event.results.length - 1][0].confidence;
         
-        const confidence = event.results[event.resultIndex] ? event.results[event.resultIndex][0].confidence : 0;
-        setConfidenceLevel(confidence);
-        
-        if (event.results[event.resultIndex].isFinal) {
+        if (event.results[event.results.length - 1].isFinal) {
           setLastCommand(transcript);
-          setCommandHistory(prev => [...prev.slice(-9), transcript]);
-          
-          if (isTraining) {
-            updateTrainingProgress(transcript, confidence);
-          }
+          setRecognitionConfidence(confidence);
+          handleVoiceCommand(transcript, confidence);
         }
       };
       
       recognition.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
-        if (event.error === 'not-allowed') {
-          setIsEnabled(false);
-          setIsListening(false);
-          toast({
-            title: "Microphone Access Denied",
-            description: "Please allow microphone access to use voice commands.",
-            variant: "destructive"
-          });
-        }
-      };
-      
-      recognition.onend = () => {
         setIsListening(false);
       };
       
@@ -169,25 +148,64 @@ export const EnhancedVoiceAssistantProvider: React.FC<EnhancedVoiceAssistantProv
         recognitionRef.current.stop();
       }
     };
-  }, [isTraining]);
+  }, []);
 
-  // Global commands that work across all contexts
+  // Handle voice commands
+  const handleVoiceCommand = useCallback((transcript: string, confidence: number) => {
+    const commands = getContextualCommands();
+    
+    // Find matching command
+    const matchedCommand = commands.find(cmd => {
+      const commandMatch = cmd.command.toLowerCase() === transcript;
+      const aliasMatch = cmd.aliases?.some(alias => alias.toLowerCase() === transcript);
+      return commandMatch || aliasMatch;
+    });
+    
+    if (matchedCommand) {
+      // Update training progress if in training mode
+      if (isTraining && currentTrainingSession) {
+        updateTrainingProgress(transcript, confidence);
+      }
+      
+      // Speak response
+      if (matchedCommand.responseText) {
+        speakText(matchedCommand.responseText, true);
+      }
+      
+      // Execute command
+      setTimeout(() => {
+        matchedCommand.action();
+      }, 500);
+    } else {
+      // Handle unrecognized command
+      if (isTraining) {
+        speakText("Command not recognized. Please try again or say 'help' for available commands.", true);
+      }
+      
+      // Learning opportunity
+      if (adaptToUserVoice) {
+        improveRecognition(transcript, false);
+      }
+    }
+  }, [availableCommands, currentContext, isTraining, currentTrainingSession, adaptToUserVoice]);
+
+  // Global commands that are always available
   const globalCommands: EnhancedVoiceCommand[] = [
     {
       command: "help",
-      description: "Show available voice commands",
-      aliases: ["show help", "what can I say", "voice commands"],
+      description: "Get help with voice commands",
+      aliases: ["voice help", "commands", "what can I say"],
       action: () => {
         const commands = getContextualCommands();
-        const commandList = commands.map(cmd => cmd.command).join(", ");
-        speakText(`Available commands in this context: ${commandList}`);
+        const commandList = commands.slice(0, 5).map(cmd => cmd.command).join(", ");
+        speakText(`Available commands include: ${commandList}. Say 'show all commands' for a complete list.`);
       },
       priority: 1
     },
     {
       command: "stop listening",
       description: "Stop voice recognition",
-      aliases: ["stop", "pause", "quiet"],
+      aliases: ["stop", "quit", "disable voice"],
       action: () => {
         stopListening();
         speakText("Voice recognition stopped.");
@@ -348,196 +366,172 @@ export const EnhancedVoiceAssistantProvider: React.FC<EnhancedVoiceAssistantProv
     }, 10 * 60 * 1000);
     
     toast({
-      title: "Training Started",
-      description: `Voice training session started for ${context} context.`
+      title: "Training started",
+      description: `Voice training session started for ${context} context.`,
     });
   }, []);
 
   const endTrainingSession = useCallback(() => {
     if (currentTrainingSession) {
+      const endTime = new Date();
       const completedSession = {
         ...currentTrainingSession,
-        endTime: new Date()
+        endTime,
+        duration: endTime.getTime() - currentTrainingSession.startTime.getTime()
       };
       
       setTrainingSessions(prev => [...prev, completedSession]);
       setCurrentTrainingSession(null);
       setIsTraining(false);
+      setTrainingMode(false);
+      
+      // Stop any active speech synthesis
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      
+      // Stop listening
+      if (recognitionRef.current && isListening) {
+        recognitionRef.current.stop();
+      }
       
       if (trainingTimeoutRef.current) {
         clearTimeout(trainingTimeoutRef.current);
+        trainingTimeoutRef.current = null;
       }
       
-      const accuracy = Math.round(trainingAccuracy * 100);
-      speakText(`Training session completed. Your accuracy was ${accuracy} percent.`);
-      
       toast({
-        title: "Training Complete",
-        description: `Session completed with ${accuracy}% accuracy.`
+        title: "Training completed",
+        description: `Session completed with ${trainingAccuracy.toFixed(1)}% accuracy`,
       });
-    }
-  }, [currentTrainingSession, trainingAccuracy]);
-
-  const trainSpecificCommand = useCallback((command: string) => {
-    const cmd = availableCommands.find(c => c.command === command);
-    if (cmd) {
-      speakText(`Let's practice the command: ${command}. Please repeat after me: ${command}`);
       
-      // Wait for user to repeat
       setTimeout(() => {
-        if (lastCommand.toLowerCase().includes(command.toLowerCase())) {
-          speakText("Great! Command recognized successfully.");
-        } else {
-          speakText("Let's try again. Remember to speak clearly and at a normal pace.");
-        }
-      }, 3000);
+        speakText(`Training session completed. Your accuracy was ${trainingAccuracy.toFixed(0)} percent.`);
+      }, 500);
     }
-  }, [availableCommands, lastCommand]);
+  }, [currentTrainingSession, trainingAccuracy, speakText, isListening]);
 
-  const isCommandActive = useCallback((command: string) => {
-    return lastCommand.toLowerCase().includes(command.toLowerCase()) && 
-           Date.now() - new Date().getTime() < 5000; // Active for 5 seconds
-  }, [lastCommand]);
-
-  const getTrainingFeedback = useCallback(() => {
-    if (!isTraining) return "";
+  const setCurrentContext = useCallback((context: string) => {
+    const previousContext = currentContext;
     
-    if (trainingAccuracy > 0.8) {
-      return "Excellent! Your voice recognition is very accurate.";
-    } else if (trainingAccuracy > 0.6) {
-      return "Good progress. Try speaking more clearly for better recognition.";
-    } else {
-      return "Let's work on clarity. Speak slowly and pronounce each word distinctly.";
+    if (previousContext !== context) {
+      // Immediately stop any current training
+      if (isTraining) {
+        setIsTraining(false);
+        setTrainingMode(false);
+        
+        // Stop speech synthesis immediately
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
+        
+        // Stop listening immediately
+        if (recognitionRef.current && isListening) {
+          recognitionRef.current.stop();
+        }
+        
+        if (trainingTimeoutRef.current) {
+          clearTimeout(trainingTimeoutRef.current);
+          trainingTimeoutRef.current = null;
+        }
+        
+        toast({
+          title: "Context changed",
+          description: `Switching to ${context} context. Training stopped.`,
+        });
+      }
+      
+      // Update context
+      setCurrentContextState(context);
+      
+      // Announce new context immediately
+      setTimeout(() => {
+        speakText(`Switched to ${context} context. Ready for new commands.`, true);
+      }, 200);
     }
-  }, [isTraining, trainingAccuracy]);
+  }, [currentContext, isTraining, isListening, speakText]);
 
-  const setTrainingMode = useCallback((mode: boolean) => {
-    if (mode && !isTraining) {
-      startTrainingSession(currentContext);
-    } else if (!mode && isTraining) {
-      endTrainingSession();
-    }
-  }, [isTraining, currentContext, startTrainingSession, endTrainingSession]);
+  const improveRecognition = useCallback((command: string, wasCorrect: boolean) => {
+    // Update user voice profile based on recognition results
+    setUserVoiceProfile(prev => ({
+      ...prev,
+      [command]: {
+        attempts: (prev[command]?.attempts || 0) + 1,
+        successes: (prev[command]?.successes || 0) + (wasCorrect ? 1 : 0),
+        lastAttempt: new Date()
+      }
+    }));
+  }, []);
 
   const resetTraining = useCallback(() => {
     setTrainingProgress(0);
     setTrainingAccuracy(0);
+    setCurrentTrainingSession(null);
+    setIsTraining(false);
+    setTrainingMode(false);
     setTrainingSessions([]);
-    endTrainingSession();
     
     toast({
-      title: "Training Reset",
-      description: "All training data has been cleared."
+      title: "Training reset",
+      description: "All training progress has been reset.",
     });
-  }, [endTrainingSession]);
+  }, []);
 
-  // Command processing with enhanced matching
-  useEffect(() => {
-    if (!lastCommand || !isEnabled) return;
-
-    const processCommand = () => {
-      const lowerCommand = lastCommand.toLowerCase().trim();
-      const contextualCommands = getContextualCommands();
-      
-      // Enhanced command matching with fuzzy logic
-      const matchedCommand = contextualCommands.find(cmd => {
-        // Exact match
-        if (lowerCommand === cmd.command.toLowerCase()) return true;
-        
-        // Alias match
-        if (cmd.aliases) {
-          return cmd.aliases.some(alias => 
-            lowerCommand === alias.toLowerCase() || 
-            lowerCommand.includes(alias.toLowerCase()) ||
-            alias.toLowerCase().includes(lowerCommand)
-          );
-        }
-        
-        // Partial match for training phrases
-        if (cmd.trainingPhrases) {
-          return cmd.trainingPhrases.some(phrase =>
-            lowerCommand.includes(phrase.toLowerCase()) ||
-            phrase.toLowerCase().includes(lowerCommand)
-          );
-        }
-        
-        return false;
-      });
-
-      if (matchedCommand?.action) {
-        if (matchedCommand.responseText) {
-          speakText(matchedCommand.responseText);
-        }
-        matchedCommand.action();
-        
-        if (isTraining) {
-          speakText("Command executed successfully!");
-        }
-        
-        return true;
-      } else if (isTraining) {
-        speakText("Command not recognized. Please try again or say 'help' for available commands.");
-      }
-      
-      return false;
-    };
-
-    const timer = setTimeout(processCommand, 100);
-    return () => clearTimeout(timer);
-  }, [lastCommand, isEnabled, getContextualCommands, isTraining]);
-
-  // Context switching with automatic command updates
-  const handleContextChange = useCallback((newContext: string) => {
-    const previousContext = currentContext;
-    setCurrentContext(newContext);
+  const getTrainingFeedback = useCallback(() => {
+    if (!currentTrainingSession) return "No active training session";
     
-    // Stop current training immediately if context changes
-    if (isTraining && previousContext !== newContext) {
-      endTrainingSession();
-      speakText(`Context changed to ${newContext}. Previous training session ended. New training available for this context.`, true);
-      
-      // Clear any pending timeouts
-      if (trainingTimeoutRef.current) {
-        clearTimeout(trainingTimeoutRef.current);
-      }
-      
-      // Automatically start training for new context after delay
-      setTimeout(() => {
-        if (isEnabled) {
-          speakText(`New commands available for ${newContext}. Say 'help' to hear them.`);
-        }
-      }, 1000);
-    }
-  }, [currentContext, isTraining, endTrainingSession, isEnabled]);
+    const accuracy = trainingAccuracy;
+    if (accuracy > 90) return "Excellent! Your voice recognition is very accurate.";
+    if (accuracy > 75) return "Good progress! Keep practicing for better accuracy.";
+    if (accuracy > 50) return "Fair recognition. Try speaking more clearly.";
+    return "Need improvement. Speak slowly and clearly.";
+  }, [currentTrainingSession, trainingAccuracy]);
 
-  const value = {
+  const value: EnhancedVoiceAssistantContextType = {
+    // Basic controls
     isEnabled,
     isListening,
-    isTraining,
-    lastCommand,
-    confidenceLevel,
-    currentContext,
-    trainingProgress,
-    trainingAccuracy,
     toggleVoiceAssistant,
     startListening,
     stopListening,
+    
+    // Speech synthesis
     speakText,
     stopSpeaking,
-    commandHistory,
+    lastSpokenText,
+    
+    // Command management
     availableCommands,
     registerCommand,
     unregisterCommand,
-    setCurrentContext: handleContextChange,
+    getContextualCommands,
+    
+    // Context awareness
+    currentContext,
+    setCurrentContext,
+    
+    // Training system
+    isTraining,
+    trainingMode,
+    setTrainingMode,
     startTrainingSession,
     endTrainingSession,
-    getContextualCommands,
-    trainSpecificCommand,
-    isCommandActive,
+    currentTrainingSession,
+    trainingSessions,
+    trainingProgress,
+    trainingAccuracy,
+    
+    // Recognition data
+    lastCommand,
+    recognitionConfidence,
+    confidenceLevel: recognitionConfidence,
+    
+    // Learning capabilities
+    adaptToUserVoice,
+    userVoiceProfile,
+    improveRecognition,
     getTrainingFeedback,
-    setTrainingMode,
-    resetTraining,
-    trainingSessions
+    resetTraining
   };
 
   return (
@@ -547,10 +541,10 @@ export const EnhancedVoiceAssistantProvider: React.FC<EnhancedVoiceAssistantProv
   );
 };
 
-// Type declarations
-declare global {
-  interface Window {
-    SpeechRecognition?: any;
-    webkitSpeechRecognition?: any;
+export const useEnhancedVoiceAssistant = () => {
+  const context = useContext(EnhancedVoiceAssistantContext);
+  if (context === undefined) {
+    throw new Error('useEnhancedVoiceAssistant must be used within an EnhancedVoiceAssistantProvider');
   }
-}
+  return context;
+};
