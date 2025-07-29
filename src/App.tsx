@@ -12,9 +12,10 @@ import HistoryPage from "./pages/HistoryPage";
 import TemplateDetails from "./pages/TemplateDetails";
 import TemplatesPage from "./pages/TemplatesPage";
 import NotFound from "./pages/NotFound";
-import { VoiceAssistantWrapper } from "./components/voice-assistant/VoiceAssistantWrapper";
+import { EnhancedVoiceWrapper } from "./components/voice-assistant/EnhancedVoiceWrapper";
 import DataTransformationPage from "./pages/DataTransformationPage";
 import VoiceTrainingPage from "./pages/VoiceTrainingPage";
+import VoiceTrainingPageEnhanced from "./pages/VoiceTrainingPageEnhanced";
 import WebhooksPage from "./pages/WebhooksPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
@@ -27,7 +28,7 @@ import AdvancedDashboard from "./pages/AdvancedDashboard";
 
 function App() {
   return (
-    <VoiceAssistantWrapper>
+    <EnhancedVoiceWrapper>
       <Routes>
         {/* Authentication Routes */}
         <Route path="/login" element={<LoginPage />} />
@@ -65,6 +66,7 @@ function App() {
           <Route path="templates/:id" element={<TemplateDetails />} />
           <Route path="data-transformation" element={<DataTransformationPage />} />
           <Route path="voice-training" element={<VoiceTrainingPage />} />
+          <Route path="voice-training-enhanced" element={<VoiceTrainingPageEnhanced />} />
           <Route path="webhooks" element={<WebhooksPage />} />
           
           {/* Placeholder routes */}
@@ -77,7 +79,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
-    </VoiceAssistantWrapper>
+    </EnhancedVoiceWrapper>
   );
 }
 

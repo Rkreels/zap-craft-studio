@@ -491,12 +491,17 @@ export const EnhancedVoiceAssistantProvider: React.FC<EnhancedVoiceAssistantProv
     const previousContext = currentContext;
     setCurrentContext(newContext);
     
-    // Stop current training if context changes
+    // Stop current training immediately if context changes
     if (isTraining && previousContext !== newContext) {
       endTrainingSession();
-      speakText(`Context changed to ${newContext}. Training session ended.`);
+      speakText(`Context changed to ${newContext}. Previous training session ended. New training available for this context.`, true);
       
-      // Optionally start new training for new context
+      // Clear any pending timeouts
+      if (trainingTimeoutRef.current) {
+        clearTimeout(trainingTimeoutRef.current);
+      }
+      
+      // Automatically start training for new context after delay
       setTimeout(() => {
         if (isEnabled) {
           speakText(`New commands available for ${newContext}. Say 'help' to hear them.`);

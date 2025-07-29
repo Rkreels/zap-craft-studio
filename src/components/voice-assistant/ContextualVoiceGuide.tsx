@@ -200,6 +200,11 @@ export const ContextualVoiceGuide: React.FC<ContextualVoiceGuideProps> = ({ onAc
         priority: 2,
         responseText: cmd.responseText,
         action: () => {
+          // Stop any current training when executing commands
+          if (isTraining) {
+            speakText("Stopping current training to execute command.", true);
+          }
+          
           if (cmd.action.startsWith("/")) {
             // Navigation action
             navigate(cmd.action);
@@ -212,7 +217,7 @@ export const ContextualVoiceGuide: React.FC<ContextualVoiceGuideProps> = ({ onAc
       
       registerCommand(enhancedCommand);
     });
-  }, [registerCommand, navigate, onActionTrigger]);
+  }, [registerCommand, navigate, onActionTrigger, isTraining, speakText]);
 
   // Unregister commands for previous context
   const unregisterContextCommands = useCallback((context: string) => {
