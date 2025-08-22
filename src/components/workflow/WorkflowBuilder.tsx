@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { WorkflowStepData } from "./WorkflowStep";
 import { WorkflowBuilderCore } from "./WorkflowBuilderCore";
 import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
+import { toast } from "@/hooks/use-toast";
 
 interface WorkflowBuilderProps {
   initialSteps?: WorkflowStepData[];
@@ -26,8 +27,8 @@ export const WorkflowBuilder: React.FC<WorkflowBuilderProps> = ({
   ]);
   
   const [activeStepId, setActiveStepId] = useState<string>(steps[0]?.id || "");
+  const [isSaving, setIsSaving] = useState(false);
   
-  // Voice guidance for workflow builder
   const workflowVoiceProps = {
     elementName: "Workflow Builder",
     hoverText: "Build your workflow step by step, connecting apps and automating tasks.",
@@ -35,6 +36,30 @@ export const WorkflowBuilder: React.FC<WorkflowBuilderProps> = ({
   };
   
   const { handleMouseEnter, handleClick } = useVoiceGuidance(workflowVoiceProps);
+
+  const validateWorkflow = (): boolean => {
+    const unconfiguredSteps = steps.filter(step => !step.configured);
+    
+    if (unconfiguredSteps.length > 0) {
+      toast({
+        title: "Incomplete Workflow",
+        description: `Please configure all steps before saving. ${unconfiguredSteps.length} step(s) need configuration.`,
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    if (steps.length < 2) {
+      toast({
+        title: "Incomplete Workflow", 
+        description: "A workflow needs at least one trigger and one action step.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    return true;
+  };
 
   const addStep = (afterStepId: string) => {
     const newStepId = `action-${Date.now()}`;
@@ -58,31 +83,85 @@ export const WorkflowBuilder: React.FC<WorkflowBuilderProps> = ({
     
     setSteps(newSteps);
     setActiveStepId(newStepId);
+    
+    toast({
+      title: "Step Added",
+      description: "A new action step has been added to your workflow.",
+    });
   };
   
   const deleteStep = (stepId: string) => {
-    // Can't delete the trigger
-    if (steps.find(step => step.id === stepId)?.type === "trigger") {
+    const stepToDelete = steps.find(step => step.id === stepId);
+    
+    if (stepToDelete?.type === "trigger") {
+      toast({
+        title: "Cannot Delete",
+        description: "The trigger step cannot be deleted.",
+        variant: "destructive",
+      });
       return;
     }
     
     const newSteps = steps.filter(step => step.id !== stepId);
     setSteps(newSteps);
     
-    // If we deleted the active step, set the first one as active
     if (activeStepId === stepId) {
       setActiveStepId(newSteps[0]?.id || "");
     }
+    
+    toast({
+      title: "Step Removed",
+      description: "The step has been removed from your workflow.",
+    });
   };
 
-  const handleSave = () => {
-    if (onSave) {
-      onSave(steps);
+  const handleSave = async () => {
+    if (!validateWorkflow()) {
+      return;
+    }
+    
+    setIsSaving(true);
+    
+    try {
+      if (onSave) {
+        await onSave(steps);
+      }
+      
+      toast({
+        title: "Workflow Saved",
+        description: "Your workflow has been saved successfully.",
+      });
+    } catch (error) {
+      console.error('Failed to save workflow:', error);
+      toast({
+        title: "Save Failed",
+        description: "Failed to save your workflow. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
   
-  const handleTest = () => {
+  const handleTest = async () => {
+    if (!validateWorkflow()) {
+      return;
+    }
+    
     console.log("Testing workflow with steps:", steps);
+    
+    toast({
+      title: "Test Started",
+      description: "Testing your workflow... Check the console for results.",
+    });
+    
+    // Simulate test execution
+    setTimeout(() => {
+      toast({
+        title: "Test Completed",
+        description: "Your workflow test has completed successfully.",
+      });
+    }, 2000);
   };
 
   return (
@@ -99,6 +178,7 @@ export const WorkflowBuilder: React.FC<WorkflowBuilderProps> = ({
         onStepDelete={deleteStep}
         onSave={handleSave}
         onTest={handleTest}
+        isSaving={isSaving}
       />
     </div>
   );

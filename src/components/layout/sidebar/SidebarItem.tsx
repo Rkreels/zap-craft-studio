@@ -22,12 +22,13 @@ export const SidebarItem = ({ icon: Icon, label, path, isExpanded }: SidebarItem
             end={path === "/"}
             className={({ isActive }) =>
               cn(
-                "flex items-center px-3 py-2 rounded-md transition-all duration-200",
+                "flex items-center px-3 py-2.5 rounded-lg transition-all duration-200",
                 "hover:bg-gray-100 hover:text-gray-900",
                 "focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-1",
+                "text-sm font-medium",
                 isActive 
-                  ? "bg-orange-50 text-orange-500 border-r-2 border-orange-500" 
-                  : "text-gray-700",
+                  ? "bg-orange-50 text-orange-600 border-r-2 border-orange-500 shadow-sm" 
+                  : "text-gray-700 hover:text-gray-900",
                 "group relative"
               )
             }
@@ -37,7 +38,7 @@ export const SidebarItem = ({ icon: Icon, label, path, isExpanded }: SidebarItem
                 <Icon size={20} className="transition-transform group-hover:scale-110" />
               </div>
               {isExpanded && (
-                <span className="ml-3 font-medium truncate transition-all duration-200">
+                <span className="ml-3 truncate transition-all duration-200">
                   {label}
                 </span>
               )}

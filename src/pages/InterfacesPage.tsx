@@ -13,6 +13,7 @@ import { useRealTimeInterface } from "@/hooks/useInterfaceManager/realTimeInterf
 import { InterfaceItem } from "@/types/interfaces";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { toast } from "@/hooks/use-toast";
 
 const InterfacesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,7 +23,6 @@ const InterfacesPage = () => {
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [advancedBuilderInterface, setAdvancedBuilderInterface] = useState<InterfaceItem | null>(null);
   
-  // Initialize interface manager hook to get all the interface functionalities
   const { 
     interfaces,
     isLoading,
@@ -44,61 +44,99 @@ const InterfacesPage = () => {
     deleteInterface
   } = useInterfaceManager();
 
-  // Real-time interface management
   const realTimeInterface = useRealTimeInterface();
 
-  // Function to open version history
   const openVersionHistory = (id: string) => {
     console.log(`Opening version history for interface ${id}`);
-    // This would typically open a dialog or navigate to a version history page
+    toast({
+      title: "Version History",
+      description: "Version history feature will be available soon.",
+    });
   };
 
-  // Enhanced create interface with template support
   const createInterface = async () => {
-    if (newInterface.name.trim()) {
-      try {
-        const createdInterface = await realTimeInterface.createInterface({
-          name: newInterface.name,
-          type: newInterface.type,
-          description: newInterface.description
-        });
-        
-        setNewInterface({
-          name: "",
-          type: "form",
-          description: ""
-        });
-        
-        // Open advanced builder for the new interface
-        setAdvancedBuilderInterface(createdInterface);
-      } catch (error) {
-        console.error('Failed to create interface:', error);
-      }
+    if (!newInterface.name.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter an interface name.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const createdInterface = await realTimeInterface.createInterface({
+        name: newInterface.name,
+        type: newInterface.type,
+        description: newInterface.description || `A new ${newInterface.type} interface`
+      });
+      
+      setNewInterface({
+        name: "",
+        type: "form",
+        description: ""
+      });
+      
+      setAdvancedBuilderInterface(createdInterface);
+      
+      toast({
+        title: "Interface Created",
+        description: `${createdInterface.name} has been created successfully.`,
+      });
+    } catch (error) {
+      console.error('Failed to create interface:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create interface. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
-  // Enhanced interface operations
   const openInterfaceEditor = async (id: string) => {
     try {
       const interface_ = interfaces.find(item => item.id === id);
       if (interface_) {
-        setAdvancedBuilderInterface(interface_);
+        setEditingInterface(interface_);
+      } else {
+        toast({
+          title: "Error",
+          description: "Interface not found.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error('Failed to open interface editor:', error);
+      toast({
+        title: "Error",
+        description: "Failed to open interface editor.",
+        variant: "destructive",
+      });
     }
   };
 
   const duplicateInterface = async (item: InterfaceItem) => {
     try {
       await realTimeInterface.duplicateInterface(item.id);
+      toast({
+        title: "Interface Duplicated",
+        description: `${item.name} (Copy) has been created.`,
+      });
     } catch (error) {
       console.error('Failed to duplicate interface:', error);
+      toast({
+        title: "Error",
+        description: "Failed to duplicate interface.",
+        variant: "destructive",
+      });
     }
   };
 
   const confirmDelete = (id: string) => {
-    setIsDeleteDialogOpen(true);
+    const interfaceToDelete = interfaces.find(item => item.id === id);
+    if (interfaceToDelete) {
+      setIsDeleteDialogOpen(true);
+    }
   };
 
   const handleDeleteConfirm = async () => {
@@ -106,8 +144,17 @@ const InterfacesPage = () => {
       try {
         await realTimeInterface.deleteInterface(interfaceToDelete);
         setIsDeleteDialogOpen(false);
+        toast({
+          title: "Interface Deleted",
+          description: "The interface has been successfully deleted.",
+        });
       } catch (error) {
         console.error('Failed to delete interface:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete interface.",
+          variant: "destructive",
+        });
       }
     }
   };
@@ -123,8 +170,18 @@ const InterfacesPage = () => {
       
       setShowTemplateSelector(false);
       setAdvancedBuilderInterface(createdInterface);
+      
+      toast({
+        title: "Template Applied",
+        description: `Interface created from ${template.name} template.`,
+      });
     } catch (error) {
       console.error('Failed to create interface from template:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create interface from template.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -132,14 +189,40 @@ const InterfacesPage = () => {
     try {
       await realTimeInterface.updateInterface(interface_.id, interface_);
       setAdvancedBuilderInterface(null);
+      toast({
+        title: "Interface Saved",
+        description: "Your interface has been saved successfully.",
+      });
     } catch (error) {
       console.error('Failed to save interface:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save interface.",
+        variant: "destructive",
+      });
     }
   };
 
   const handleBuilderPreview = () => {
-    // Implement preview functionality
-    console.log('Preview interface:', advancedBuilderInterface);
+    if (advancedBuilderInterface) {
+      console.log('Preview interface:', advancedBuilderInterface);
+      toast({
+        title: "Preview",
+        description: "Preview functionality will be available soon.",
+      });
+    }
+  };
+
+  const updateInterface = async () => {
+    if (editingInterface) {
+      try {
+        await realTimeInterface.updateInterface(editingInterface.id, editingInterface);
+        setEditingInterface(null);
+      } catch (error) {
+        console.error('Failed to update interface:', error);
+        throw error;
+      }
+    }
   };
 
   return (
@@ -159,7 +242,6 @@ const InterfacesPage = () => {
           setIsZapierDialogOpen={setIsZapierDialogOpen}
         />
 
-        {/* Quick Actions */}
         <div className="flex gap-2 mb-4">
           <Button 
             variant="outline" 
@@ -173,7 +255,7 @@ const InterfacesPage = () => {
               setNewInterface({
                 name: "New Interface",
                 type: "form",
-                description: ""
+                description: "A quickly created interface"
               });
               createInterface();
             }}
@@ -201,7 +283,6 @@ const InterfacesPage = () => {
         />
       </div>
 
-      {/* Dialogs */}
       <InterfaceDetailsDialog
         viewingInterface={viewingInterface}
         setViewingInterface={setViewingInterface}
@@ -216,12 +297,7 @@ const InterfacesPage = () => {
         editingInterface={editingInterface}
         isLoading={isLoading}
         setEditingInterface={setEditingInterface}
-        updateInterface={async () => {
-          if (editingInterface) {
-            await realTimeInterface.updateInterface(editingInterface.id, editingInterface);
-            setEditingInterface(null);
-          }
-        }}
+        updateInterface={updateInterface}
       />
 
       <DeleteInterfaceDialog
@@ -231,7 +307,6 @@ const InterfacesPage = () => {
         isLoading={isLoading}
       />
 
-      {/* Template Selector Dialog */}
       <Dialog open={showTemplateSelector} onOpenChange={setShowTemplateSelector}>
         <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
           <InterfaceTemplateSelector
@@ -241,7 +316,6 @@ const InterfacesPage = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Advanced Builder Dialog */}
       <Dialog 
         open={!!advancedBuilderInterface} 
         onOpenChange={() => setAdvancedBuilderInterface(null)}
