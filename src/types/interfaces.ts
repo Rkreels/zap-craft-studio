@@ -26,6 +26,7 @@ export interface InterfaceField {
   placeholder?: string;
   defaultValue?: string;
   options?: string[];
+  description?: string;
 }
 
 export interface InterfaceIntegration {

@@ -15,6 +15,7 @@ interface WorkflowBuilderCoreProps {
   onStepDelete: (stepId: string) => void;
   onSave: () => void;
   onTest: () => void;
+  isSaving?: boolean;
 }
 
 export const WorkflowBuilderCore: React.FC<WorkflowBuilderCoreProps> = ({

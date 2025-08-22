@@ -154,14 +154,22 @@ export const AdvancedTableBuilder: React.FC<AdvancedTableBuilderProps> = ({
           ...currentTable,
           name: tableName,
           columns,
-          updatedAt: new Date()
+          updatedAt: new Date().toISOString()
         };
         setCurrentTable(updatedTable);
         onSave?.(updatedTable);
       } else {
         // Create new table
-        const newTable = createTable(tableName, columns);
-        onSave?.(newTable);
+        const newTableData = {
+          id: `table-${Date.now()}`,
+          name: tableName,
+          columns,
+          rows: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        createTable(newTableData);
+        onSave?.(newTableData);
       }
 
       toast({
