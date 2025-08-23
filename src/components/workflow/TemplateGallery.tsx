@@ -1,12 +1,12 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Check, Heart, Search, Star, Zap } from "lucide-react";
+import { Check, Heart, Search, Star, Zap, Loader2 } from "lucide-react";
 import { TemplateDetails } from "./TemplateDetails";
+import { useTemplateManager } from "@/hooks/useTemplateManager";
 
 export interface WorkflowTemplate {
   id: string;
@@ -38,8 +38,40 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
   const [selectedTemplate, setSelectedTemplate] = useState<WorkflowTemplate | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   
-  // Mock template data
-  const templates: WorkflowTemplate[] = [
+  const { 
+    templates, 
+    isLoading, 
+    getFeaturedTemplates, 
+    getPopularTemplates, 
+    getNewTemplates,
+    searchTemplates,
+    isApplying 
+  } = useTemplateManager();
+  
+  // Get filtered templates based on active tab and search
+  const getFilteredTemplates = () => {
+    let filteredTemplates = templates;
+    
+    if (searchQuery.trim()) {
+      filteredTemplates = searchTemplates(searchQuery);
+    }
+    
+    switch (activeTab) {
+      case "featured":
+        return searchQuery ? filteredTemplates.filter(t => t.featured) : getFeaturedTemplates();
+      case "popular":
+        return searchQuery ? filteredTemplates.filter(t => t.popular) : getPopularTemplates();
+      case "new":
+        return searchQuery ? filteredTemplates.filter(t => t.new) : getNewTemplates();
+      default:
+        return filteredTemplates;
+    }
+  };
+  
+  const filteredTemplates = getFilteredTemplates();
+  
+  // Rest of the template data as fallback if needed
+  const fallbackTemplates: WorkflowTemplate[] = [
     {
       id: "template-1",
       name: "Gmail to Slack Notification",
@@ -204,38 +236,24 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
     }
   ];
   
-  // Filter templates based on active tab and search query
-  const filteredTemplates = templates.filter(template => {
-    const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         template.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         template.category.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    if (!matchesSearch) return false;
-    
-    switch (activeTab) {
-      case "featured":
-        return template.featured;
-      case "popular":
-        return template.popular;
-      case "new":
-        return template.new;
-      default:
-        return true;
-    }
-  });
+  // Use the filtered templates from the hook
   
   const handleViewDetails = (template: WorkflowTemplate) => {
     setSelectedTemplate(template);
     setIsDetailsOpen(true);
   };
   
-  const handleUseTemplate = (template: WorkflowTemplate) => {
-    onSelectTemplate(template);
-    // Provide voice feedback
-    if ('speechSynthesis' in window) {
-      const speech = new SpeechSynthesisUtterance(`Template "${template.name}" has been applied to your workflow.`);
-      speech.rate = 0.9;
-      window.speechSynthesis.speak(speech);
+  const handleUseTemplate = async (template: WorkflowTemplate) => {
+    try {
+      await onSelectTemplate(template);
+      // Provide voice feedback
+      if ('speechSynthesis' in window) {
+        const speech = new SpeechSynthesisUtterance(`Template "${template.name}" has been applied to your workflow successfully.`);
+        speech.rate = 0.9;
+        window.speechSynthesis.speak(speech);
+      }
+    } catch (error) {
+      console.error('Failed to apply template:', error);
     }
   };
   
@@ -266,22 +284,30 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
         </TabsList>
         
         <TabsContent value="all" className="mt-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTemplates.length > 0 ? (
-              filteredTemplates.map(template => (
-                <TemplateCard 
-                  key={template.id} 
-                  template={template} 
-                  onViewDetails={handleViewDetails}
-                  onUseTemplate={handleUseTemplate}
-                />
-              ))
-            ) : (
-              <div className="col-span-3 text-center py-8 border border-dashed rounded-md">
-                <p className="text-gray-500">No templates found matching your search</p>
-              </div>
-            )}
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin mr-2" />
+              <span>Loading templates...</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredTemplates.length > 0 ? (
+                filteredTemplates.map(template => (
+                  <TemplateCard 
+                    key={template.id} 
+                    template={template} 
+                    onViewDetails={handleViewDetails}
+                    onUseTemplate={handleUseTemplate}
+                    isApplying={isApplying}
+                  />
+                ))
+              ) : (
+                <div className="col-span-3 text-center py-8 border border-dashed rounded-md">
+                  <p className="text-gray-500">No templates found matching your search</p>
+                </div>
+              )}
+            </div>
+          )}
         </TabsContent>
         
         <TabsContent value="featured" className="mt-0">
@@ -356,12 +382,14 @@ interface TemplateCardProps {
   template: WorkflowTemplate;
   onViewDetails: (template: WorkflowTemplate) => void;
   onUseTemplate: (template: WorkflowTemplate) => void;
+  isApplying?: boolean;
 }
 
 const TemplateCard: React.FC<TemplateCardProps> = ({ 
   template, 
   onViewDetails,
-  onUseTemplate
+  onUseTemplate,
+  isApplying = false
 }) => {
   return (
     <Card className="overflow-hidden">
@@ -389,9 +417,18 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
         <Button variant="ghost" size="sm" onClick={() => onViewDetails(template)}>
           View Details
         </Button>
-        <Button size="sm" className="gap-1" onClick={() => onUseTemplate(template)}>
-          <Check className="h-3 w-3" />
-          Use
+        <Button 
+          size="sm" 
+          className="gap-1" 
+          onClick={() => onUseTemplate(template)}
+          disabled={isApplying}
+        >
+          {isApplying ? (
+            <Loader2 className="h-3 w-3 animate-spin" />
+          ) : (
+            <Check className="h-3 w-3" />
+          )}
+          {isApplying ? 'Applying...' : 'Use'}
         </Button>
       </CardFooter>
     </Card>

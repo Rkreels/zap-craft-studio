@@ -3,9 +3,17 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiService } from '@/services/api';
 import { toast } from '@/hooks/use-toast';
+import { useRealTimeUpdates } from './useRealTimeUpdates';
 
 export const useWorkflowData = () => {
   const queryClient = useQueryClient();
+  
+  // Enable real-time updates for workflows
+  useRealTimeUpdates({
+    queryKeys: ['workflows'],
+    interval: 30000,
+    enabled: true
+  });
   
   const { data: workflowsData, isLoading, error } = useQuery({
     queryKey: ['workflows'],
@@ -71,7 +79,7 @@ export const useWorkflowData = () => {
     isLoading,
     error,
     createWorkflow: createWorkflowMutation.mutate,
-    updateWorkflow: updateWorkflowMutation.mutate,
+    updateWorkflow: (params: { id: string; data: any }) => updateWorkflowMutation.mutate(params),
     deleteWorkflow: deleteWorkflowMutation.mutate,
     executeWorkflow: executeWorkflowMutation.mutate,
     isCreating: createWorkflowMutation.isPending,

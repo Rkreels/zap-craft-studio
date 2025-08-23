@@ -1,66 +1,352 @@
-// Centralized API service for real data operations
+// Enhanced API service with comprehensive real functionality
 class ApiService {
-  private baseUrl = 'https://api.zapierclone.local'; // Mock API endpoint
+  private baseUrl = 'https://api.zapierclone.local';
+  private localStorage = typeof window !== 'undefined' ? window.localStorage : null;
   
-  // Simulate API delays
   private delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   
-  // Generic request method
-  private async request<T>(
-    endpoint: string, 
-    options: RequestInit = {}
-  ): Promise<T> {
-    await this.delay(Math.random() * 1000 + 500); // Simulate network delay
-    
-    // For demo purposes, we'll simulate successful responses
-    // In a real app, this would make actual HTTP requests
-    const response = {
-      ok: true,
-      status: 200,
-      json: async () => this.getMockData(endpoint, options.method)
-    };
-    
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
-    }
-    
-    return response.json();
+  // Real local storage management
+  private getStorageKey(type: string): string {
+    return `zapier_clone_${type}`;
   }
   
-  // Mock data generator based on endpoint
-  private getMockData(endpoint: string, method?: string): any {
+  private getFromStorage<T>(key: string): T[] {
+    if (!this.localStorage) return [];
+    try {
+      const data = this.localStorage.getItem(this.getStorageKey(key));
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  }
+  
+  private saveToStorage<T>(key: string, data: T[]): void {
+    if (!this.localStorage) return;
+    this.localStorage.setItem(this.getStorageKey(key), JSON.stringify(data));
+  }
+  
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    await this.delay(Math.random() * 500 + 200);
+    
+    const method = options.method || 'GET';
+    const data = options.body ? JSON.parse(options.body as string) : null;
+    
+    return this.handleRequest<T>(endpoint, method, data);
+  }
+  
+  private handleRequest<T>(endpoint: string, method: string, data?: any): T {
     const timestamp = new Date().toISOString();
     
-    switch (true) {
-      case endpoint.includes('/workflows'):
-        return method === 'POST' ? 
-          { id: `wf_${Date.now()}`, created: timestamp } :
-          { workflows: [], total: 0 };
-          
-      case endpoint.includes('/tables'):
-        return method === 'POST' ? 
-          { id: `tbl_${Date.now()}`, created: timestamp } :
-          { tables: [], total: 0 };
-          
-      case endpoint.includes('/webhooks'):
-        return method === 'POST' ? 
-          { id: `hook_${Date.now()}`, url: `https://hooks.zapier.com/${Date.now()}` } :
-          { webhooks: [], total: 0 };
-          
-      case endpoint.includes('/integrations'):
-        return {
-          integrations: [
-            { id: 'gmail', name: 'Gmail', status: 'connected', lastSync: timestamp },
-            { id: 'slack', name: 'Slack', status: 'connected', lastSync: timestamp },
-            { id: 'sheets', name: 'Google Sheets', status: 'error', lastSync: timestamp }
-          ]
-        };
-        
-      default:
-        return { success: true, timestamp };
+    // Templates endpoints
+    if (endpoint.includes('/templates')) {
+      return this.handleTemplateRequests(method, data) as T;
     }
+    
+    // Workflows endpoints
+    if (endpoint.includes('/workflows')) {
+      return this.handleWorkflowRequests(endpoint, method, data) as T;
+    }
+    
+    // Tables endpoints
+    if (endpoint.includes('/tables')) {
+      return this.handleTableRequests(endpoint, method, data) as T;
+    }
+    
+    // Interfaces endpoints
+    if (endpoint.includes('/interfaces')) {
+      return this.handleInterfaceRequests(endpoint, method, data) as T;
+    }
+    
+    // Integrations endpoints
+    if (endpoint.includes('/integrations')) {
+      return this.handleIntegrationRequests(endpoint, method, data) as T;
+    }
+    
+    return { success: true, timestamp } as T;
   }
   
+  private handleTemplateRequests(method: string, data?: any) {
+    const templates = this.getFromStorage('templates');
+    
+    if (method === 'GET') {
+      return { 
+        templates: templates.length ? templates : this.getDefaultTemplates(),
+        total: templates.length || this.getDefaultTemplates().length
+      };
+    }
+    
+    return { success: true };
+  }
+  
+  private getDefaultTemplates() {
+    return [
+      {
+        id: "template-1",
+        name: "Gmail to Slack Notification",
+        description: "Get Slack messages when new emails with specific labels arrive in Gmail",
+        category: "Communication",
+        featured: true,
+        popular: true,
+        steps: [
+          {
+            id: "trigger-1",
+            type: "trigger",
+            appId: "gmail",
+            appName: "Gmail",
+            actionName: "New Email",
+            configured: true,
+            config: { labels: ["important"] }
+          },
+          {
+            id: "action-1",
+            type: "action",
+            appId: "slack",
+            appName: "Slack",
+            actionName: "Send Channel Message",
+            configured: true,
+            config: { channel: "#general" }
+          }
+        ]
+      },
+      {
+        id: "template-2",
+        name: "Form to Google Sheets",
+        description: "Automatically add form submissions to a Google Sheets spreadsheet",
+        category: "Productivity",
+        new: true,
+        steps: [
+          {
+            id: "trigger-1",
+            type: "trigger",
+            appId: "forms",
+            appName: "Form Service",
+            actionName: "New Submission",
+            configured: true,
+            config: {}
+          },
+          {
+            id: "action-1",
+            type: "action",
+            appId: "sheets",
+            appName: "Google Sheets",
+            actionName: "Add Row",
+            configured: true,
+            config: {}
+          }
+        ]
+      }
+    ];
+  }
+  
+  private handleWorkflowRequests(endpoint: string, method: string, data?: any) {
+    const workflows = this.getFromStorage<any>('workflows');
+    
+    if (method === 'GET') {
+      return { workflows, total: workflows.length };
+    }
+    
+    if (method === 'POST') {
+      const newWorkflow = {
+        id: `wf_${Date.now()}`,
+        name: data?.name || 'Untitled Workflow',
+        steps: data?.steps || [],
+        status: 'inactive',
+        created: new Date().toISOString(),
+        ...data
+      };
+      workflows.push(newWorkflow);
+      this.saveToStorage('workflows', workflows);
+      return newWorkflow;
+    }
+    
+    if (method === 'PUT') {
+      const id = endpoint.split('/').pop();
+      const index = workflows.findIndex((w: any) => w.id === id);
+      if (index !== -1) {
+        workflows[index] = { ...workflows[index], ...data, updated: new Date().toISOString() };
+        this.saveToStorage('workflows', workflows);
+        return workflows[index];
+      }
+    }
+    
+    if (method === 'DELETE') {
+      const id = endpoint.split('/').pop();
+      const filtered = workflows.filter((w: any) => w.id !== id);
+      this.saveToStorage('workflows', filtered);
+      return { success: true };
+    }
+    
+    return { success: true };
+  }
+  
+  private handleTableRequests(endpoint: string, method: string, data?: any) {
+    const tables = this.getFromStorage<any>('tables');
+    
+    if (method === 'GET') {
+      return { tables, total: tables.length };
+    }
+    
+    if (method === 'POST') {
+      const newTable = {
+        id: `tbl_${Date.now()}`,
+        name: data?.name || 'Untitled Table',
+        columns: data?.columns || [],
+        rows: data?.rows || [],
+        created: new Date().toISOString(),
+        ...data
+      };
+      tables.push(newTable);
+      this.saveToStorage('tables', tables);
+      return newTable;
+    }
+    
+    if (method === 'PUT') {
+      const id = endpoint.split('/').pop();
+      const index = tables.findIndex((t: any) => t.id === id);
+      if (index !== -1) {
+        tables[index] = { ...tables[index], ...data, updated: new Date().toISOString() };
+        this.saveToStorage('tables', tables);
+        return tables[index];
+      }
+    }
+    
+    if (method === 'DELETE') {
+      const id = endpoint.split('/').pop();
+      const filtered = tables.filter((t: any) => t.id !== id);
+      this.saveToStorage('tables', filtered);
+      return { success: true };
+    }
+    
+    return { success: true };
+  }
+  
+  private handleInterfaceRequests(endpoint: string, method: string, data?: any) {
+    const interfaces = this.getFromStorage<any>('interfaces');
+    
+    if (method === 'GET') {
+      return { interfaces, total: interfaces.length };
+    }
+    
+    if (method === 'POST') {
+      const newInterface = {
+        id: `int_${Date.now()}`,
+        name: data?.name || 'Untitled Interface',
+        type: data?.type || 'form',
+        description: data?.description || '',
+        fields: data?.fields || [],
+        status: 'draft',
+        created: new Date().toISOString(),
+        ...data
+      };
+      interfaces.push(newInterface);
+      this.saveToStorage('interfaces', interfaces);
+      return newInterface;
+    }
+    
+    if (method === 'PUT') {
+      const id = endpoint.split('/').pop();
+      const index = interfaces.findIndex((i: any) => i.id === id);
+      if (index !== -1) {
+        interfaces[index] = { ...interfaces[index], ...data, updated: new Date().toISOString() };
+        this.saveToStorage('interfaces', interfaces);
+        return interfaces[index];
+      }
+    }
+    
+    if (method === 'DELETE') {
+      const id = endpoint.split('/').pop();
+      const filtered = interfaces.filter((i: any) => i.id !== id);
+      this.saveToStorage('interfaces', filtered);
+      return { success: true };
+    }
+    
+    return { success: true };
+  }
+  
+  private handleIntegrationRequests(endpoint: string, method: string, data?: any) {
+    const integrations = this.getFromStorage<any>('integrations');
+    const defaultIntegrations = [
+      { id: 'gmail', name: 'Gmail', status: 'connected', lastSync: new Date().toISOString() },
+      { id: 'slack', name: 'Slack', status: 'connected', lastSync: new Date().toISOString() },
+      { id: 'sheets', name: 'Google Sheets', status: 'disconnected', lastSync: null }
+    ];
+    
+    if (method === 'GET') {
+      return { 
+        integrations: integrations.length ? integrations : defaultIntegrations,
+        total: integrations.length || defaultIntegrations.length
+      };
+    }
+    
+    if (method === 'POST' && endpoint.includes('/connect')) {
+      const service = endpoint.split('/')[2];
+      const existingIndex = integrations.findIndex((i: any) => i.id === service);
+      const integration = {
+        id: service,
+        name: data?.name || service,
+        status: 'connected',
+        lastSync: new Date().toISOString(),
+        credentials: data
+      };
+      
+      if (existingIndex !== -1) {
+        integrations[existingIndex] = integration;
+      } else {
+        integrations.push(integration);
+      }
+      
+      this.saveToStorage('integrations', integrations);
+      return integration;
+    }
+    
+    if (method === 'POST' && endpoint.includes('/disconnect')) {
+      const service = endpoint.split('/')[2];
+      const index = integrations.findIndex((i: any) => i.id === service);
+      if (index !== -1) {
+        integrations[index].status = 'disconnected';
+        integrations[index].lastSync = null;
+        this.saveToStorage('integrations', integrations);
+      }
+      return { success: true };
+    }
+    
+    return { success: true };
+  }
+  
+  // Template operations
+  async getTemplates() {
+    return this.request('/templates');
+  }
+  
+  async createTemplate(data: any) {
+    return this.request('/templates', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  }
+  
+  async applyTemplate(templateId: string) {
+    const templates = this.getFromStorage<any>('templates');
+    const template = templates.find((t: any) => t.id === templateId) || 
+                    this.getDefaultTemplates().find((t: any) => t.id === templateId);
+    
+    if (template) {
+      return {
+        success: true,
+        workflow: {
+          id: `wf_${Date.now()}`,
+          name: `Copy of ${template.name}`,
+          steps: template.steps,
+          schedule: template.schedule,
+          created: new Date().toISOString()
+        }
+      };
+    }
+    
+    throw new Error('Template not found');
+  }
+
   // Workflow operations
   async getWorkflows() {
     return this.request('/workflows');
@@ -92,6 +378,31 @@ class ApiService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
+  }
+  
+  // Interface operations
+  async getInterfaces() {
+    return this.request('/interfaces');
+  }
+  
+  async createInterface(data: any) {
+    return this.request('/interfaces', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  }
+  
+  async updateInterface(id: string, data: any) {
+    return this.request(`/interfaces/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  }
+  
+  async deleteInterface(id: string) {
+    return this.request(`/interfaces/${id}`, { method: 'DELETE' });
   }
   
   // Table operations

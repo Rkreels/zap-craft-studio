@@ -22,6 +22,8 @@ import { WebhookIntegration, WebhookConfig } from "@/components/workflow/Webhook
 import { DataTransformer, DataTransformConfig } from "@/components/workflow/DataTransformer";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { TemplateGallery } from "@/components/workflow/TemplateGallery";
+import { EnhancedTemplateLoader } from "@/components/workflow/EnhancedTemplateLoader";
+import { WorkflowSaveManager } from "@/components/workflow/WorkflowSaveManager";
 import { TeamCollaboration } from "@/components/workflow/TeamCollaboration";
 import { ConditionalLogic } from "@/components/workflow/ConditionalLogic";
 import { PathBranching, BranchPath } from "@/components/workflow/PathBranching";
@@ -215,25 +217,66 @@ export default function ZapCreator() {
     bodyTemplate: "{\n  \"data\": \"{{step1.output}}\",\n  \"timestamp\": \"{{timestamp}}\"\n}"
   });
 
-  // Handle template selection
-  const handleTemplateSelect = (template: any) => {
-    setSteps(template.steps || []);
-    if (template.schedule) {
-      setSchedule(template.schedule);
-    }
-    setZapName(`Copy of ${template.name}`);
-    setActiveTab("build");
-    
-    toast({
-      title: "Template applied",
-      description: `The "${template.name}" template has been applied to your workflow.`,
-    });
-    
-    // Voice feedback
-    if ('speechSynthesis' in window) {
-      const speech = new SpeechSynthesisUtterance(`Template "${template.name}" loaded successfully. You can now customize your workflow.`);
-      speech.rate = 0.9;
-      window.speechSynthesis.speak(speech);
+  // Handle template selection with real functionality
+  const handleTemplateSelect = async (template: any) => {
+    try {
+      setIsLoading(true);
+      
+      // Apply template steps and configuration
+      const templateSteps = template.steps?.map((step: any) => ({
+        ...step,
+        id: `${step.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        configured: true
+      })) || [];
+      
+      setSteps(templateSteps);
+      
+      if (template.schedule) {
+        setSchedule(template.schedule);
+      }
+      
+      const templateName = `Copy of ${template.name}`;
+      setZapName(templateName);
+      setActiveTab("build");
+      
+      // Save the workflow immediately
+      const workflowData = {
+        name: templateName,
+        steps: templateSteps,
+        schedule: template.schedule,
+        isActive: false,
+        templateId: template.id
+      };
+      
+      // Use the API service to create the workflow
+      const { apiService } = await import('@/services/api');
+      await apiService.createWorkflow(workflowData);
+      
+      setLastSaved(new Date());
+      
+      toast({
+        title: "Template applied successfully",
+        description: `The "${template.name}" template has been loaded and saved to your workflow.`,
+      });
+      
+      // Voice feedback
+      if ('speechSynthesis' in window) {
+        const speech = new SpeechSynthesisUtterance(
+          `Template "${template.name}" loaded successfully. Your workflow now has ${templateSteps.length} configured steps. You can test it or make further customizations.`
+        );
+        speech.rate = 0.9;
+        window.speechSynthesis.speak(speech);
+      }
+      
+    } catch (error) {
+      console.error('Failed to apply template:', error);
+      toast({
+        title: "Failed to apply template",
+        description: "There was an error loading the template. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
   
