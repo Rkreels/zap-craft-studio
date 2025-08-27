@@ -45,7 +45,8 @@ export const useIntegrationData = () => {
   return {
     integrations: (integrationsData as any)?.integrations || [],
     isLoading,
-    connectIntegration: connectIntegrationMutation.mutate,
+    connectIntegration: (service: string, credentials: any) => 
+      connectIntegrationMutation.mutate({ service, credentials }),
     disconnectIntegration: disconnectIntegrationMutation.mutate,
     isConnecting: connectIntegrationMutation.isPending,
     isDisconnecting: disconnectIntegrationMutation.isPending,

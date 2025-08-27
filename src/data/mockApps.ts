@@ -2,6 +2,9 @@
 import { AppItem } from "@/components/zap-creator/AppSelector";
 import { TriggerEvent } from "@/components/zap-creator/EventSelector";
 
+// Export AppItem type for use in other components
+export type { AppItem };
+
 export const mockApps: AppItem[] = [
   { id: "gmail", name: "Gmail", icon: "G", description: "Send and manage emails", color: "bg-red-500", popular: true, category: "Email" },
   { id: "slack", name: "Slack", icon: "S", description: "Chat and collaboration", color: "bg-green-500", popular: true, category: "Communication" },
