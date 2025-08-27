@@ -39,6 +39,13 @@ export const Header = () => {
           <Grid size={18} />
           <span className="hidden md:inline">Explore Apps</span>
         </Link>
+        <a 
+          href="https://skillsim.vercel.app/dashboard" 
+          target="_self"
+          className="text-gray-700 hover:text-gray-900 flex items-center gap-1 px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors"
+        >
+          <span className="text-sm font-medium">Master Dashboard</span>
+        </a>
       </div>
       
       <div className="flex items-center space-x-2 md:space-x-4">
