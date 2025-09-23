@@ -25,6 +25,9 @@ import TableCreatorPage from "./pages/TableCreatorPage";
 import DiscoverPage from "./pages/DiscoverPage";
 import AgentsPage from "./pages/AgentsPage";
 import AdvancedDashboard from "./pages/AdvancedDashboard";
+import MorePage from "./pages/MorePage";
+import SettingsPage from "./pages/SettingsPage";
+import FunctionsPage from "./pages/FunctionsPage";
 
 function App() {
   return (
@@ -70,10 +73,10 @@ function App() {
           <Route path="webhooks" element={<WebhooksPage />} />
           
           {/* Placeholder routes */}
-          <Route path="functions" element={<NotFound />} />
+          <Route path="functions" element={<FunctionsPage />} />
           <Route path="developer-platform" element={<NotFound />} />
-          <Route path="settings" element={<NotFound />} />
-          <Route path="more" element={<NotFound />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="more" element={<MorePage />} />
           
           {/* 404 fallback */}
           <Route path="*" element={<NotFound />} />

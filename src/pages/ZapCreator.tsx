@@ -48,6 +48,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useWorkflowExecution } from "@/hooks/useWorkflowExecution";
 import { WorkflowExecutor } from "@/components/workflow/WorkflowExecutor";
+import { useTemplateManager } from "@/hooks/useTemplateManager";
 
 // Define the ZapHeaderProps type to fix TypeScript error
 interface ZapHeaderProps {
@@ -98,6 +99,7 @@ export default function ZapCreator() {
   
   const { handleMouseEnter, handleClick } = useVoiceGuidance(workflowVoiceProps);
   const isMobile = useIsMobile();
+  const templateManager = useTemplateManager();
 
   // Add the workflow execution hook
   const { executeWorkflow } = useWorkflowExecution();
