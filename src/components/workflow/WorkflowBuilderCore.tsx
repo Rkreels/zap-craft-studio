@@ -1,10 +1,12 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Settings, Trash, Save, Play } from "lucide-react";
+import { ArrowRight, Settings, Trash, Save, Play, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WorkflowStepData } from "./WorkflowStep";
 import { ConfigPanel } from "./ConfigPanel";
+import { EnhancedTemplateLoader } from "./EnhancedTemplateLoader";
+import { WorkflowTemplate } from "./TemplateGallery";
 import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
 
 interface WorkflowBuilderCoreProps {
@@ -16,6 +18,8 @@ interface WorkflowBuilderCoreProps {
   onSave: () => void;
   onTest: () => void;
   isSaving?: boolean;
+  showTemplateLoader?: boolean;
+  onTemplateApply?: (template: WorkflowTemplate) => Promise<void>;
 }
 
 export const WorkflowBuilderCore: React.FC<WorkflowBuilderCoreProps> = ({
@@ -25,7 +29,9 @@ export const WorkflowBuilderCore: React.FC<WorkflowBuilderCoreProps> = ({
   onStepAdd,
   onStepDelete,
   onSave,
-  onTest
+  onTest,
+  showTemplateLoader = true,
+  onTemplateApply
 }) => {
   // Voice guidance
   const workflowVoiceProps = {
@@ -54,8 +60,23 @@ export const WorkflowBuilderCore: React.FC<WorkflowBuilderCoreProps> = ({
       {/* Steps sidebar */}
       <div className="w-full lg:w-1/3 bg-white rounded-lg border border-gray-200 p-4">
         <div className="mb-4">
-          <h3 className="font-semibold text-lg">Workflow Steps</h3>
-          <p className="text-gray-500 text-sm">Configure the steps in your workflow</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-lg">Workflow Steps</h3>
+              <p className="text-gray-500 text-sm">Configure the steps in your workflow</p>
+            </div>
+            {showTemplateLoader && onTemplateApply && (
+              <EnhancedTemplateLoader 
+                onTemplateApply={onTemplateApply}
+                trigger={
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Download className="h-4 w-4" />
+                    Templates
+                  </Button>
+                }
+              />
+            )}
+          </div>
         </div>
 
         <div className="space-y-3">

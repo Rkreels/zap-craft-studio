@@ -5,6 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WorkflowStepData } from "./WorkflowStep";
 import { WorkflowStepsList } from "./WorkflowStepsList";
 import { StepConfigPanel } from "./StepConfigPanel";
+import { EnhancedTemplateLoader } from "./EnhancedTemplateLoader";
+import { WorkflowTemplate } from "./TemplateGallery";
 import { ScheduleBuilder, ScheduleConfig } from "./ScheduleBuilder";
 import { AppItem } from "@/components/zap-creator/AppSelector";
 import { TriggerEvent } from "@/components/zap-creator/EventSelector";
@@ -23,12 +25,14 @@ interface EnhancedWorkflowBuilderProps {
   onSave?: (steps: WorkflowStepData[], schedule?: ScheduleConfig) => void;
   initialSteps?: WorkflowStepData[];
   initialSchedule?: ScheduleConfig;
+  showTemplateLoader?: boolean;
 }
 
 export const EnhancedWorkflowBuilder = ({
   onSave,
   initialSteps = [],
-  initialSchedule
+  initialSchedule,
+  showTemplateLoader = true
 }: EnhancedWorkflowBuilderProps) => {
   const [steps, setSteps] = useState<WorkflowStepData[]>(initialSteps.length ? initialSteps : [
     {
@@ -360,6 +364,28 @@ export const EnhancedWorkflowBuilder = ({
     }
   };
 
+  // Handle template apply
+  const handleTemplateApply = async (template: WorkflowTemplate) => {
+    if (template.steps && template.steps.length > 0) {
+      setSteps(template.steps);
+      setActiveStepId(template.steps[0]?.id || "");
+      
+      // Reset configuration state
+      setSelectedApp(null);
+      setSelectedEvent(null);
+      setConfigStage('app');
+      
+      toast({
+        title: "Template Applied",
+        description: `"${template.name}" template has been loaded into your workflow.`,
+      });
+      
+      if (onSave) {
+        onSave(template.steps, schedule);
+      }
+    }
+  };
+
   return (
     <div 
       className="space-y-4"
@@ -377,8 +403,22 @@ export const EnhancedWorkflowBuilder = ({
             {/* Steps sidebar */}
             <div className="w-full lg:w-1/3 bg-white rounded-lg border border-gray-200 p-4">
               <div className="mb-4">
-                <h3 className="font-semibold text-lg">Workflow Steps</h3>
-                <p className="text-gray-500 text-sm">Configure the steps in your workflow</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-lg">Workflow Steps</h3>
+                    <p className="text-gray-500 text-sm">Configure the steps in your workflow</p>
+                  </div>
+                  {showTemplateLoader && (
+                    <EnhancedTemplateLoader 
+                      onTemplateApply={handleTemplateApply}
+                      trigger={
+                        <button className="text-sm px-3 py-1 border rounded-md hover:bg-gray-50 flex items-center gap-1">
+                          <span>📁</span> Templates
+                        </button>
+                      }
+                    />
+                  )}
+                </div>
               </div>
 
               <WorkflowStepsList 

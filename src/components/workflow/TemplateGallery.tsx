@@ -33,7 +33,7 @@ interface TemplateGalleryProps {
 export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ 
   onSelectTemplate 
 }) => {
-  const [activeTab, setActiveTab] = useState("featured");
+  const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState<WorkflowTemplate | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -50,19 +50,33 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
   
   // Get filtered templates based on active tab and search
   const getFilteredTemplates = () => {
-    let filteredTemplates = templates;
+    // Use fallback templates if no templates from API
+    const availableTemplates = templates.length > 0 ? templates : fallbackTemplates;
+    let filteredTemplates = availableTemplates;
     
     if (searchQuery.trim()) {
       filteredTemplates = searchTemplates(searchQuery);
+      if (filteredTemplates.length === 0 && templates.length === 0) {
+        // If API search returns nothing, search fallback templates
+        const lowercaseQuery = searchQuery.toLowerCase();
+        filteredTemplates = fallbackTemplates.filter(template => 
+          template.name.toLowerCase().includes(lowercaseQuery) ||
+          template.description.toLowerCase().includes(lowercaseQuery) ||
+          template.category.toLowerCase().includes(lowercaseQuery)
+        );
+      }
     }
     
     switch (activeTab) {
       case "featured":
-        return searchQuery ? filteredTemplates.filter(t => t.featured) : getFeaturedTemplates();
+        return searchQuery ? filteredTemplates.filter(t => t.featured) : 
+               (templates.length > 0 ? getFeaturedTemplates() : fallbackTemplates.filter(t => t.featured));
       case "popular":
-        return searchQuery ? filteredTemplates.filter(t => t.popular) : getPopularTemplates();
+        return searchQuery ? filteredTemplates.filter(t => t.popular) : 
+               (templates.length > 0 ? getPopularTemplates() : fallbackTemplates.filter(t => t.popular));
       case "new":
-        return searchQuery ? filteredTemplates.filter(t => t.new) : getNewTemplates();
+        return searchQuery ? filteredTemplates.filter(t => t.new) : 
+               (templates.length > 0 ? getNewTemplates() : fallbackTemplates.filter(t => t.new));
       default:
         return filteredTemplates;
     }
@@ -304,6 +318,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
               ) : (
                 <div className="col-span-3 text-center py-8 border border-dashed rounded-md">
                   <p className="text-gray-500">No templates found matching your search</p>
+                  <p className="text-xs text-gray-400 mt-2">Try clearing your search or browse by category</p>
                 </div>
               )}
             </div>

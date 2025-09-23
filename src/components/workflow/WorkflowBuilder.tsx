@@ -2,17 +2,21 @@
 import React, { useState } from "react";
 import { WorkflowStepData } from "./WorkflowStep";
 import { WorkflowBuilderCore } from "./WorkflowBuilderCore";
+import { EnhancedTemplateLoader } from "./EnhancedTemplateLoader";
+import { WorkflowTemplate } from "./TemplateGallery";
 import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
 import { toast } from "@/hooks/use-toast";
 
 interface WorkflowBuilderProps {
   initialSteps?: WorkflowStepData[];
   onSave?: (steps: WorkflowStepData[]) => void;
+  showTemplateLoader?: boolean;
 }
 
 export const WorkflowBuilder: React.FC<WorkflowBuilderProps> = ({ 
   initialSteps = [],
-  onSave
+  onSave,
+  showTemplateLoader = true
 }) => {
   const [steps, setSteps] = useState<WorkflowStepData[]>(initialSteps.length ? initialSteps : [
     {
@@ -164,6 +168,18 @@ export const WorkflowBuilder: React.FC<WorkflowBuilderProps> = ({
     }, 2000);
   };
 
+  const handleTemplateApply = async (template: WorkflowTemplate) => {
+    if (template.steps && template.steps.length > 0) {
+      setSteps(template.steps);
+      setActiveStepId(template.steps[0]?.id || "");
+      
+      toast({
+        title: "Template Applied",
+        description: `"${template.name}" template has been loaded into your workflow.`,
+      });
+    }
+  };
+
   return (
     <div 
       className="relative"
@@ -179,6 +195,8 @@ export const WorkflowBuilder: React.FC<WorkflowBuilderProps> = ({
         onSave={handleSave}
         onTest={handleTest}
         isSaving={isSaving}
+        showTemplateLoader={showTemplateLoader}
+        onTemplateApply={handleTemplateApply}
       />
     </div>
   );
