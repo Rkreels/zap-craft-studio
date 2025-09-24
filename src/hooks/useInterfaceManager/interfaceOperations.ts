@@ -1,6 +1,6 @@
 
 import { InterfaceItem } from "@/types/interfaces";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/use-toast";
 
 // Mock placeholder image URLs (moved from the main file)
 export const formPreview = "https://placehold.co/600x400/e2e8f0/64748b?text=Form+Interface";
