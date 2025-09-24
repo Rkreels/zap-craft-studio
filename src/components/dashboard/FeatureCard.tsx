@@ -43,8 +43,8 @@ export function FeatureCard({
     <Link
       to={path}
       className={cn(
-        "bg-white border border-gray-200 rounded-lg p-4 transition-all",
-        "hover:border-orange-400 hover:shadow-md hover:-translate-y-1",
+        "bg-card border border-border rounded-lg p-4 transition-all group",
+        "hover:border-primary/50 hover:shadow-lg hover:-translate-y-1 hover:bg-gradient-to-br hover:from-primary/5 hover:to-secondary/5",
         className
       )}
       onMouseEnter={handleMouseEnter}
@@ -52,7 +52,7 @@ export function FeatureCard({
     >
       <div className="flex flex-col h-full">
         <div className="mb-3">
-          <div className="inline-flex items-center justify-center w-10 h-10 rounded-md bg-orange-100 text-orange-500">
+          <div className="inline-flex items-center justify-center w-10 h-10 rounded-md bg-gradient-to-br from-primary/10 to-secondary/10 text-primary">
             <Icon size={24} />
           </div>
         </div>

@@ -87,10 +87,10 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
       {/* Logo/Brand */}
       <div className="flex justify-center items-center py-4 px-3 border-b border-gray-100">
         <div className={cn("transition-all duration-300", isExpanded ? "block" : "hidden")}>
-          <span className="text-2xl font-bold text-orange-500">Zapier Clone</span>
+          <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Zapier</span>
         </div>
         <div className={cn("transition-all duration-300", isExpanded ? "hidden" : "block")}>
-          <span className="text-2xl font-bold text-orange-500">Z</span>
+          <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Z</span>
         </div>
       </div>
 
@@ -100,9 +100,9 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
           <Tooltip>
             <TooltipTrigger asChild>
               <NavLink to="/zaps/create" className="w-full block">
-                <button 
+                 <button 
                   className={cn(
-                    "w-full bg-orange-600 hover:bg-orange-700 text-white rounded-md flex items-center justify-center py-2.5 transition-all font-medium",
+                    "w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white rounded-md flex items-center justify-center py-2.5 transition-all font-medium shadow-lg hover:shadow-xl",
                     isExpanded ? "px-4" : "px-2"
                   )}
                 >
@@ -145,7 +145,7 @@ export const Sidebar = ({ isExpanded, setIsExpanded }: SidebarProps) => {
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="flex items-center cursor-pointer hover:bg-gray-50 rounded-md p-2 transition-colors">
-                <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-medium">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-white font-medium">
                   JD
                 </div>
                 {isExpanded && (

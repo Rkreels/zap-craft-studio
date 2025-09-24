@@ -90,8 +90,8 @@ export const Header = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center space-x-1 hover:bg-gray-100 p-1 rounded-md">
-              <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center hover:ring-2 hover:ring-gray-300">
-                <span className="text-sm font-medium text-purple-600">{user?.avatarInitials || 'JD'}</span>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center hover:ring-2 hover:ring-primary/30">
+                <span className="text-sm font-medium text-white">{user?.avatarInitials || 'JD'}</span>
               </div>
               <ChevronDown size={16} className="text-gray-600 hidden md:block" />
             </button>

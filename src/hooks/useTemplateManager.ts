@@ -8,6 +8,8 @@ export interface WorkflowTemplate {
   name: string;
   description: string;
   category: string;
+  tags?: string[];
+  rating?: number;
   featured?: boolean;
   popular?: boolean;
   new?: boolean;

@@ -64,9 +64,9 @@ export default function Dashboard() {
           <h1 className="text-3xl font-bold">What would you like to automate?</h1>
           <Badge className="bg-purple-600 text-white">AI Beta</Badge>
         </div>
-        <div className="bg-white border border-gray-200 rounded-md p-3">
-          <p className="text-gray-600">
-            <span className="font-medium">Example:</span> When I add a reaction to Slack, send an email via Gmail
+        <div className="bg-gradient-to-r from-primary/5 to-secondary/5 border border-primary/20 rounded-lg p-4">
+          <p className="text-foreground">
+            <span className="font-semibold text-primary">Example:</span> When I add a reaction to Slack, send an email via Gmail
           </p>
         </div>
       </div>

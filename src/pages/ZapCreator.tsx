@@ -9,8 +9,9 @@ import {
   CardTitle 
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ZapHeader } from "@/components/zap-creator/ZapHeader";
-import { EnhancedWorkflowBuilder } from "@/components/workflow/EnhancedWorkflowBuilder";
+import { EnhancedZapHeader } from "@/components/workflow/EnhancedZapHeader";
+import { ZapierWorkflowSteps } from "@/components/workflow/ZapierWorkflowSteps";
+import { ZapierTemplateGallery } from "@/components/workflow/ZapierTemplateGallery";
 import { WorkflowStepData } from "@/components/workflow/WorkflowStep";
 import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
 import { zapCreatorScripts } from "@/data/voiceScripts";
@@ -27,6 +28,7 @@ import { WorkflowSaveManager } from "@/components/workflow/WorkflowSaveManager";
 import { TeamCollaboration } from "@/components/workflow/TeamCollaboration";
 import { ConditionalLogic } from "@/components/workflow/ConditionalLogic";
 import { PathBranching, BranchPath } from "@/components/workflow/PathBranching";
+import { ZapierIntegrationHub } from "@/components/workflow/ZapierIntegrationHub";
 import { IntegrationDirectory } from "@/components/workflow/IntegrationDirectory";
 import { AccountConnection, ConnectedAccount } from "@/components/workflow/AccountConnection";
 import { AdvancedWebhook } from "@/components/workflow/AdvancedWebhook";
@@ -433,7 +435,7 @@ export default function ZapCreator() {
 
   return (
     <div className="max-w-7xl mx-auto pb-16">
-      <ZapHeader 
+      <EnhancedZapHeader 
         zapName={zapName}
         setZapName={setZapName}
         isActive={isActive}
@@ -444,6 +446,11 @@ export default function ZapCreator() {
         lastSaved={lastSaved}
         isLoading={isLoading}
         onViewVersionHistory={() => setIsVersionHistoryOpen(true)}
+        zapStats={{
+          totalRuns: monitoringData.runs,
+          successRate: monitoringData.runs > 0 ? Math.round((monitoringData.successful / monitoringData.runs) * 100) : 0,
+          lastRun: monitoringData.lastRun
+        }}
       />
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
@@ -507,10 +514,13 @@ export default function ZapCreator() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <EnhancedWorkflowBuilder 
-                onSave={handleWorkflowUpdate}
-                initialSteps={steps.length ? steps : undefined}
-                initialSchedule={schedule}
+              <ZapierWorkflowSteps
+                steps={steps}
+                onStepsChange={(newSteps) => {
+                  setSteps(newSteps);
+                  handleWorkflowUpdate(newSteps, schedule);
+                }}
+                onTest={(stepId) => console.log('Testing step:', stepId)}
               />
               
               {steps.length > 1 && (
