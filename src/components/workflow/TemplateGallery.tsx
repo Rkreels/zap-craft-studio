@@ -48,43 +48,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
     isApplying 
   } = useTemplateManager();
   
-  // Get filtered templates based on active tab and search
-  const getFilteredTemplates = () => {
-    // Use fallback templates if no templates from API
-    const availableTemplates = templates.length > 0 ? templates : fallbackTemplates;
-    let filteredTemplates = availableTemplates;
-    
-    if (searchQuery.trim()) {
-      filteredTemplates = searchTemplates(searchQuery);
-      if (filteredTemplates.length === 0 && templates.length === 0) {
-        // If API search returns nothing, search fallback templates
-        const lowercaseQuery = searchQuery.toLowerCase();
-        filteredTemplates = fallbackTemplates.filter(template => 
-          template.name.toLowerCase().includes(lowercaseQuery) ||
-          template.description.toLowerCase().includes(lowercaseQuery) ||
-          template.category.toLowerCase().includes(lowercaseQuery)
-        );
-      }
-    }
-    
-    switch (activeTab) {
-      case "featured":
-        return searchQuery ? filteredTemplates.filter(t => t.featured) : 
-               (templates.length > 0 ? getFeaturedTemplates() : fallbackTemplates.filter(t => t.featured));
-      case "popular":
-        return searchQuery ? filteredTemplates.filter(t => t.popular) : 
-               (templates.length > 0 ? getPopularTemplates() : fallbackTemplates.filter(t => t.popular));
-      case "new":
-        return searchQuery ? filteredTemplates.filter(t => t.new) : 
-               (templates.length > 0 ? getNewTemplates() : fallbackTemplates.filter(t => t.new));
-      default:
-        return filteredTemplates;
-    }
-  };
-  
-  const filteredTemplates = getFilteredTemplates();
-  
-  // Rest of the template data as fallback if needed
+  // Fallback template data if needed
   const fallbackTemplates: WorkflowTemplate[] = [
     {
       id: "template-1",
@@ -249,6 +213,42 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({
       ]
     }
   ];
+  
+  // Get filtered templates based on active tab and search
+  const getFilteredTemplates = () => {
+    // Use fallback templates if no templates from API
+    const availableTemplates = templates.length > 0 ? templates : fallbackTemplates;
+    let filteredTemplates = availableTemplates;
+    
+    if (searchQuery.trim()) {
+      filteredTemplates = searchTemplates(searchQuery);
+      if (filteredTemplates.length === 0 && templates.length === 0) {
+        // If API search returns nothing, search fallback templates
+        const lowercaseQuery = searchQuery.toLowerCase();
+        filteredTemplates = fallbackTemplates.filter(template => 
+          template.name.toLowerCase().includes(lowercaseQuery) ||
+          template.description.toLowerCase().includes(lowercaseQuery) ||
+          template.category.toLowerCase().includes(lowercaseQuery)
+        );
+      }
+    }
+    
+    switch (activeTab) {
+      case "featured":
+        return searchQuery ? filteredTemplates.filter(t => t.featured) : 
+               (templates.length > 0 ? getFeaturedTemplates() : fallbackTemplates.filter(t => t.featured));
+      case "popular":
+        return searchQuery ? filteredTemplates.filter(t => t.popular) : 
+               (templates.length > 0 ? getPopularTemplates() : fallbackTemplates.filter(t => t.popular));
+      case "new":
+        return searchQuery ? filteredTemplates.filter(t => t.new) : 
+               (templates.length > 0 ? getNewTemplates() : fallbackTemplates.filter(t => t.new));
+      default:
+        return filteredTemplates;
+    }
+  };
+  
+  const filteredTemplates = getFilteredTemplates();
   
   // Use the filtered templates from the hook
   
