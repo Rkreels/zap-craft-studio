@@ -42,17 +42,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check if user is logged in on component mount
+  // Initialize loading state
   useEffect(() => {
-    const checkAuth = async () => {
-      const storedUser = localStorage.getItem('zapier_user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
-      setIsLoading(false);
-    };
-    
-    checkAuth();
+    setIsLoading(false);
   }, []);
 
   // Login function
@@ -71,7 +63,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           plan: 'free',
         };
         
-        localStorage.setItem('zapier_user', JSON.stringify(userData));
         setUser(userData);
         
         const from = (location.state as any)?.from || '/';
@@ -115,7 +106,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         plan: 'free',
       };
       
-      localStorage.setItem('zapier_user', JSON.stringify(userData));
       setUser(userData);
       navigate('/');
       
@@ -137,7 +127,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Logout function
   const logout = () => {
-    localStorage.removeItem('zapier_user');
     setUser(null);
     navigate('/login');
     

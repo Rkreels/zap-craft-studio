@@ -1,28 +1,18 @@
-// Enhanced API service with comprehensive real functionality
+// Enhanced API service with in-memory storage (no localStorage)
 class ApiService {
   private baseUrl = 'https://api.zapierclone.local';
-  private localStorage = typeof window !== 'undefined' ? window.localStorage : null;
+  
+  // In-memory storage
+  private memoryStore: Map<string, any[]> = new Map();
   
   private delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   
-  // Real local storage management
-  private getStorageKey(type: string): string {
-    return `zapier_clone_${type}`;
+  private getFromMemory<T>(key: string): T[] {
+    return (this.memoryStore.get(key) as T[]) || [];
   }
   
-  private getFromStorage<T>(key: string): T[] {
-    if (!this.localStorage) return [];
-    try {
-      const data = this.localStorage.getItem(this.getStorageKey(key));
-      return data ? JSON.parse(data) : [];
-    } catch {
-      return [];
-    }
-  }
-  
-  private saveToStorage<T>(key: string, data: T[]): void {
-    if (!this.localStorage) return;
-    this.localStorage.setItem(this.getStorageKey(key), JSON.stringify(data));
+  private saveToMemory<T>(key: string, data: T[]): void {
+    this.memoryStore.set(key, data);
   }
   
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -66,7 +56,7 @@ class ApiService {
   }
   
   private handleTemplateRequests(method: string, data?: any) {
-    const templates = this.getFromStorage('templates');
+    const templates = this.getFromMemory('templates');
     
     if (method === 'GET') {
       return { 
@@ -139,7 +129,7 @@ class ApiService {
   }
   
   private handleWorkflowRequests(endpoint: string, method: string, data?: any) {
-    const workflows = this.getFromStorage<any>('workflows');
+    const workflows = this.getFromMemory<any>('workflows');
     
     if (method === 'GET') {
       return { workflows, total: workflows.length };
@@ -155,7 +145,7 @@ class ApiService {
         ...data
       };
       workflows.push(newWorkflow);
-      this.saveToStorage('workflows', workflows);
+      this.saveToMemory('workflows', workflows);
       return newWorkflow;
     }
     
@@ -164,7 +154,7 @@ class ApiService {
       const index = workflows.findIndex((w: any) => w.id === id);
       if (index !== -1) {
         workflows[index] = { ...workflows[index], ...data, updated: new Date().toISOString() };
-        this.saveToStorage('workflows', workflows);
+        this.saveToMemory('workflows', workflows);
         return workflows[index];
       }
     }
@@ -172,7 +162,7 @@ class ApiService {
     if (method === 'DELETE') {
       const id = endpoint.split('/').pop();
       const filtered = workflows.filter((w: any) => w.id !== id);
-      this.saveToStorage('workflows', filtered);
+      this.saveToMemory('workflows', filtered);
       return { success: true };
     }
     
@@ -180,7 +170,7 @@ class ApiService {
   }
   
   private handleTableRequests(endpoint: string, method: string, data?: any) {
-    const tables = this.getFromStorage<any>('tables');
+    const tables = this.getFromMemory<any>('tables');
     
     if (method === 'GET') {
       return { tables, total: tables.length };
@@ -196,7 +186,7 @@ class ApiService {
         ...data
       };
       tables.push(newTable);
-      this.saveToStorage('tables', tables);
+      this.saveToMemory('tables', tables);
       return newTable;
     }
     
@@ -205,7 +195,7 @@ class ApiService {
       const index = tables.findIndex((t: any) => t.id === id);
       if (index !== -1) {
         tables[index] = { ...tables[index], ...data, updated: new Date().toISOString() };
-        this.saveToStorage('tables', tables);
+        this.saveToMemory('tables', tables);
         return tables[index];
       }
     }
@@ -213,7 +203,7 @@ class ApiService {
     if (method === 'DELETE') {
       const id = endpoint.split('/').pop();
       const filtered = tables.filter((t: any) => t.id !== id);
-      this.saveToStorage('tables', filtered);
+      this.saveToMemory('tables', filtered);
       return { success: true };
     }
     
@@ -221,7 +211,7 @@ class ApiService {
   }
   
   private handleInterfaceRequests(endpoint: string, method: string, data?: any) {
-    const interfaces = this.getFromStorage<any>('interfaces');
+    const interfaces = this.getFromMemory<any>('interfaces');
     
     if (method === 'GET') {
       return { interfaces, total: interfaces.length };
@@ -239,7 +229,7 @@ class ApiService {
         ...data
       };
       interfaces.push(newInterface);
-      this.saveToStorage('interfaces', interfaces);
+      this.saveToMemory('interfaces', interfaces);
       return newInterface;
     }
     
@@ -248,7 +238,7 @@ class ApiService {
       const index = interfaces.findIndex((i: any) => i.id === id);
       if (index !== -1) {
         interfaces[index] = { ...interfaces[index], ...data, updated: new Date().toISOString() };
-        this.saveToStorage('interfaces', interfaces);
+        this.saveToMemory('interfaces', interfaces);
         return interfaces[index];
       }
     }
@@ -256,7 +246,7 @@ class ApiService {
     if (method === 'DELETE') {
       const id = endpoint.split('/').pop();
       const filtered = interfaces.filter((i: any) => i.id !== id);
-      this.saveToStorage('interfaces', filtered);
+      this.saveToMemory('interfaces', filtered);
       return { success: true };
     }
     
@@ -264,7 +254,7 @@ class ApiService {
   }
   
   private handleIntegrationRequests(endpoint: string, method: string, data?: any) {
-    const integrations = this.getFromStorage<any>('integrations');
+    const integrations = this.getFromMemory<any>('integrations');
     const defaultIntegrations = [
       { id: 'gmail', name: 'Gmail', status: 'connected', lastSync: new Date().toISOString() },
       { id: 'slack', name: 'Slack', status: 'connected', lastSync: new Date().toISOString() },
@@ -295,7 +285,7 @@ class ApiService {
         integrations.push(integration);
       }
       
-      this.saveToStorage('integrations', integrations);
+      this.saveToMemory('integrations', integrations);
       return integration;
     }
     
@@ -305,7 +295,7 @@ class ApiService {
       if (index !== -1) {
         integrations[index].status = 'disconnected';
         integrations[index].lastSync = null;
-        this.saveToStorage('integrations', integrations);
+        this.saveToMemory('integrations', integrations);
       }
       return { success: true };
     }
@@ -327,8 +317,8 @@ class ApiService {
   }
   
   async applyTemplate(templateId: string) {
-    const templates = this.getFromStorage<any>('templates');
-    const template = templates.find((t: any) => t.id === templateId) || 
+    const templates = this.getFromMemory<any>('templates');
+    const template = templates.find((t: any) => t.id === templateId) ||
                     this.getDefaultTemplates().find((t: any) => t.id === templateId);
     
     if (template) {

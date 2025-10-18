@@ -49,17 +49,6 @@ export const useCanvas = () => {
   const [history, setHistory] = useState<CanvasProject[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
-  useEffect(() => {
-    const saved = localStorage.getItem('app-canvas-projects');
-    if (saved) {
-      setProjects(JSON.parse(saved));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('app-canvas-projects', JSON.stringify(projects));
-  }, [projects]);
-
   const createProject = useCallback((name: string, description: string) => {
     const newProject: CanvasProject = {
       id: `canvas_${Date.now()}`,

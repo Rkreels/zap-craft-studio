@@ -48,9 +48,7 @@ const SettingsPage = () => {
   });
 
   const handleSave = (section: string) => {
-    // Save settings to localStorage
-    localStorage.setItem('zapier_settings', JSON.stringify(settings));
-    
+    // Settings saved in memory
     toast({
       title: "Settings Saved",
       description: `Your ${section} settings have been saved successfully.`,

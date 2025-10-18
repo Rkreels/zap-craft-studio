@@ -49,26 +49,6 @@ export const useChatbot = () => {
   const [currentSession, setCurrentSession] = useState<ChatSession | null>(null);
   const [isTyping, setIsTyping] = useState(false);
 
-  useEffect(() => {
-    const savedChatbots = localStorage.getItem('app-chatbots');
-    const savedSessions = localStorage.getItem('app-chat-sessions');
-    
-    if (savedChatbots) {
-      setChatbots(JSON.parse(savedChatbots));
-    }
-    if (savedSessions) {
-      setSessions(JSON.parse(savedSessions));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('app-chatbots', JSON.stringify(chatbots));
-  }, [chatbots]);
-
-  useEffect(() => {
-    localStorage.setItem('app-chat-sessions', JSON.stringify(sessions));
-  }, [sessions]);
-
   const createChatbot = useCallback((config: Omit<ChatbotConfig, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newChatbot: ChatbotConfig = {
       ...config,

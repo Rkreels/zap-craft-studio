@@ -16,19 +16,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation();
   const isZapCreator = location.pathname.includes("/zaps/create");
   const { isAuthenticated, isLoading } = useAuth();
-  
-  // Load sidebar state from localStorage on mount
-  useEffect(() => {
-    const savedState = localStorage.getItem("sidebarExpanded");
-    if (savedState) {
-      setIsSidebarExpanded(savedState === "true");
-    }
-  }, []);
-
-  // Save sidebar state to localStorage when it changes
-  useEffect(() => {
-    localStorage.setItem("sidebarExpanded", String(isSidebarExpanded));
-  }, [isSidebarExpanded]);
 
   // Show loading state
   if (isLoading) {

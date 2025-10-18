@@ -42,17 +42,6 @@ export const useInterfaceBuilder = () => {
   const [selectedElement, setSelectedElement] = useState<InterfaceElement | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
 
-  useEffect(() => {
-    const saved = localStorage.getItem('app-interfaces');
-    if (saved) {
-      setInterfaces(JSON.parse(saved));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('app-interfaces', JSON.stringify(interfaces));
-  }, [interfaces]);
-
   const createInterface = useCallback((name: string, description: string) => {
     const newInterface: InterfaceDesign = {
       id: `interface_${Date.now()}`,
