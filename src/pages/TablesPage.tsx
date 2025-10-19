@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,366 +18,351 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Plus, Search, Edit, Trash2, Copy, Share2 } from "lucide-react";
-import { useVoiceGuidance } from "@/components/voice-assistant/withVoiceGuidance";
-import { tablesScripts } from "@/data/voiceScripts";
+import { Plus, Search, Edit, Trash2, Copy, Share2, Database, Filter, Download, Upload, Calendar } from "lucide-react";
 
-// Type definitions for our data
+interface TableColumn {
+  id: string;
+  name: string;
+  type: "text" | "number" | "email" | "date" | "select" | "checkbox";
+  options?: string[];
+}
+
 interface TableRecord {
   id: string;
   name: string;
+  description: string;
   createdAt: string;
   updatedAt: string;
   recordCount: number;
   status: "active" | "draft";
+  columns: TableColumn[];
+  automations: number;
 }
 
-// Mock data for tables
 const initialTables: TableRecord[] = [
   {
     id: "table-1",
-    name: "Customer Data",
-    createdAt: "2025-05-01T14:30:00Z",
-    updatedAt: "2025-05-14T09:15:00Z",
-    recordCount: 128,
-    status: "active"
+    name: "Customer Contacts",
+    description: "Centralized customer contact information",
+    createdAt: "2025-01-15T14:30:00Z",
+    updatedAt: "2025-01-19T09:15:00Z",
+    recordCount: 342,
+    status: "active",
+    automations: 3,
+    columns: [
+      { id: "col-1", name: "Name", type: "text" },
+      { id: "col-2", name: "Email", type: "email" },
+      { id: "col-3", name: "Phone", type: "text" },
+      { id: "col-4", name: "Status", type: "select", options: ["Lead", "Customer", "Inactive"] },
+    ]
   },
   {
     id: "table-2",
     name: "Product Inventory",
-    createdAt: "2025-05-03T11:20:00Z",
-    updatedAt: "2025-05-12T16:45:00Z",
-    recordCount: 75,
-    status: "active"
+    description: "Track all products and stock levels",
+    createdAt: "2025-01-10T11:20:00Z",
+    updatedAt: "2025-01-18T16:45:00Z",
+    recordCount: 156,
+    status: "active",
+    automations: 2,
+    columns: [
+      { id: "col-1", name: "Product Name", type: "text" },
+      { id: "col-2", name: "SKU", type: "text" },
+      { id: "col-3", name: "Stock", type: "number" },
+      { id: "col-4", name: "Price", type: "number" },
+    ]
   },
   {
     id: "table-3",
-    name: "Marketing Campaigns",
-    createdAt: "2025-05-05T08:45:00Z",
-    updatedAt: "2025-05-10T13:30:00Z",
-    recordCount: 12,
-    status: "draft"
+    name: "Project Tasks",
+    description: "Manage all project tasks and deadlines",
+    createdAt: "2025-01-12T08:45:00Z",
+    updatedAt: "2025-01-19T13:30:00Z",
+    recordCount: 89,
+    status: "draft",
+    automations: 1,
+    columns: [
+      { id: "col-1", name: "Task", type: "text" },
+      { id: "col-2", name: "Assignee", type: "text" },
+      { id: "col-3", name: "Due Date", type: "date" },
+      { id: "col-4", name: "Completed", type: "checkbox" },
+    ]
   }
 ];
 
 export default function TablesPage() {
   const [tables, setTables] = useState<TableRecord[]>(initialTables);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [editingTable, setEditingTable] = useState<TableRecord | null>(null);
-  const [newTableName, setNewTableName] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "draft">("all");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isFieldDialogOpen, setIsFieldDialogOpen] = useState(false);
+  const [selectedTable, setSelectedTable] = useState<TableRecord | null>(null);
   const [tableToDelete, setTableToDelete] = useState<string | null>(null);
-  
-  // Voice guidance
-  const headerVoiceProps = {
-    elementName: "Table Header",
-    hoverText: tablesScripts.tableHeader.hover,
-    clickText: tablesScripts.tableHeader.click
-  };
-  
-  const listVoiceProps = {
-    elementName: "Table List",
-    hoverText: tablesScripts.tableList.hover,
-    clickText: tablesScripts.tableList.click
-  };
-  
-  const { handleMouseEnter: headerMouseEnter, handleClick: headerClick } = useVoiceGuidance(headerVoiceProps);
-  const { handleMouseEnter: listMouseEnter, handleClick: listClick } = useVoiceGuidance(listVoiceProps);
+  const [newTableData, setNewTableData] = useState({
+    name: "",
+    description: "",
+  });
+  const [newField, setNewField] = useState<Partial<TableColumn>>({
+    name: "",
+    type: "text"
+  });
 
-  // Filter tables based on search query
-  const filteredTables = tables.filter(table => 
-    table.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTables = tables.filter(table => {
+    const matchesSearch = table.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         table.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || table.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
-  // Format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  // CRUD Operations
   const createTable = () => {
-    if (!newTableName.trim()) {
+    if (!newTableData.name.trim()) {
       toast({
-        title: "Table name required",
-        description: "Please enter a name for your new table",
+        title: "Name required",
+        description: "Please enter a name for your table",
         variant: "destructive"
       });
       return;
     }
 
-    setIsLoading(true);
+    const newTable: TableRecord = {
+      id: `table-${Date.now()}`,
+      name: newTableData.name,
+      description: newTableData.description,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      recordCount: 0,
+      status: "draft",
+      automations: 0,
+      columns: [
+        { id: "col-1", name: "ID", type: "text" },
+      ]
+    };
     
-    // Simulate API call
-    setTimeout(() => {
-      const newTable: TableRecord = {
-        id: `table-${Date.now()}`,
-        name: newTableName,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        recordCount: 0,
-        status: "draft"
-      };
-      
-      setTables(prev => [...prev, newTable]);
-      setNewTableName("");
-      setIsLoading(false);
-      
-      toast({
-        title: "Table created",
-        description: `${newTableName} has been created successfully.`
-      });
-    }, 800);
+    setTables(prev => [...prev, newTable]);
+    setNewTableData({ name: "", description: "" });
+    setIsCreateDialogOpen(false);
+    
+    toast({
+      title: "Table created",
+      description: `${newTableData.name} has been created successfully.`
+    });
   };
 
   const updateTable = () => {
-    if (!editingTable) return;
+    if (!selectedTable) return;
     
-    setIsLoading(true);
+    setTables(prev => prev.map(table => 
+      table.id === selectedTable.id 
+        ? { ...selectedTable, updatedAt: new Date().toISOString() } 
+        : table
+    ));
     
-    // Simulate API call
-    setTimeout(() => {
-      setTables(prev => prev.map(table => 
-        table.id === editingTable.id 
-          ? { ...editingTable, updatedAt: new Date().toISOString() } 
-          : table
-      ));
-      
-      setIsLoading(false);
-      setEditingTable(null);
-      
-      toast({
-        title: "Table updated",
-        description: `${editingTable.name} has been updated successfully.`
-      });
-    }, 800);
+    setIsEditDialogOpen(false);
+    setSelectedTable(null);
+    
+    toast({
+      title: "Table updated",
+      description: "Table has been updated successfully."
+    });
   };
 
   const deleteTable = (id: string) => {
-    setIsLoading(true);
+    setTables(prev => prev.filter(table => table.id !== id));
+    setIsDeleteDialogOpen(false);
+    setTableToDelete(null);
     
-    // Simulate API call
-    setTimeout(() => {
-      setTables(prev => prev.filter(table => table.id !== id));
-      setIsLoading(false);
-      setIsDeleteDialogOpen(false);
-      setTableToDelete(null);
-      
-      toast({
-        title: "Table deleted",
-        description: "The table has been deleted successfully.",
-        variant: "destructive"
-      });
-    }, 800);
+    toast({
+      title: "Table deleted",
+      description: "The table has been deleted successfully.",
+      variant: "destructive"
+    });
   };
 
   const duplicateTable = (table: TableRecord) => {
-    setIsLoading(true);
+    const duplicated: TableRecord = {
+      ...table,
+      id: `table-${Date.now()}`,
+      name: `${table.name} (Copy)`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      recordCount: 0,
+      status: "draft"
+    };
     
-    // Simulate API call
-    setTimeout(() => {
-      const duplicatedTable: TableRecord = {
-        ...table,
-        id: `table-${Date.now()}`,
-        name: `${table.name} (Copy)`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        recordCount: 0,
-        status: "draft"
-      };
-      
-      setTables(prev => [...prev, duplicatedTable]);
-      setIsLoading(false);
-      
+    setTables(prev => [...prev, duplicated]);
+    
+    toast({
+      title: "Table duplicated",
+      description: `A copy of ${table.name} has been created.`
+    });
+  };
+
+  const addField = () => {
+    if (!selectedTable || !newField.name) {
       toast({
-        title: "Table duplicated",
-        description: `A copy of ${table.name} has been created.`
+        title: "Field name required",
+        description: "Please enter a name for the field",
+        variant: "destructive"
       });
-    }, 800);
+      return;
+    }
+
+    const updatedTable = {
+      ...selectedTable,
+      columns: [...selectedTable.columns, {
+        id: `col-${Date.now()}`,
+        name: newField.name,
+        type: newField.type as any,
+        options: newField.options
+      }]
+    };
+
+    setTables(prev => prev.map(t => t.id === selectedTable.id ? updatedTable : t));
+    setSelectedTable(updatedTable);
+    setNewField({ name: "", type: "text" });
+    
+    toast({
+      title: "Field added",
+      description: `${newField.name} field has been added to the table.`
+    });
   };
 
-  const confirmDelete = (id: string) => {
-    setTableToDelete(id);
-    setIsDeleteDialogOpen(true);
+  const exportTable = (table: TableRecord) => {
+    toast({
+      title: "Export started",
+      description: `Exporting ${table.name} as CSV...`
+    });
   };
-
-  // Simulate loading tables from API on mount
-  useEffect(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  }, []);
 
   return (
     <div className="max-w-7xl mx-auto">
-      {/* Header section */}
-      <div 
-        className="mb-6"
-        onMouseEnter={headerMouseEnter}
-        onClick={headerClick}
-      >
-        <h1 className="text-2xl font-bold mb-2">Tables</h1>
-        <p className="text-gray-600">Create and manage your data tables</p>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2">Tables</h1>
+        <p className="text-muted-foreground">Create and manage data tables with powerful automations</p>
       </div>
 
-      {/* Action bar */}
       <div className="mb-6 flex flex-col md:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
           <Input
-            placeholder="Search tables"
-            className="pl-9"
+            placeholder="Search tables..."
+            className="pl-10"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus size={16} />
-              New Table
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Table</DialogTitle>
-              <DialogDescription>
-                Enter a name for your new table. You can add fields after creation.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-4">
-              <Input
-                placeholder="Table Name"
-                value={newTableName}
-                onChange={(e) => setNewTableName(e.target.value)}
-                className="mb-4"
-              />
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setNewTableName("")}>Cancel</Button>
-              <Button onClick={createTable} disabled={isLoading}>
-                {isLoading ? "Creating..." : "Create Table"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
+          <SelectTrigger className="w-full md:w-[180px]">
+            <Filter size={16} className="mr-2" />
+            <SelectValue placeholder="Filter by status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Tables</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
+          </SelectContent>
+        </Select>
+        
+        <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2">
+          <Plus size={16} />
+          Create Table
+        </Button>
       </div>
 
-      {/* Tables list */}
-      <div 
-        className="bg-white rounded-lg border border-gray-200"
-        onMouseEnter={listMouseEnter}
-        onClick={listClick}
-      >
+      <div className="bg-card rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead>Last Modified</TableHead>
               <TableHead>Records</TableHead>
+              <TableHead>Fields</TableHead>
+              <TableHead>Automations</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Last Modified</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
+            {filteredTables.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
-                  <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-700"></div>
-                    <span className="ml-2">Loading tables...</span>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : filteredTables.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-8">
-                  <p className="text-gray-500">No tables found</p>
-                  <Button variant="link" onClick={() => setSearchQuery("")}>
-                    Clear search
-                  </Button>
+                <TableCell colSpan={7} className="text-center py-8">
+                  <p className="text-muted-foreground">No tables found</p>
                 </TableCell>
               </TableRow>
             ) : (
               filteredTables.map((table) => (
                 <TableRow key={table.id} className="group">
-                  <TableCell className="font-medium">{table.name}</TableCell>
-                  <TableCell>{formatDate(table.createdAt)}</TableCell>
-                  <TableCell>{formatDate(table.updatedAt)}</TableCell>
-                  <TableCell>{table.recordCount}</TableCell>
                   <TableCell>
-                    <Badge className={table.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
-                      {table.status === 'active' ? 'Active' : 'Draft'}
+                    <div>
+                      <div className="font-medium flex items-center gap-2">
+                        <Database size={16} className="text-muted-foreground" />
+                        {table.name}
+                      </div>
+                      <div className="text-sm text-muted-foreground">{table.description}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="font-medium">{table.recordCount.toLocaleString()}</span>
+                  </TableCell>
+                  <TableCell>{table.columns.length}</TableCell>
+                  <TableCell>
+                    {table.automations > 0 ? (
+                      <Badge variant="secondary">{table.automations} active</Badge>
+                    ) : (
+                      <span className="text-muted-foreground">None</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={table.status === 'active' ? 'default' : 'secondary'}>
+                      {table.status}
                     </Badge>
                   </TableCell>
+                  <TableCell className="text-muted-foreground">{formatDate(table.updatedAt)}</TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="ghost" size="icon" onClick={() => setEditingTable(table)}>
-                            <Edit size={16} />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Edit Table</DialogTitle>
-                            <DialogDescription>
-                              Update the details of your table.
-                            </DialogDescription>
-                          </DialogHeader>
-                          {editingTable && (
-                            <div className="py-4">
-                              <Input
-                                placeholder="Table Name"
-                                value={editingTable.name}
-                                onChange={(e) => setEditingTable({...editingTable, name: e.target.value})}
-                                className="mb-4"
-                              />
-                              <div className="flex items-center mb-4">
-                                <span className="mr-2">Status:</span>
-                                <Button 
-                                  variant={editingTable.status === 'active' ? 'default' : 'outline'} 
-                                  size="sm"
-                                  onClick={() => setEditingTable({...editingTable, status: 'active'})}
-                                  className="mr-2"
-                                >
-                                  Active
-                                </Button>
-                                <Button 
-                                  variant={editingTable.status === 'draft' ? 'default' : 'outline'} 
-                                  size="sm"
-                                  onClick={() => setEditingTable({...editingTable, status: 'draft'})}
-                                >
-                                  Draft
-                                </Button>
-                              </div>
-                            </div>
-                          )}
-                          <DialogFooter>
-                            <Button variant="outline" onClick={() => setEditingTable(null)}>Cancel</Button>
-                            <Button onClick={updateTable} disabled={isLoading}>
-                              {isLoading ? "Saving..." : "Save Changes"}
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                      
+                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => {
+                          setSelectedTable(table);
+                          setIsEditDialogOpen(true);
+                        }}
+                      >
+                        <Edit size={16} />
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={() => duplicateTable(table)}>
                         <Copy size={16} />
                       </Button>
-                      
-                      <Button variant="ghost" size="icon" onClick={() => confirmDelete(table.id)}>
-                        <Trash2 size={16} />
+                      <Button variant="ghost" size="icon" onClick={() => exportTable(table)}>
+                        <Download size={16} />
                       </Button>
-                      
-                      <Button variant="ghost" size="icon">
-                        <Share2 size={16} />
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => {
+                          setTableToDelete(table.id);
+                          setIsDeleteDialogOpen(true);
+                        }}
+                      >
+                        <Trash2 size={16} />
                       </Button>
                     </div>
                   </TableCell>
@@ -389,7 +373,158 @@ export default function TablesPage() {
         </Table>
       </div>
 
-      {/* Delete confirmation dialog */}
+      {/* Create Table Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Table</DialogTitle>
+            <DialogDescription>
+              Create a new data table to store and organize your information.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="name">Table Name *</Label>
+              <Input
+                id="name"
+                placeholder="e.g., Customer Contacts"
+                value={newTableData.name}
+                onChange={(e) => setNewTableData({...newTableData, name: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                placeholder="What will you store in this table?"
+                value={newTableData.description}
+                onChange={(e) => setNewTableData({...newTableData, description: e.target.value})}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>Cancel</Button>
+            <Button onClick={createTable}>Create Table</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Table Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Table</DialogTitle>
+            <DialogDescription>
+              Update table details and manage fields.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedTable && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Table Name</Label>
+                  <Input
+                    value={selectedTable.name}
+                    onChange={(e) => setSelectedTable({...selectedTable, name: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label>Status</Label>
+                  <Select 
+                    value={selectedTable.status} 
+                    onValueChange={(value: any) => setSelectedTable({...selectedTable, status: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="draft">Draft</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div>
+                <Label>Description</Label>
+                <Input
+                  value={selectedTable.description}
+                  onChange={(e) => setSelectedTable({...selectedTable, description: e.target.value})}
+                />
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label>Fields ({selectedTable.columns.length})</Label>
+                  <Button variant="outline" size="sm" onClick={() => setIsFieldDialogOpen(true)}>
+                    <Plus size={14} className="mr-1" />
+                    Add Field
+                  </Button>
+                </div>
+                <div className="border rounded-lg p-3 space-y-2 max-h-48 overflow-y-auto">
+                  {selectedTable.columns.map((col) => (
+                    <div key={col.id} className="flex items-center justify-between p-2 bg-muted rounded">
+                      <div>
+                        <span className="font-medium">{col.name}</span>
+                        <Badge variant="outline" className="ml-2 text-xs">{col.type}</Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
+            <Button onClick={updateTable}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Field Dialog */}
+      <Dialog open={isFieldDialogOpen} onOpenChange={setIsFieldDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Field</DialogTitle>
+            <DialogDescription>
+              Add a new field to your table.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Field Name</Label>
+              <Input
+                placeholder="e.g., Email Address"
+                value={newField.name || ""}
+                onChange={(e) => setNewField({...newField, name: e.target.value})}
+              />
+            </div>
+            <div>
+              <Label>Field Type</Label>
+              <Select 
+                value={newField.type} 
+                onValueChange={(value: any) => setNewField({...newField, type: value})}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="text">Text</SelectItem>
+                  <SelectItem value="number">Number</SelectItem>
+                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="date">Date</SelectItem>
+                  <SelectItem value="select">Select</SelectItem>
+                  <SelectItem value="checkbox">Checkbox</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsFieldDialogOpen(false)}>Cancel</Button>
+            <Button onClick={addField}>Add Field</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -403,9 +538,8 @@ export default function TablesPage() {
             <Button 
               variant="destructive" 
               onClick={() => tableToDelete && deleteTable(tableToDelete)}
-              disabled={isLoading}
             >
-              {isLoading ? "Deleting..." : "Delete Table"}
+              Delete Table
             </Button>
           </DialogFooter>
         </DialogContent>
