@@ -311,8 +311,28 @@ const SettingsPage = () => {
                 <Badge variant="default">Active</Badge>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <Button variant="outline">View Invoices</Button>
-                <Button variant="outline">Update Payment Method</Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    toast({
+                      title: "Invoices",
+                      description: "Viewing invoice history...",
+                    });
+                  }}
+                >
+                  View Invoices
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    toast({
+                      title: "Payment Method",
+                      description: "Update payment method dialog opening...",
+                    });
+                  }}
+                >
+                  Update Payment Method
+                </Button>
               </div>
             </CardContent>
           </Card>

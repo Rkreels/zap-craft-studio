@@ -200,7 +200,16 @@ export default function ConnectedApps() {
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">No connected apps</h3>
               <p className="text-gray-500 mb-4">Connect your first app to get started with automation</p>
-              <Button onClick={() => (document.querySelector('[value="available"]') as HTMLElement)?.click()}>
+              <Button onClick={() => {
+                const availableTab = document.querySelector('[value="available"]') as HTMLElement;
+                if (availableTab) {
+                  availableTab.click();
+                  toast({
+                    title: "Switched to Available Apps",
+                    description: "Browse and connect new apps",
+                  });
+                }
+              }}>
                 Browse Available Apps
               </Button>
             </div>

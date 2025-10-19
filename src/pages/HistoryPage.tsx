@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Search, Filter, RefreshCw, Clock, AlertCircle, CheckCircle } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 // Mock data for task history
 const mockTasks = [
@@ -121,7 +122,16 @@ export default function HistoryPage() {
             </SelectContent>
           </Select>
           
-          <Button variant="outline" size="icon">
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={() => {
+              toast({
+                title: "Refreshing",
+                description: "Task history is being refreshed...",
+              });
+            }}
+          >
             <RefreshCw size={16} />
           </Button>
         </div>
@@ -141,7 +151,16 @@ export default function HistoryPage() {
           </TableHeader>
           <TableBody>
             {filteredTasks.map(task => (
-              <TableRow key={task.id} className="cursor-pointer hover:bg-gray-50">
+              <TableRow 
+                key={task.id} 
+                className="cursor-pointer hover:bg-gray-50"
+                onClick={() => {
+                  toast({
+                    title: "Task Details",
+                    description: `Viewing details for ${task.zapName}`,
+                  });
+                }}
+              >
                 <TableCell>
                   {task.status === "success" ? (
                     <Badge className="bg-green-100 text-green-700 border border-green-200">

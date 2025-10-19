@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
 
 export const Header = () => {
   const [query, setQuery] = useState("");
@@ -31,7 +32,15 @@ export const Header = () => {
             className="pl-9 pr-4 py-1.5 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           />
         </div>
-        <button className="text-gray-700 hover:text-gray-900 flex items-center gap-1">
+        <button 
+          onClick={() => {
+            toast({
+              title: "Help Center",
+              description: "Visit help.zapier.com for documentation and support.",
+            });
+          }}
+          className="text-gray-700 hover:text-gray-900 flex items-center gap-1"
+        >
           <HelpCircle size={18} />
           <span className="hidden md:inline">Help</span>
         </button>
@@ -80,7 +89,15 @@ export const Header = () => {
               </div>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="justify-center text-purple-600 cursor-pointer">
+            <DropdownMenuItem 
+              className="justify-center text-purple-600 cursor-pointer"
+              onClick={() => {
+                toast({
+                  title: "Notifications",
+                  description: "All notifications have been loaded.",
+                });
+              }}
+            >
               View all notifications
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -102,11 +119,27 @@ export const Header = () => {
               <p className="text-sm text-gray-500">{user?.email || 'john.doe@example.com'}</p>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem 
+              className="cursor-pointer"
+              onClick={() => {
+                toast({
+                  title: "Profile",
+                  description: "Profile page coming soon!",
+                });
+              }}
+            >
               <User size={16} className="mr-2" />
               <span>Profile</span>
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem 
+              className="cursor-pointer"
+              onClick={() => {
+                toast({
+                  title: "Notifications",
+                  description: "Notification settings available in Settings.",
+                });
+              }}
+            >
               <Bell size={16} className="mr-2" />
               <span>Notifications</span>
             </DropdownMenuItem>
