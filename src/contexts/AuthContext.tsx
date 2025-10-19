@@ -37,103 +37,31 @@ interface AuthProviderProps {
 
 // Export the AuthProvider as a named function component
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // Auto-login with a default user - no authentication required
+  const [user] = useState<User>({
+    id: '1',
+    email: 'user@zapier.com',
+    name: 'Zapier User',
+    avatarInitials: 'ZU',
+    plan: 'free',
+  });
+  const [isLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Initialize loading state
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
-
-  // Login function
+  // Dummy login function - not used
   const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      // Mock login - in a real app, this would call an API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      if (email === 'user@example.com' && password === 'password') {
-        const userData: User = {
-          id: '1',
-          email: email,
-          name: 'John Doe',
-          avatarInitials: 'JD',
-          plan: 'free',
-        };
-        
-        setUser(userData);
-        
-        const from = (location.state as any)?.from || '/';
-        navigate(from);
-        
-        toast({
-          title: 'Login successful',
-          description: 'Welcome back to Zapier!',
-        });
-      } else {
-        toast({
-          title: 'Login failed',
-          description: 'Invalid email or password',
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      toast({
-        title: 'Login failed',
-        description: 'An error occurred during login',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    console.log('Login not required', email, password);
   };
 
-  // Sign up function
+  // Dummy signup function - not used
   const signUp = async (name: string, email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      // Mock signup - in a real app, this would call an API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const userData: User = {
-        id: `${Date.now()}`,
-        email: email,
-        name: name,
-        avatarInitials: name.split(' ').map(n => n[0]).join('').toUpperCase(),
-        plan: 'free',
-      };
-      
-      setUser(userData);
-      navigate('/');
-      
-      toast({
-        title: 'Account created',
-        description: 'Welcome to Zapier!',
-      });
-    } catch (error) {
-      console.error('Signup error:', error);
-      toast({
-        title: 'Signup failed',
-        description: 'An error occurred during signup',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    console.log('Signup not required', name, email, password);
   };
 
-  // Logout function
+  // Dummy logout function - not used
   const logout = () => {
-    setUser(null);
-    navigate('/login');
-    
-    toast({
-      title: 'Logged out',
-      description: 'You have been successfully logged out',
-    });
+    console.log('Logout not required');
   };
 
   return (

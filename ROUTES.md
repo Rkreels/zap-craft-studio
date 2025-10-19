@@ -1,10 +1,5 @@
 # Complete URL Routes List
 
-## Authentication Routes
-- `/login` - Login page
-- `/signup` - Sign up page
-- `/forgot-password` - Password recovery page
-
 ## Main Dashboard Routes
 - `/` - Main dashboard (home)
 - `/advanced` - Advanced analytics dashboard
@@ -64,10 +59,9 @@
 
 ---
 
-**Total Routes: 34**
+**Total Routes: 31**
 
 ### Route Categories:
-- **Authentication:** 3 routes
 - **Main Features:** 8 routes
 - **Integrations:** 3 routes
 - **Templates:** 2 routes
@@ -78,8 +72,8 @@
 - **Error Handling:** 1 route
 - **External:** 1 link
 
-### Protected Routes (require authentication):
-All routes except `/login`, `/signup`, and `/forgot-password` are protected and require user authentication.
+### Public Routes:
+All routes are publicly accessible without authentication.
 
 ### Dynamic Routes:
 - `/templates/:id` - Template ID is a dynamic parameter

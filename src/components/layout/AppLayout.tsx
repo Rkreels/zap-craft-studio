@@ -15,24 +15,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const location = useLocation();
   const isZapCreator = location.pathname.includes("/zaps/create");
-  const { isAuthenticated, isLoading } = useAuth();
-
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="flex flex-col items-center">
-          <Loader2 className="h-12 w-12 animate-spin text-purple-600" />
-          <p className="mt-4 text-gray-600">Loading your workspace...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Redirect if not authenticated
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location.pathname }} />;
-  }
 
   return (
     <div className="flex h-screen w-full bg-gray-50 overflow-hidden">
