@@ -20,36 +20,26 @@ interface CanvasProject {
 
 export default function CanvasPage() {
   const [projects, setProjects] = useState<CanvasProject[]>([
-    {
-      id: "1",
-      name: "Customer Onboarding Flow",
-      description: "End-to-end customer onboarding process",
-      type: "flowchart",
-      elements: 12,
-      collaborators: 3,
-      lastModified: "2025-01-19T10:30:00Z",
-      thumbnail: "🔄"
-    },
-    {
-      id: "2",
-      name: "System Architecture",
-      description: "Complete system architecture diagram",
-      type: "diagram",
-      elements: 24,
-      collaborators: 5,
-      lastModified: "2025-01-18T14:20:00Z",
-      thumbnail: "🏗️"
-    },
-    {
-      id: "3",
-      name: "Project Planning",
-      description: "Project tasks and dependencies mindmap",
-      type: "mindmap",
-      elements: 18,
-      collaborators: 2,
-      lastModified: "2025-01-17T09:15:00Z",
-      thumbnail: "🧠"
-    }
+    { id: "1", name: "Customer Onboarding Flow", description: "End-to-end customer onboarding process", type: "flowchart", elements: 12, collaborators: 3, lastModified: "2026-02-17T10:30:00Z", thumbnail: "🔄" },
+    { id: "2", name: "System Architecture", description: "Complete system architecture diagram", type: "diagram", elements: 24, collaborators: 5, lastModified: "2026-02-16T14:20:00Z", thumbnail: "🏗️" },
+    { id: "3", name: "Project Planning", description: "Project tasks and dependencies mindmap", type: "mindmap", elements: 18, collaborators: 2, lastModified: "2026-02-15T09:15:00Z", thumbnail: "🧠" },
+    { id: "4", name: "Sales Pipeline Process", description: "Lead to customer conversion flow", type: "bpmn", elements: 15, collaborators: 4, lastModified: "2026-02-14T11:00:00Z", thumbnail: "💰" },
+    { id: "5", name: "CI/CD Pipeline", description: "Continuous integration deployment flow", type: "flowchart", elements: 20, collaborators: 6, lastModified: "2026-02-13T16:45:00Z", thumbnail: "🚀" },
+    { id: "6", name: "User Journey Map", description: "Complete user experience journey", type: "flowchart", elements: 28, collaborators: 3, lastModified: "2026-02-12T08:30:00Z", thumbnail: "🗺️" },
+    { id: "7", name: "Database Schema", description: "Entity relationship diagram", type: "diagram", elements: 35, collaborators: 2, lastModified: "2026-02-11T13:00:00Z", thumbnail: "🗄️" },
+    { id: "8", name: "Marketing Funnel", description: "Awareness to conversion funnel", type: "flowchart", elements: 10, collaborators: 3, lastModified: "2026-02-10T15:20:00Z", thumbnail: "📊" },
+    { id: "9", name: "API Architecture", description: "REST API endpoint structure", type: "diagram", elements: 22, collaborators: 4, lastModified: "2026-02-09T10:00:00Z", thumbnail: "🔗" },
+    { id: "10", name: "Sprint Retrospective", description: "Team retrospective mindmap", type: "mindmap", elements: 14, collaborators: 8, lastModified: "2026-02-08T14:30:00Z", thumbnail: "💭" },
+    { id: "11", name: "Incident Response Plan", description: "Emergency response workflow", type: "bpmn", elements: 16, collaborators: 5, lastModified: "2026-02-07T09:00:00Z", thumbnail: "🚨" },
+    { id: "12", name: "Data Pipeline", description: "ETL data processing flow", type: "flowchart", elements: 19, collaborators: 3, lastModified: "2026-02-06T11:45:00Z", thumbnail: "📦" },
+    { id: "13", name: "Product Roadmap", description: "Feature planning mindmap", type: "mindmap", elements: 32, collaborators: 6, lastModified: "2026-02-05T16:00:00Z", thumbnail: "🎯" },
+    { id: "14", name: "Support Escalation", description: "Ticket escalation workflow", type: "bpmn", elements: 11, collaborators: 4, lastModified: "2026-02-04T08:15:00Z", thumbnail: "📞" },
+    { id: "15", name: "Microservices Map", description: "Service communication diagram", type: "diagram", elements: 27, collaborators: 5, lastModified: "2026-02-03T13:30:00Z", thumbnail: "🔧" },
+    { id: "16", name: "Employee Onboarding", description: "New hire onboarding checklist flow", type: "flowchart", elements: 13, collaborators: 2, lastModified: "2026-02-02T10:00:00Z", thumbnail: "👋" },
+    { id: "17", name: "Content Strategy", description: "Content creation workflow", type: "mindmap", elements: 21, collaborators: 3, lastModified: "2026-02-01T15:45:00Z", thumbnail: "✍️" },
+    { id: "18", name: "Invoice Processing", description: "Accounts payable BPMN flow", type: "bpmn", elements: 14, collaborators: 2, lastModified: "2026-01-31T09:30:00Z", thumbnail: "💵" },
+    { id: "19", name: "Network Topology", description: "Infrastructure network diagram", type: "diagram", elements: 30, collaborators: 4, lastModified: "2026-01-30T14:00:00Z", thumbnail: "🌐" },
+    { id: "20", name: "Feature Brainstorm", description: "Q2 feature ideation session", type: "mindmap", elements: 25, collaborators: 7, lastModified: "2026-01-29T11:15:00Z", thumbnail: "💡" },
   ]);
 
   const [searchQuery, setSearchQuery] = useState("");

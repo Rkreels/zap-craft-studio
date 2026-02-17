@@ -52,7 +52,7 @@ export default function Dashboard() {
       title: "Canvas",
       description: "Process visualization",
       icon: PenTool,
-      path: "/webhooks", // Changed from "/canvas/create" to "/webhooks" as a workaround
+      path: "/canvas",
     },
   ];
 
