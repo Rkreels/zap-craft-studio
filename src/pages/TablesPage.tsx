@@ -50,54 +50,26 @@ interface TableRecord {
 }
 
 const initialTables: TableRecord[] = [
-  {
-    id: "table-1",
-    name: "Customer Contacts",
-    description: "Centralized customer contact information",
-    createdAt: "2025-01-15T14:30:00Z",
-    updatedAt: "2025-01-19T09:15:00Z",
-    recordCount: 342,
-    status: "active",
-    automations: 3,
-    columns: [
-      { id: "col-1", name: "Name", type: "text" },
-      { id: "col-2", name: "Email", type: "email" },
-      { id: "col-3", name: "Phone", type: "text" },
-      { id: "col-4", name: "Status", type: "select", options: ["Lead", "Customer", "Inactive"] },
-    ]
-  },
-  {
-    id: "table-2",
-    name: "Product Inventory",
-    description: "Track all products and stock levels",
-    createdAt: "2025-01-10T11:20:00Z",
-    updatedAt: "2025-01-18T16:45:00Z",
-    recordCount: 156,
-    status: "active",
-    automations: 2,
-    columns: [
-      { id: "col-1", name: "Product Name", type: "text" },
-      { id: "col-2", name: "SKU", type: "text" },
-      { id: "col-3", name: "Stock", type: "number" },
-      { id: "col-4", name: "Price", type: "number" },
-    ]
-  },
-  {
-    id: "table-3",
-    name: "Project Tasks",
-    description: "Manage all project tasks and deadlines",
-    createdAt: "2025-01-12T08:45:00Z",
-    updatedAt: "2025-01-19T13:30:00Z",
-    recordCount: 89,
-    status: "draft",
-    automations: 1,
-    columns: [
-      { id: "col-1", name: "Task", type: "text" },
-      { id: "col-2", name: "Assignee", type: "text" },
-      { id: "col-3", name: "Due Date", type: "date" },
-      { id: "col-4", name: "Completed", type: "checkbox" },
-    ]
-  }
+  { id: "t-1", name: "Customer Contacts", description: "Centralized customer contact information", createdAt: "2025-10-01T08:00:00Z", updatedAt: "2026-02-17T06:00:00Z", recordCount: 1247, status: "active", automations: 3, columns: [{id:"c1",name:"Name",type:"text"},{id:"c2",name:"Email",type:"email"},{id:"c3",name:"Phone",type:"text"},{id:"c4",name:"Status",type:"select",options:["Lead","Customer","Churned"]}] },
+  { id: "t-2", name: "Product Inventory", description: "Product catalog and stock levels", createdAt: "2025-09-15T10:00:00Z", updatedAt: "2026-02-16T14:00:00Z", recordCount: 584, status: "active", automations: 2, columns: [{id:"c1",name:"Product",type:"text"},{id:"c2",name:"SKU",type:"text"},{id:"c3",name:"Price",type:"number"},{id:"c4",name:"Stock",type:"number"}] },
+  { id: "t-3", name: "Project Tasks", description: "Task tracking for active projects", createdAt: "2025-11-20T09:00:00Z", updatedAt: "2026-02-17T05:30:00Z", recordCount: 342, status: "active", automations: 4, columns: [{id:"c1",name:"Task",type:"text"},{id:"c2",name:"Assignee",type:"text"},{id:"c3",name:"Due Date",type:"date"},{id:"c4",name:"Completed",type:"checkbox"}] },
+  { id: "t-4", name: "Sales Pipeline", description: "Track deals from lead to close", createdAt: "2025-08-10T12:00:00Z", updatedAt: "2026-02-16T16:00:00Z", recordCount: 89, status: "active", automations: 5, columns: [{id:"c1",name:"Deal",type:"text"},{id:"c2",name:"Value",type:"number"},{id:"c3",name:"Stage",type:"select",options:["Prospecting","Proposal","Negotiation","Won","Lost"]}] },
+  { id: "t-5", name: "Employee Directory", description: "Company employee information", createdAt: "2025-07-05T08:00:00Z", updatedAt: "2026-02-15T11:00:00Z", recordCount: 156, status: "active", automations: 1, columns: [{id:"c1",name:"Name",type:"text"},{id:"c2",name:"Email",type:"email"},{id:"c3",name:"Department",type:"text"},{id:"c4",name:"Start Date",type:"date"}] },
+  { id: "t-6", name: "Marketing Campaigns", description: "Track all marketing initiatives", createdAt: "2025-12-01T10:00:00Z", updatedAt: "2026-02-14T13:00:00Z", recordCount: 67, status: "active", automations: 2, columns: [{id:"c1",name:"Campaign",type:"text"},{id:"c2",name:"Channel",type:"text"},{id:"c3",name:"Budget",type:"number"}] },
+  { id: "t-7", name: "Support Tickets", description: "Customer support ticket tracking", createdAt: "2025-06-20T09:00:00Z", updatedAt: "2026-02-17T07:00:00Z", recordCount: 2340, status: "active", automations: 6, columns: [{id:"c1",name:"Subject",type:"text"},{id:"c2",name:"Customer",type:"text"},{id:"c3",name:"Priority",type:"select",options:["Low","Medium","High","Urgent"]}] },
+  { id: "t-8", name: "Invoice Records", description: "All client invoices and payments", createdAt: "2025-10-12T11:00:00Z", updatedAt: "2026-02-16T09:00:00Z", recordCount: 478, status: "active", automations: 3, columns: [{id:"c1",name:"Invoice #",type:"text"},{id:"c2",name:"Client",type:"text"},{id:"c3",name:"Amount",type:"number"},{id:"c4",name:"Paid",type:"checkbox"}] },
+  { id: "t-9", name: "Event Registrations", description: "Event attendee management", createdAt: "2025-11-08T14:00:00Z", updatedAt: "2026-02-15T16:00:00Z", recordCount: 234, status: "active", automations: 2, columns: [{id:"c1",name:"Attendee",type:"text"},{id:"c2",name:"Email",type:"email"},{id:"c3",name:"Ticket",type:"select",options:["Free","Standard","VIP"]}] },
+  { id: "t-10", name: "Content Calendar", description: "Content publishing schedule", createdAt: "2025-09-25T10:00:00Z", updatedAt: "2026-02-17T04:00:00Z", recordCount: 145, status: "active", automations: 1, columns: [{id:"c1",name:"Title",type:"text"},{id:"c2",name:"Author",type:"text"},{id:"c3",name:"Publish Date",type:"date"}] },
+  { id: "t-11", name: "Vendor Contacts", description: "Supplier and vendor information", createdAt: "2025-12-15T08:00:00Z", updatedAt: "2026-02-10T12:00:00Z", recordCount: 78, status: "draft", automations: 0, columns: [{id:"c1",name:"Vendor",type:"text"},{id:"c2",name:"Contact",type:"text"},{id:"c3",name:"Email",type:"email"}] },
+  { id: "t-12", name: "Bug Tracker", description: "Software bug reports and fixes", createdAt: "2025-08-30T09:00:00Z", updatedAt: "2026-02-16T18:00:00Z", recordCount: 567, status: "active", automations: 3, columns: [{id:"c1",name:"Bug",type:"text"},{id:"c2",name:"Severity",type:"select",options:["Low","Medium","High","Critical"]},{id:"c3",name:"Fixed",type:"checkbox"}] },
+  { id: "t-13", name: "Expense Reports", description: "Employee expense tracking", createdAt: "2025-07-18T11:00:00Z", updatedAt: "2026-02-15T15:00:00Z", recordCount: 890, status: "active", automations: 2, columns: [{id:"c1",name:"Employee",type:"text"},{id:"c2",name:"Amount",type:"number"},{id:"c3",name:"Category",type:"text"},{id:"c4",name:"Approved",type:"checkbox"}] },
+  { id: "t-14", name: "Newsletter Subscribers", description: "Email newsletter subscriber list", createdAt: "2025-06-01T08:00:00Z", updatedAt: "2026-02-17T03:00:00Z", recordCount: 4567, status: "active", automations: 4, columns: [{id:"c1",name:"Name",type:"text"},{id:"c2",name:"Email",type:"email"},{id:"c3",name:"Active",type:"checkbox"}] },
+  { id: "t-15", name: "Meeting Notes", description: "Notes from meetings", createdAt: "2025-10-08T13:00:00Z", updatedAt: "2026-02-14T10:00:00Z", recordCount: 234, status: "active", automations: 1, columns: [{id:"c1",name:"Meeting",type:"text"},{id:"c2",name:"Date",type:"date"},{id:"c3",name:"Notes",type:"text"}] },
+  { id: "t-16", name: "Feedback Responses", description: "Customer feedback and surveys", createdAt: "2025-09-12T09:00:00Z", updatedAt: "2026-02-16T20:00:00Z", recordCount: 1890, status: "active", automations: 2, columns: [{id:"c1",name:"Respondent",type:"text"},{id:"c2",name:"Rating",type:"number"},{id:"c3",name:"Comment",type:"text"}] },
+  { id: "t-17", name: "Shipping Tracking", description: "Order shipping status", createdAt: "2025-08-05T10:00:00Z", updatedAt: "2026-02-17T06:30:00Z", recordCount: 3456, status: "active", automations: 5, columns: [{id:"c1",name:"Order #",type:"text"},{id:"c2",name:"Customer",type:"text"},{id:"c3",name:"Status",type:"select",options:["Processing","Shipped","Delivered"]}] },
+  { id: "t-18", name: "Interview Schedule", description: "Hiring interview management", createdAt: "2025-12-20T14:00:00Z", updatedAt: "2026-02-13T11:00:00Z", recordCount: 45, status: "draft", automations: 1, columns: [{id:"c1",name:"Candidate",type:"text"},{id:"c2",name:"Position",type:"text"},{id:"c3",name:"Date",type:"date"}] },
+  { id: "t-19", name: "API Endpoints", description: "API documentation and testing", createdAt: "2025-11-01T08:00:00Z", updatedAt: "2026-02-12T15:00:00Z", recordCount: 124, status: "active", automations: 0, columns: [{id:"c1",name:"Endpoint",type:"text"},{id:"c2",name:"Method",type:"select",options:["GET","POST","PUT","DELETE"]},{id:"c3",name:"Auth Required",type:"checkbox"}] },
+  { id: "t-20", name: "Social Media Posts", description: "Scheduled social content", createdAt: "2025-10-18T10:00:00Z", updatedAt: "2026-02-16T22:00:00Z", recordCount: 312, status: "active", automations: 3, columns: [{id:"c1",name:"Content",type:"text"},{id:"c2",name:"Platform",type:"select",options:["Twitter","LinkedIn","Instagram"]},{id:"c3",name:"Published",type:"checkbox"}] },
 ];
 
 export default function TablesPage() {

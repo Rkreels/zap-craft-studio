@@ -27,23 +27,9 @@ export const useRealTimeUpdates = ({
     // Set up interval for periodic updates
     intervalRef.current = setInterval(updateQueries, interval);
 
-    // Listen for storage changes for cross-tab synchronization
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key?.startsWith('zapier_clone_')) {
-        updateQueries();
-      }
-    };
-
-    if (typeof window !== 'undefined') {
-      window.addEventListener('storage', handleStorageChange);
-    }
-
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
-      }
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('storage', handleStorageChange);
       }
     };
   }, [queryKeys, interval, enabled, queryClient]);

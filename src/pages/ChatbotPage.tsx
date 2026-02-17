@@ -56,61 +56,26 @@ interface Chatbot {
 
 // Mock data for chatbots
 const initialChatbots: Chatbot[] = [
-  {
-    id: "chatbot-1",
-    name: "Customer Support Bot",
-    description: "Handles common customer queries and support requests",
-    createdAt: "2025-05-01T14:30:00Z",
-    updatedAt: "2025-05-14T09:15:00Z",
-    status: "active",
-    intents: [
-      {
-        id: "intent-1",
-        name: "greeting",
-        phrases: ["hello", "hi", "hey", "good morning", "good afternoon"]
-      },
-      {
-        id: "intent-2",
-        name: "help",
-        phrases: ["help", "I need help", "support", "assist me", "can you help"]
-      }
-    ],
-    responses: {
-      "greeting": {
-        id: "response-1",
-        text: "Hello! How can I help you today?",
-        buttons: [
-          { label: "Ask a Question", action: "help" },
-          { label: "Report an Issue", action: "issue" }
-        ]
-      },
-      "help": {
-        id: "response-2",
-        text: "I'd be happy to help! Please tell me what you're looking for assistance with."
-      }
-    }
-  },
-  {
-    id: "chatbot-2",
-    name: "Sales Assistant",
-    description: "Helps customers with product information and purchasing",
-    createdAt: "2025-05-05T10:15:00Z",
-    updatedAt: "2025-05-12T16:45:00Z",
-    status: "draft",
-    intents: [
-      {
-        id: "intent-3",
-        name: "product_info",
-        phrases: ["tell me about", "product details", "specifications", "features"]
-      }
-    ],
-    responses: {
-      "product_info": {
-        id: "response-3",
-        text: "Our products are designed with quality and performance in mind. Would you like to know about a specific product?"
-      }
-    }
-  }
+  { id: "chatbot-1", name: "Customer Support Bot", description: "Handles common customer queries and support requests", createdAt: "2025-05-01T14:30:00Z", updatedAt: "2026-02-17T09:15:00Z", status: "active", intents: [{ id: "i1", name: "greeting", phrases: ["hello","hi","hey","good morning"] },{ id: "i2", name: "help", phrases: ["help","support","assist me"] }], responses: { greeting: { id: "r1", text: "Hello! How can I help you today?", buttons: [{ label: "Ask a Question", action: "help" }] }, help: { id: "r2", text: "I'd be happy to help! What do you need assistance with?" } } },
+  { id: "chatbot-2", name: "Sales Assistant", description: "Helps customers with product info and purchasing", createdAt: "2025-06-05T10:15:00Z", updatedAt: "2026-02-16T16:45:00Z", status: "active", intents: [{ id: "i3", name: "pricing", phrases: ["price","cost","how much"] }], responses: { pricing: { id: "r3", text: "Our plans start at $29/mo. Want to see a comparison?" } } },
+  { id: "chatbot-3", name: "Onboarding Guide", description: "Walks new users through product setup", createdAt: "2025-07-10T08:00:00Z", updatedAt: "2026-02-15T11:00:00Z", status: "active", intents: [{ id: "i4", name: "setup", phrases: ["get started","setup","configure"] }], responses: { setup: { id: "r4", text: "Let's get you set up! First, connect your email account." } } },
+  { id: "chatbot-4", name: "FAQ Bot", description: "Answers frequently asked questions", createdAt: "2025-08-15T09:00:00Z", updatedAt: "2026-02-14T10:00:00Z", status: "active", intents: [{ id: "i5", name: "faq", phrases: ["question","faq","how do I"] }], responses: { faq: { id: "r5", text: "Here are our most common questions. What topic interests you?" } } },
+  { id: "chatbot-5", name: "Appointment Scheduler", description: "Books and manages appointments", createdAt: "2025-09-01T11:00:00Z", updatedAt: "2026-02-13T14:00:00Z", status: "draft", intents: [{ id: "i6", name: "book", phrases: ["book","schedule","appointment"] }], responses: { book: { id: "r6", text: "I can help you schedule an appointment. What day works best?" } } },
+  { id: "chatbot-6", name: "Order Tracker", description: "Provides order status updates", createdAt: "2025-10-05T13:00:00Z", updatedAt: "2026-02-12T09:00:00Z", status: "active", intents: [{ id: "i7", name: "track", phrases: ["where is my order","track","shipping"] }], responses: { track: { id: "r7", text: "Please provide your order number and I'll look it up." } } },
+  { id: "chatbot-7", name: "Feedback Collector", description: "Collects customer feedback and ratings", createdAt: "2025-11-12T08:00:00Z", updatedAt: "2026-02-11T15:00:00Z", status: "active", intents: [{ id: "i8", name: "feedback", phrases: ["feedback","review","rate"] }], responses: { feedback: { id: "r8", text: "We'd love your feedback! On a scale of 1-10, how was your experience?" } } },
+  { id: "chatbot-8", name: "Lead Qualifier", description: "Qualifies leads with targeted questions", createdAt: "2025-12-01T10:00:00Z", updatedAt: "2026-02-10T12:00:00Z", status: "active", intents: [{ id: "i9", name: "interest", phrases: ["interested","learn more","demo"] }], responses: { interest: { id: "r9", text: "Great! Let me ask a few questions to connect you with the right team." } } },
+  { id: "chatbot-9", name: "HR Assistant", description: "Answers employee HR questions", createdAt: "2025-06-20T14:00:00Z", updatedAt: "2026-02-09T08:00:00Z", status: "draft", intents: [{ id: "i10", name: "policy", phrases: ["policy","vacation","benefits"] }], responses: { policy: { id: "r10", text: "I can help with HR policies. What would you like to know about?" } } },
+  { id: "chatbot-10", name: "Technical Support", description: "Troubleshoots technical issues", createdAt: "2025-07-25T09:00:00Z", updatedAt: "2026-02-17T06:00:00Z", status: "active", intents: [{ id: "i11", name: "issue", phrases: ["error","broken","not working","bug"] }], responses: { issue: { id: "r11", text: "I'm sorry you're having trouble. Can you describe the issue?" } } },
+  { id: "chatbot-11", name: "Event Registration Bot", description: "Handles event signups", createdAt: "2025-08-30T11:00:00Z", updatedAt: "2026-02-08T13:00:00Z", status: "active", intents: [{ id: "i12", name: "register", phrases: ["register","sign up","attend"] }], responses: { register: { id: "r12", text: "I'll help you register! Which event are you interested in?" } } },
+  { id: "chatbot-12", name: "Product Recommender", description: "Suggests products based on preferences", createdAt: "2025-09-15T08:00:00Z", updatedAt: "2026-02-07T10:00:00Z", status: "active", intents: [{ id: "i13", name: "recommend", phrases: ["suggest","recommend","what should I"] }], responses: { recommend: { id: "r13", text: "Based on your preferences, I'd recommend these top picks." } } },
+  { id: "chatbot-13", name: "Billing Assistant", description: "Handles billing inquiries", createdAt: "2025-10-20T12:00:00Z", updatedAt: "2026-02-06T14:00:00Z", status: "active", intents: [{ id: "i14", name: "billing", phrases: ["invoice","bill","payment","charge"] }], responses: { billing: { id: "r14", text: "I can help with billing. What's your account email?" } } },
+  { id: "chatbot-14", name: "Knowledge Base Bot", description: "Searches documentation for answers", createdAt: "2025-11-25T09:00:00Z", updatedAt: "2026-02-05T11:00:00Z", status: "active", intents: [{ id: "i15", name: "docs", phrases: ["documentation","how to","guide","tutorial"] }], responses: { docs: { id: "r15", text: "Let me search our knowledge base for you." } } },
+  { id: "chatbot-15", name: "Compliance Bot", description: "Answers compliance and policy questions", createdAt: "2025-12-10T10:00:00Z", updatedAt: "2026-02-04T08:00:00Z", status: "draft", intents: [{ id: "i16", name: "compliance", phrases: ["compliance","gdpr","regulation"] }], responses: { compliance: { id: "r16", text: "I can provide information on our compliance policies." } } },
+  { id: "chatbot-16", name: "Survey Bot", description: "Conducts automated surveys", createdAt: "2025-05-18T14:00:00Z", updatedAt: "2026-02-03T16:00:00Z", status: "active", intents: [{ id: "i17", name: "survey", phrases: ["survey","opinion","rate us"] }], responses: { survey: { id: "r17", text: "We'd love your input! Let's start with a quick 3-question survey." } } },
+  { id: "chatbot-17", name: "Shipping Bot", description: "Provides shipping rates and options", createdAt: "2025-06-28T08:00:00Z", updatedAt: "2026-02-02T09:00:00Z", status: "active", intents: [{ id: "i18", name: "shipping", phrases: ["shipping","delivery","ship to"] }], responses: { shipping: { id: "r18", text: "We offer standard (5-7 days) and express (1-2 days) shipping." } } },
+  { id: "chatbot-18", name: "Returns Handler", description: "Processes return and refund requests", createdAt: "2025-07-30T11:00:00Z", updatedAt: "2026-02-01T12:00:00Z", status: "active", intents: [{ id: "i19", name: "return", phrases: ["return","refund","exchange"] }], responses: { return: { id: "r19", text: "I can help with your return. Please provide your order number." } } },
+  { id: "chatbot-19", name: "Loyalty Program Bot", description: "Manages loyalty points and rewards", createdAt: "2025-08-22T10:00:00Z", updatedAt: "2026-01-31T14:00:00Z", status: "active", intents: [{ id: "i20", name: "points", phrases: ["points","rewards","loyalty","redeem"] }], responses: { points: { id: "r20", text: "You have 2,450 loyalty points. Would you like to redeem them?" } } },
+  { id: "chatbot-20", name: "Notification Bot", description: "Sends automated alerts and notifications", createdAt: "2025-09-25T13:00:00Z", updatedAt: "2026-01-30T08:00:00Z", status: "draft", intents: [{ id: "i21", name: "notify", phrases: ["notify","alert","remind"] }], responses: { notify: { id: "r21", text: "I'll set up notifications for you. What events should I watch?" } } },
 ];
 
 // Mock chat messages for testing
