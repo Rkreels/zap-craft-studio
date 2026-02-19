@@ -224,8 +224,8 @@ export const VoiceTrainingSection: React.FC<VoiceTrainingSectionProps> = ({ onCo
       <Separator />
       
       {!isEnabled && (
-        <div className="p-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-900/50 rounded-lg text-center">
-          <Volume2 className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
+        <div className="p-6 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-900/50 rounded-lg text-center">
+          <Volume2 className="h-8 w-8 text-sky-500 mx-auto mb-2" />
           <p>Voice assistant is currently disabled. Enable it to start training.</p>
         </div>
       )}

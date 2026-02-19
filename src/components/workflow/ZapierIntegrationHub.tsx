@@ -20,7 +20,7 @@ const mockApps = [
   { id: "trello", name: "Trello", icon: "T", color: "bg-blue-500", description: "Project management", category: "Productivity", rating: 4.5, connections: 950000, verified: true },
   { id: "twitter", name: "Twitter", icon: "Tw", color: "bg-blue-400", description: "Social media platform", category: "Social Media", rating: 4.3, connections: 750000, verified: true },
   { id: "dropbox", name: "Dropbox", icon: "D", color: "bg-blue-600", description: "Cloud storage", category: "Storage", rating: 4.4, connections: 1200000, verified: true },
-  { id: "mailchimp", name: "Mailchimp", icon: "M", color: "bg-yellow-500", description: "Email marketing", category: "Marketing", rating: 4.6, connections: 680000, verified: true },
+  { id: "mailchimp", name: "Mailchimp", icon: "M", color: "bg-orange-500", description: "Email marketing", category: "Marketing", rating: 4.6, connections: 680000, verified: true },
   { id: "stripe", name: "Stripe", icon: "S", color: "bg-indigo-500", description: "Payment processing", category: "Finance", rating: 4.8, connections: 450000, verified: true },
   { id: "salesforce", name: "Salesforce", icon: "SF", color: "bg-blue-700", description: "CRM platform", category: "CRM", rating: 4.5, connections: 890000, verified: true },
   { id: "asana", name: "Asana", icon: "A", color: "bg-pink-500", description: "Task management", category: "Productivity", rating: 4.4, connections: 720000, verified: true },

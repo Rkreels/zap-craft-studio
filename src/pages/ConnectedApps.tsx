@@ -4,15 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Search, 
-  Settings, 
-  Check, 
-  AlertCircle, 
+import {
+  Search,
+  Settings,
+  Check,
+  AlertCircle,
   Plus,
   RefreshCw,
   Unlink,
-  Clock
+  Clock,
+  Zap,
+  Activity
 } from "lucide-react";
 import { useIntegrationData } from "@/hooks/useIntegrationData";
 import { mockApps } from "@/data/mockApps";
@@ -21,172 +23,134 @@ import { cn } from "@/lib/utils";
 
 export default function ConnectedApps() {
   const [searchQuery, setSearchQuery] = useState("");
-  const { 
-    integrations, 
-    connectIntegration, 
-    disconnectIntegration, 
-    isConnecting, 
-    isDisconnecting 
+  const [activeTab, setActiveTab] = useState("connected");
+  const {
+    integrations,
+    connectIntegration,
+    disconnectIntegration,
+    isConnecting,
+    isDisconnecting
   } = useIntegrationData();
 
-  const connectedApps = integrations.filter(integration => integration.status === 'connected');
-  const disconnectedApps = integrations.filter(integration => integration.status === 'disconnected');
-  const availableApps = mockApps.filter(app => 
-    !integrations.find(integration => integration.id === app.id)
-  );
+  const connectedApps = integrations.filter(i => i.status === "connected");
+  const disconnectedApps = integrations.filter(i => i.status === "disconnected");
+  const availableApps = mockApps.filter(app => !integrations.find(i => i.id === app.id));
 
-  const filteredConnectedApps = connectedApps.filter(app =>
-    app.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const filteredAvailableApps = availableApps.filter(app =>
-    app.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredConnected = connectedApps.filter(a => a.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredAvailable = availableApps.filter(a => a.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredDisconnected = disconnectedApps.filter(a => a.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const handleConnect = async (appId: string) => {
     const app = mockApps.find(a => a.id === appId);
     if (!app) return;
-
     try {
-      await connectIntegration(appId, {
-        name: app.name,
-        type: app.category?.toLowerCase() || 'utility'
-      });
-      
-      toast({
-        title: "App Connected",
-        description: `${app.name} has been connected successfully.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Connection Failed",
-        description: `Failed to connect ${app.name}.`,
-        variant: "destructive",
-      });
+      await connectIntegration(appId, { name: app.name, type: app.category?.toLowerCase() || "utility" });
+      toast({ title: "App Connected", description: `${app.name} connected successfully.` });
+    } catch {
+      toast({ title: "Connection Failed", description: `Failed to connect ${app.name}.`, variant: "destructive" });
     }
   };
 
   const handleDisconnect = async (appId: string) => {
     const app = integrations.find(a => a.id === appId);
     if (!app) return;
-
     try {
       await disconnectIntegration(appId);
-      
-      toast({
-        title: "App Disconnected",
-        description: `${app.name} has been disconnected.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Disconnection Failed",
-        description: `Failed to disconnect ${app.name}.`,
-        variant: "destructive",
-      });
+      toast({ title: "App Disconnected", description: `${app.name} disconnected.` });
+    } catch {
+      toast({ title: "Disconnection Failed", description: `Failed to disconnect ${app.name}.`, variant: "destructive" });
     }
   };
 
-  const getAppIcon = (appId: string) => {
-    const mockApp = mockApps.find(app => app.id === appId);
-    return mockApp?.icon || appId.charAt(0).toUpperCase();
+  const handleSettings = (appName: string) => {
+    toast({ title: `${appName} Settings`, description: "Connection settings panel opening…" });
   };
 
-  const getAppColor = (appId: string) => {
-    const mockApp = mockApps.find(app => app.id === appId);
-    return mockApp?.color || "bg-gray-500";
-  };
+  const getAppIcon = (appId: string) => mockApps.find(a => a.id === appId)?.icon || appId.charAt(0).toUpperCase();
+  const getAppColor = (appId: string) => mockApps.find(a => a.id === appId)?.color || "bg-muted";
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Connected Apps</h1>
-        <p className="text-gray-600">
-          Manage your app connections and integrations in one place
-        </p>
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-1">Connected Apps</h1>
+        <p className="text-muted-foreground">Manage your app integrations and connections in one place</p>
       </div>
 
-      <div className="mb-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-          <Input
-            placeholder="Search apps..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 max-w-md"
-          />
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        {[
+          { label: "Connected", value: connectedApps.length, icon: Check, color: "text-emerald-600" },
+          { label: "Available", value: availableApps.length, icon: Plus, color: "text-primary" },
+          { label: "Disconnected", value: disconnectedApps.length, icon: AlertCircle, color: "text-sky-600" },
+          { label: "Total Zaps Running", value: connectedApps.length * 3, icon: Zap, color: "text-secondary" },
+        ].map(stat => (
+          <Card key={stat.label}>
+            <CardContent className="p-4 flex items-center gap-3">
+              <stat.icon size={22} className={stat.color} />
+              <div>
+                <p className="text-xl font-bold">{stat.value}</p>
+                <p className="text-xs text-muted-foreground">{stat.label}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="mb-5">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+          <Input placeholder="Search apps…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
         </div>
       </div>
 
-      <Tabs defaultValue="connected" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="connected" className="gap-2">
-            <Check size={16} />
-            Connected ({connectedApps.length})
+            <Check size={15} /> Connected ({connectedApps.length})
           </TabsTrigger>
           <TabsTrigger value="available" className="gap-2">
-            <Plus size={16} />
-            Available ({availableApps.length})
+            <Plus size={15} /> Available ({availableApps.length})
           </TabsTrigger>
           <TabsTrigger value="disconnected" className="gap-2">
-            <AlertCircle size={16} />
-            Disconnected ({disconnectedApps.length})
+            <AlertCircle size={15} /> Disconnected ({disconnectedApps.length})
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="connected" className="space-y-4">
-          {filteredConnectedApps.length > 0 ? (
+        {/* CONNECTED */}
+        <TabsContent value="connected" className="mt-6">
+          {filteredConnected.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredConnectedApps.map((app) => (
-                <Card key={app.id} className="border-green-200 bg-green-50/50">
+              {filteredConnected.map(app => (
+                <Card key={app.id} className="border-emerald-200 bg-emerald-50/40">
                   <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold", getAppColor(app.id))}>
-                          {getAppIcon(app.id)}
-                        </div>
-                        <div>
-                          <CardTitle className="text-base">{app.name}</CardTitle>
-                          <div className="flex items-center gap-1 mt-1">
-                            <Badge variant="secondary" className="bg-green-100 text-green-700">
-                              <Check size={12} className="mr-1" />
-                              Connected
-                            </Badge>
-                          </div>
-                        </div>
+                    <div className="flex items-center gap-3">
+                      <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm", getAppColor(app.id))}>
+                        {getAppIcon(app.id)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-sm font-semibold">{app.name}</CardTitle>
+                        <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 mt-1 text-xs">
+                          <Check size={10} className="mr-1" /> Connected
+                        </Badge>
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="pt-0">
+                  <CardContent className="pt-0 space-y-3">
                     {app.lastSync && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-                        <Clock size={14} />
-                        Last sync: {new Date(app.lastSync).toLocaleString()}
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Clock size={12} /> Last sync: {new Date(app.lastSync).toLocaleString()}
                       </div>
                     )}
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Activity size={12} /> Active workflows: {(app.id.charCodeAt(0) % 8) + 1}
+                    </div>
                     <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                        onClick={() => {
-                          toast({
-                            title: "Settings",
-                            description: `${app.name} settings will be available soon.`,
-                          });
-                        }}
-                      >
-                        <Settings size={14} className="mr-1" />
-                        Settings
+                      <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => handleSettings(app.name)}>
+                        <Settings size={12} className="mr-1" /> Settings
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDisconnect(app.id)}
-                        disabled={isDisconnecting}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Unlink size={14} className="mr-1" />
-                        Disconnect
+                      <Button variant="outline" size="sm" className="text-destructive hover:text-destructive text-xs"
+                        onClick={() => handleDisconnect(app.id)} disabled={isDisconnecting}>
+                        <Unlink size={12} className="mr-1" /> Disconnect
                       </Button>
                     </div>
                   </CardContent>
@@ -194,64 +158,37 @@ export default function ConnectedApps() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <div className="text-gray-400 mb-4">
-                <Check size={48} className="mx-auto" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No connected apps</h3>
-              <p className="text-gray-500 mb-4">Connect your first app to get started with automation</p>
-              <Button onClick={() => {
-                const availableTab = document.querySelector('[value="available"]') as HTMLElement;
-                if (availableTab) {
-                  availableTab.click();
-                  toast({
-                    title: "Switched to Available Apps",
-                    description: "Browse and connect new apps",
-                  });
-                }
-              }}>
-                Browse Available Apps
-              </Button>
+            <div className="text-center py-16 border rounded-xl bg-muted/20">
+              <Check size={40} className="mx-auto mb-3 text-muted-foreground opacity-40" />
+              <h3 className="font-semibold text-foreground mb-1">No connected apps yet</h3>
+              <p className="text-muted-foreground text-sm mb-4">Connect your first app to start automating workflows</p>
+              <Button onClick={() => setActiveTab("available")}>Browse Available Apps</Button>
             </div>
           )}
         </TabsContent>
 
-        <TabsContent value="available" className="space-y-4">
-          {filteredAvailableApps.length > 0 ? (
+        {/* AVAILABLE */}
+        <TabsContent value="available" className="mt-6">
+          {filteredAvailable.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredAvailableApps.map((app) => (
-                <Card key={app.id} className="hover:shadow-md transition-shadow">
+              {filteredAvailable.map(app => (
+                <Card key={app.id} className="hover:shadow-md transition-shadow border hover:border-primary/30">
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-3">
-                      <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold", app.color || "bg-gray-500")}>
+                      <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm", app.color || "bg-muted")}>
                         {app.icon}
                       </div>
-                      <div>
-                        <CardTitle className="text-base">{app.name}</CardTitle>
-                        <CardDescription className="text-sm">
-                          {app.description}
-                        </CardDescription>
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-sm font-semibold">{app.name}</CardTitle>
+                        <CardDescription className="text-xs line-clamp-1">{app.description}</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent className="pt-0">
                     <div className="flex items-center justify-between">
-                      {app.category && (
-                        <Badge variant="outline" className="text-xs">
-                          {app.category}
-                        </Badge>
-                      )}
-                      <Button
-                        size="sm"
-                        onClick={() => handleConnect(app.id)}
-                        disabled={isConnecting}
-                        className="gap-1"
-                      >
-                        {isConnecting ? (
-                          <RefreshCw size={14} className="animate-spin" />
-                        ) : (
-                          <Plus size={14} />
-                        )}
+                      {app.category && <Badge variant="outline" className="text-xs">{app.category}</Badge>}
+                      <Button size="sm" onClick={() => handleConnect(app.id)} disabled={isConnecting} className="gap-1 ml-auto">
+                        {isConnecting ? <RefreshCw size={12} className="animate-spin" /> : <Plus size={12} />}
                         Connect
                       </Button>
                     </div>
@@ -260,49 +197,36 @@ export default function ConnectedApps() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <div className="text-gray-400 mb-4">
-                <Plus size={48} className="mx-auto" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">All apps connected</h3>
-              <p className="text-gray-500">You've connected all available apps!</p>
+            <div className="text-center py-16 border rounded-xl bg-muted/20">
+              <Plus size={40} className="mx-auto mb-3 text-muted-foreground opacity-40" />
+              <h3 className="font-semibold text-foreground mb-1">All apps connected!</h3>
+              <p className="text-muted-foreground text-sm">You've connected all available apps.</p>
             </div>
           )}
         </TabsContent>
 
-        <TabsContent value="disconnected" className="space-y-4">
-          {disconnectedApps.length > 0 ? (
+        {/* DISCONNECTED */}
+        <TabsContent value="disconnected" className="mt-6">
+          {filteredDisconnected.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {disconnectedApps.map((app) => (
-                <Card key={app.id} className="border-orange-200 bg-orange-50/50">
+              {filteredDisconnected.map(app => (
+                <Card key={app.id} className="border-sky-200 bg-sky-50/40">
                   <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold", getAppColor(app.id))}>
-                          {getAppIcon(app.id)}
-                        </div>
-                        <div>
-                          <CardTitle className="text-base">{app.name}</CardTitle>
-                          <Badge variant="secondary" className="bg-orange-100 text-orange-700 mt-1">
-                            <AlertCircle size={12} className="mr-1" />
-                            Disconnected
-                          </Badge>
-                        </div>
+                    <div className="flex items-center gap-3">
+                      <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm", getAppColor(app.id))}>
+                        {getAppIcon(app.id)}
+                      </div>
+                      <div>
+                        <CardTitle className="text-sm font-semibold">{app.name}</CardTitle>
+                        <Badge variant="secondary" className="bg-sky-100 text-sky-700 mt-1 text-xs">
+                          <AlertCircle size={10} className="mr-1" /> Disconnected
+                        </Badge>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <Button
-                      size="sm"
-                      onClick={() => handleConnect(app.id)}
-                      disabled={isConnecting}
-                      className="w-full gap-1"
-                    >
-                      {isConnecting ? (
-                        <RefreshCw size={14} className="animate-spin" />
-                      ) : (
-                        <RefreshCw size={14} />
-                      )}
+                    <Button size="sm" className="w-full gap-1" onClick={() => handleConnect(app.id)} disabled={isConnecting}>
+                      {isConnecting ? <RefreshCw size={12} className="animate-spin" /> : <RefreshCw size={12} />}
                       Reconnect
                     </Button>
                   </CardContent>
@@ -310,12 +234,10 @@ export default function ConnectedApps() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <div className="text-gray-400 mb-4">
-                <AlertCircle size={48} className="mx-auto" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No disconnected apps</h3>
-              <p className="text-gray-500">All your apps are working properly</p>
+            <div className="text-center py-16 border rounded-xl bg-muted/20">
+              <AlertCircle size={40} className="mx-auto mb-3 text-muted-foreground opacity-40" />
+              <h3 className="font-semibold text-foreground mb-1">No disconnected apps</h3>
+              <p className="text-muted-foreground text-sm">All your connected apps are working properly.</p>
             </div>
           )}
         </TabsContent>
