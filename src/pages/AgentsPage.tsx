@@ -65,7 +65,7 @@ export default function AgentsPage() {
   });
 
   const formatDate = (d: string) => new Date(d).toLocaleString();
-  const statusColor = (s: string) => s === "active" ? "bg-emerald-100 text-emerald-700" : s === "paused" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700";
+  const statusColor = (s: string) => s === "active" ? "bg-emerald-100 text-emerald-700" : s === "paused" ? "bg-sky-100 text-sky-700" : "bg-red-100 text-red-700";
 
   const createAgent = () => {
     if (!newAgent.name.trim()) { toast({ title: "Name required", description: "Please enter a name", variant: "destructive" }); return; }

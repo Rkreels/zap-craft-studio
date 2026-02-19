@@ -71,7 +71,7 @@ export default function VoiceTrainingPageEnhanced() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardContent className="p-4 text-center">
-            <Trophy className="h-8 w-8 text-yellow-500 mx-auto mb-2" />
+            <Trophy className="h-8 w-8 text-primary mx-auto mb-2" />
             <div className="text-2xl font-bold">{completedSessions}</div>
             <div className="text-sm text-gray-600">Completed Sessions</div>
           </CardContent>

@@ -46,8 +46,8 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({ apiKey, setApi
         <CardDescription>Configure your voice assistant preferences</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex items-center p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-          <Info size={20} className="text-yellow-600 mr-2" />
+        <div className="flex items-center p-4 bg-sky-50 border border-sky-200 rounded-md">
+          <Info size={20} className="text-sky-600 mr-2" />
           <p className="text-sm">
             Voice assistant functionality requires an ElevenLabs API key. 
             <a href="https://elevenlabs.io" className="text-purple-600 hover:underline ml-1" target="_blank" rel="noreferrer">

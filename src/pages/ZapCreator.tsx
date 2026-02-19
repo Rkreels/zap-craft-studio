@@ -292,7 +292,7 @@ export default function ZapCreator() {
     { id: "trello", name: "Trello", icon: "T", color: "bg-blue-500", description: "Manage Trello boards and cards", category: "Productivity" },
     { id: "twitter", name: "Twitter", icon: "Tw", color: "bg-blue-400", description: "Connect to Twitter API", category: "Social Media" },
     { id: "dropbox", name: "Dropbox", icon: "D", color: "bg-blue-600", description: "Manage files in Dropbox", category: "Storage" },
-    { id: "mailchimp", name: "Mailchimp", icon: "M", color: "bg-yellow-500", description: "Email marketing automation", category: "Marketing" },
+    { id: "mailchimp", name: "Mailchimp", icon: "M", color: "bg-orange-500", description: "Email marketing automation", category: "Marketing" },
     { id: "stripe", name: "Stripe", icon: "S", color: "bg-purple-500", description: "Process payments", category: "Finance" },
     { id: "salesforce", name: "Salesforce", icon: "SF", color: "bg-blue-700", description: "CRM and customer data", category: "CRM" },
     { id: "asana", name: "Asana", icon: "A", color: "bg-red-400", description: "Task and project management", category: "Productivity" },

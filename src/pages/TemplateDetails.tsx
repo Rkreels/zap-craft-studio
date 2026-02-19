@@ -82,7 +82,7 @@ export default function TemplateDetails() {
             <h1 className="text-2xl font-bold">{template.title}</h1>
             <div className="flex items-center mt-1 text-sm text-gray-600">
               <span className="flex items-center">
-                <Star size={16} className="text-yellow-400 mr-1 fill-current" />
+                <Star size={16} className="text-primary mr-1 fill-current" />
                 {template.rating}
               </span>
               <span className="mx-2">•</span>

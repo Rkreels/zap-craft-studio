@@ -393,7 +393,7 @@ export const TeamCollaboration: React.FC<TeamCollaborationProps> = ({
                         <Trash2 className="h-4 w-4 text-red-500" />
                       )}
                       {log.action === "error" && (
-                        <AlertCircle className="h-4 w-4 text-amber-500" />
+                        <AlertCircle className="h-4 w-4 text-sky-500" />
                       )}
                     </div>
                     

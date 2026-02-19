@@ -55,7 +55,7 @@ const MorePage = () => {
       description: "Join the Zapier community",
       icon: Users,
       href: "https://community.zapier.com",
-      color: "bg-yellow-100 text-yellow-600",
+      color: "bg-sky-100 text-sky-600",
       external: true
     },
     {

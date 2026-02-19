@@ -72,7 +72,7 @@ export default function WebhooksPage() {
 
   const filtered = webhooks.filter(w => w.name.toLowerCase().includes(searchQuery.toLowerCase()) || w.url.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  const statusColor = (s: string) => s === "active" ? "bg-emerald-100 text-emerald-700" : s === "error" ? "bg-red-100 text-red-700" : "bg-muted text-muted-foreground";
+  const statusColor = (s: string) => s === "active" ? "bg-emerald-100 text-emerald-700" : s === "error" ? "bg-red-100 text-red-700" : "bg-sky-100 text-sky-700";
 
   const createWebhook = () => {
     if (!newWh.name.trim() || !newWh.url.trim()) { toast({ title: "Required fields", description: "Name and URL are required", variant: "destructive" }); return; }

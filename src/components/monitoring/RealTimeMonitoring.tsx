@@ -350,7 +350,7 @@ export const RealTimeMonitoring: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Memory Usage</span>
-                  <span className="text-yellow-600 font-medium">Moderate</span>
+                  <span className="text-sky-600 font-medium">Moderate</span>
                 </div>
                 
                 <div className="pt-4 border-t">
